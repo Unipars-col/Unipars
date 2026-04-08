@@ -1,0 +1,161 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useCart } from "./cart-provider";
+import { categorias, slugCategoria } from "../data/catalog";
+
+export default function SiteHeader() {
+  const [menuAbierto, setMenuAbierto] = useState(false);
+  const router = useRouter();
+  const menuRef = useRef<HTMLDivElement | null>(null);
+  const { totalItems } = useCart();
+
+  const irACategoria = (categoria?: string) => {
+    setMenuAbierto(false);
+    const url = categoria
+      ? `/categorias?categoria=${slugCategoria(categoria)}`
+      : "/categorias";
+    router.push(url);
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (!menuRef.current) return;
+      if (!menuRef.current.contains(event.target as Node)) {
+        setMenuAbierto(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  return (
+    <header className="sticky top-0 z-50 border-b border-black/8 bg-white text-[#16384f] shadow-[0_12px_30px_rgba(15,23,42,0.05)]">
+      <div className="mx-auto flex max-w-[1440px] flex-col gap-4 px-6 py-4 md:flex-row md:items-center md:justify-between">
+        <div className="flex items-center gap-3">
+          <Link href="/" className="inline-flex">
+            <Image
+              src="/logo.png"
+              alt="Unipars"
+              width={96}
+              height={25}
+              style={{ width: "96px", height: "auto" }}
+              priority
+            />
+          </Link>
+          <Link
+            href="/admin"
+            aria-label="Panel de administrador"
+            title="Administrador"
+            className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[#16384f]/14 bg-[#f8f8f7] text-[#16384f] transition-colors duration-200 hover:bg-[#16384f] hover:text-white"
+          >
+            <svg
+              aria-hidden="true"
+              viewBox="0 0 24 24"
+              className="h-5 w-5"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.8"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M12 3l7 3v5c0 4.5-2.9 8.2-7 10-4.1-1.8-7-5.5-7-10V6l7-3Z" />
+              <path d="M12 10a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z" />
+              <path d="M8.5 17a3.5 3.5 0 0 1 7 0" />
+            </svg>
+          </Link>
+        </div>
+
+        <div className="flex w-full flex-col gap-4 md:w-auto md:flex-row md:items-center md:gap-8">
+          <form className="flex w-full max-w-[520px] items-center rounded-full border border-black/10 bg-[#f8f8f7] px-2 py-2 md:w-[520px]">
+            <input
+              type="search"
+              placeholder="Buscar repuestos..."
+              className="w-full bg-transparent px-4 text-sm text-[#16384f] outline-none placeholder:text-slate-400"
+            />
+            <button
+              type="submit"
+              className="rounded-full bg-[#ed8435] px-6 py-2.5 text-sm font-semibold text-white transition-colors duration-200 hover:bg-[#d67024]"
+            >
+              Buscar
+            </button>
+          </form>
+
+          <nav className="flex items-center gap-6 text-sm font-medium uppercase tracking-[0.04em] text-[#16384f]">
+            <div className="relative" ref={menuRef}>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => irACategoria()}
+                  className="transition-colors duration-200 hover:text-[#ed8435]"
+                >
+                  Categoría
+                </button>
+                <button
+                  type="button"
+                  aria-label="Abrir subcategorías"
+                  onClick={() => setMenuAbierto((prev) => !prev)}
+                  className="text-[10px] text-[#16384f]/55 transition-colors duration-200 hover:text-[#ed8435]"
+                >
+                  {menuAbierto ? "▲" : "▼"}
+                </button>
+              </div>
+
+              {menuAbierto && (
+                <div className="absolute left-0 top-full mt-4 w-72 rounded-2xl border border-black/8 bg-white p-2 shadow-[0_18px_40px_rgba(15,23,42,0.12)]">
+                  {categorias.map((categoria) => (
+                    <button
+                      key={categoria}
+                      type="button"
+                      onClick={() => irACategoria(categoria)}
+                      className="block w-full rounded-xl px-4 py-3 text-left text-sm font-medium normal-case tracking-normal text-[#16384f]/85 transition-colors duration-200 hover:bg-[#f8f8f7] hover:text-[#16384f]"
+                    >
+                      {categoria}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <Link
+              href="/quienes-somos"
+              className="transition-colors duration-200 hover:text-[#ed8435]"
+            >
+              Quiénes somos
+            </Link>
+          </nav>
+
+          <div className="flex items-center gap-3">
+            <Link
+              href="/carrito"
+              className="relative inline-flex h-11 w-11 items-center justify-center rounded-full border border-[#16384f]/18 bg-[#f8f8f7] text-[#16384f] transition-colors duration-200 hover:bg-[#16384f] hover:text-white"
+            >
+              <span className="text-lg">🛒</span>
+              {totalItems > 0 && (
+                <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-[#ed8435] px-1 text-[10px] font-semibold text-white">
+                  {totalItems}
+                </span>
+              )}
+            </Link>
+            <Link
+              href="/registro"
+              className="rounded-full bg-[#ed8435] px-5 py-2.5 text-xs font-semibold uppercase tracking-[0.08em] text-white transition-colors duration-200 hover:bg-[#d67024]"
+            >
+              Registro
+            </Link>
+            <Link
+              href="/login"
+              className="rounded-full border border-[#16384f]/25 px-5 py-2.5 text-xs font-semibold uppercase tracking-[0.08em] text-[#16384f] transition-colors duration-200 hover:border-[#16384f] hover:bg-[#16384f] hover:text-white"
+            >
+              Ingresar
+            </Link>
+          </div>
+        </div>
+      </div>
+    </header>
+  );
+}

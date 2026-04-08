@@ -1,0 +1,100 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+import { useCart } from "./cart-provider";
+
+type Props = {
+  id: string;
+  nombre: string;
+  precio: string;
+  imagen: string;
+};
+
+export default function HoverCartControl({
+  id,
+  nombre,
+  precio,
+  imagen,
+}: Props) {
+  const { addItem } = useCart();
+  const [added, setAdded] = useState(false);
+  const [cantidad, setCantidad] = useState(1);
+  const timeoutRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        window.clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
+
+  const handleAdd = () => {
+    Array.from({ length: cantidad }).forEach(() => {
+      addItem({ id, nombre, precio, imagen });
+    });
+    setAdded(true);
+
+    if (timeoutRef.current) {
+      window.clearTimeout(timeoutRef.current);
+    }
+
+    timeoutRef.current = window.setTimeout(() => {
+      setAdded(false);
+    }, 1400);
+  };
+
+  return (
+    <div className="group/cart absolute bottom-4 right-4 z-20">
+      <button
+        type="button"
+        aria-label={`Agregar ${nombre} al carrito`}
+        className="relative inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/85 bg-[#f8f8f7] text-[#16384f] shadow-[0_14px_28px_rgba(15,23,42,0.18)] transition-all duration-250 ease-out hover:-translate-y-0.5 hover:bg-white hover:text-[#ed8435] hover:shadow-[0_18px_34px_rgba(15,23,42,0.22)] focus-visible:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ed8435] focus-visible:ring-offset-2"
+      >
+        <span className="text-lg transition-transform duration-250 ease-out group-hover/cart:scale-105 group-focus-within/cart:scale-105">
+          🛒
+        </span>
+      </button>
+
+      <div className="pointer-events-none absolute bottom-0 right-0 translate-y-3 opacity-0 transition-all duration-250 ease-out group-hover/cart:pointer-events-auto group-hover/cart:translate-y-0 group-hover/cart:opacity-100 group-focus-within/cart:pointer-events-auto group-focus-within/cart:translate-y-0 group-focus-within/cart:opacity-100">
+        <div className="min-w-[286px] rounded-[1.1rem] border border-black/8 bg-white/98 p-2.5 shadow-[0_18px_34px_rgba(15,23,42,0.14)]">
+          <div className="flex items-center gap-3">
+            <div className="flex overflow-hidden rounded-[0.95rem] border border-black/10 bg-white">
+              <button
+                type="button"
+                aria-label="Disminuir cantidad"
+                onClick={() => setCantidad((current) => Math.max(1, current - 1))}
+                className="inline-flex h-10 w-10 items-center justify-center text-lg text-[#4f545a] transition-colors duration-200 hover:bg-[#f5f5f5]"
+              >
+                -
+              </button>
+              <span className="inline-flex h-10 min-w-[3.3rem] items-center justify-center border-x border-black/10 text-base font-medium text-[#1f2328]">
+                {cantidad}
+              </span>
+              <button
+                type="button"
+                aria-label="Aumentar cantidad"
+                onClick={() => setCantidad((current) => current + 1)}
+                className="inline-flex h-10 w-10 items-center justify-center text-lg text-[#4f545a] transition-colors duration-200 hover:bg-[#f5f5f5]"
+              >
+                +
+              </button>
+            </div>
+
+            <button
+              type="button"
+              onClick={handleAdd}
+              className={`inline-flex h-10 min-w-[136px] flex-1 items-center justify-center whitespace-nowrap rounded-full px-4 text-sm font-semibold text-white transition-colors duration-200 ${
+                added
+                  ? "bg-[#16384f]"
+                  : "bg-[#ed8435] hover:bg-[#d67024]"
+              }`}
+            >
+              {added ? "Agregado" : "Agregar al carrito"}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
