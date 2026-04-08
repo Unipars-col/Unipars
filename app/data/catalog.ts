@@ -1,8 +1,8 @@
 export const categoriasData = [
   {
-    nombre: "Luces y direccionales",
-    color: "#1f8b45",
-    icono: "◐",
+    nombre: "Espejos retrovisores y soportes",
+    color: "#117f2d",
+    icono: "◒",
   },
   {
     nombre: "Motores y ventiladores",
@@ -10,31 +10,44 @@ export const categoriasData = [
     icono: "◎",
   },
   {
-    nombre: "Línea mecanizado",
-    color: "#d81616",
-    icono: "◇",
+    nombre: "Luces y direccionales",
+    color: "#f39a05",
+    icono: "◐",
   },
   {
-    nombre: "Línea inyección y estrusión",
-    color: "#ff9412",
+    nombre: "Sistemas limpiaparabrisas",
+    color: "#f5b160",
+    icono: "◔",
+  },
+  {
+    nombre: "Línea neumática",
+    color: "#6a5852",
+    icono: "⬡",
+  },
+  {
+    nombre: "Línea inyección y extrusión",
+    color: "#2fa8ad",
     icono: "◍",
+  },
+  {
+    nombre: "Línea mecanizado",
+    color: "#d61f1f",
+    icono: "◇",
   },
   {
     nombre: "Línea cauchos",
     color: "#3954b8",
     icono: "◓",
   },
+  {
+    nombre: "Línea eléctrica",
+    color: "#45b86a",
+    icono: "◈",
+  },
 ] as const;
 
-export const categorias = categoriasData.map((item) => item.nombre) as [
-  "Luces y direccionales",
-  "Motores y ventiladores",
-  "Línea mecanizado",
-  "Línea inyección y estrusión",
-  "Línea cauchos",
-];
-
-export type Categoria = (typeof categorias)[number];
+export type Categoria = (typeof categoriasData)[number]["nombre"];
+export const categorias = categoriasData.map((item) => item.nombre) as Categoria[];
 export const disponibilidades = [
   "Entrega inmediata",
   "Disponible por pedido",
@@ -247,7 +260,7 @@ export const productosCatalogo: ProductoCatalogo[] = [
   },
   {
     slug: "boquilla-injet-flow-x",
-    categoria: "Línea inyección y estrusión",
+    categoria: "Línea inyección y extrusión",
     nombre: "Boquilla Injet Flow X",
     marca: "Original Parts",
     precio: "$394.500",
@@ -259,7 +272,7 @@ export const productosCatalogo: ProductoCatalogo[] = [
   },
   {
     slug: "modulo-extrusor-delta-pack",
-    categoria: "Línea inyección y estrusión",
+    categoria: "Línea inyección y extrusión",
     nombre: "Módulo extrusor Delta Pack",
     marca: "Unipars",
     precio: "$459.000",
@@ -271,7 +284,7 @@ export const productosCatalogo: ProductoCatalogo[] = [
   },
   {
     slug: "camara-de-inyeccion-smart-melt",
-    categoria: "Línea inyección y estrusión",
+    categoria: "Línea inyección y extrusión",
     nombre: "Cámara de inyección Smart Melt",
     marca: "ProLine",
     precio: "$619.000",
@@ -283,7 +296,7 @@ export const productosCatalogo: ProductoCatalogo[] = [
   },
   {
     slug: "set-termico-fusion-gate",
-    categoria: "Línea inyección y estrusión",
+    categoria: "Línea inyección y extrusión",
     nombre: "Set térmico Fusion Gate",
     marca: "MotorTech",
     precio: "$281.900",
@@ -295,7 +308,7 @@ export const productosCatalogo: ProductoCatalogo[] = [
   },
   {
     slug: "unidad-compacta-stream-mold",
-    categoria: "Línea inyección y estrusión",
+    categoria: "Línea inyección y extrusión",
     nombre: "Unidad compacta Stream Mold",
     marca: "Unipars",
     precio: "$198.000",

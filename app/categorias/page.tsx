@@ -34,7 +34,7 @@ export default function CategoriasPage() {
 
   const categoriaActiva = categoriaDesdeSlug(searchParams.get("categoria"));
   const categoriaVisual = categoriaMeta(
-    categoriaActiva ?? "Luces y direccionales",
+    categoriaActiva ?? categorias[0],
   );
   const queryActiva = searchParams.get("q")?.trim().toLowerCase() || "";
 

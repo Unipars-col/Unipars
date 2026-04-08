@@ -95,21 +95,24 @@ export default async function Home() {
 
       {/* CATEGORÍAS */}
       <section className="mx-auto max-w-[1440px] px-6 py-16">
-        <div className="mb-10">
+        <div className="mb-10 text-center">
           <p className="mb-3 text-xs font-medium uppercase tracking-[0.35em] text-[#8b8d91]">
             Explora por línea
           </p>
           <h2 className="text-4xl font-semibold tracking-[-0.04em] text-[#4f545a] md:text-6xl">
             Categorías principales
           </h2>
+          <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-[#6e7379] md:text-base">
+            Navega las líneas principales de Unipars con una vista más equilibrada y clara para encontrar repuestos más rápido.
+          </p>
         </div>
 
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-5">
+        <div className="mx-auto grid max-w-[1180px] grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:gap-5">
           {categoriasData.map((categoria) => (
             <Link
               key={categoria.nombre}
               href={`/categorias?categoria=${slugCategoria(categoria.nombre)}`}
-              className="group flex min-h-[210px] flex-col items-center justify-center rounded-[1.6rem] border border-black/8 bg-white px-5 py-6 text-center transition-all duration-300 hover:-translate-y-1 hover:border-[var(--hover-color)] hover:shadow-[0_0_0_1px_var(--hover-color),0_18px_34px_color-mix(in_srgb,var(--hover-color)_18%,transparent)] focus-visible:border-[var(--hover-color)] focus-visible:shadow-[0_0_0_1px_var(--hover-color),0_18px_34px_color-mix(in_srgb,var(--hover-color)_18%,transparent)]"
+              className="group flex min-h-[188px] flex-col items-center justify-center rounded-[1.6rem] border border-black/8 bg-white px-6 py-7 text-center transition-all duration-300 hover:-translate-y-1 hover:border-[var(--hover-color)] hover:shadow-[0_0_0_1px_var(--hover-color),0_18px_34px_color-mix(in_srgb,var(--hover-color)_18%,transparent)] focus-visible:border-[var(--hover-color)] focus-visible:shadow-[0_0_0_1px_var(--hover-color),0_18px_34px_color-mix(in_srgb,var(--hover-color)_18%,transparent)] lg:min-h-[210px]"
               style={
                 {
                   "--hover-color": categoria.color,
@@ -117,16 +120,16 @@ export default async function Home() {
               }
             >
               <div
-                className="relative mb-6 flex h-20 w-20 items-center justify-center text-[var(--hover-color)] transition-all duration-300"
+                className="relative mb-5 flex h-18 w-18 items-center justify-center text-[var(--hover-color)] transition-all duration-300 md:h-20 md:w-20"
               >
                 <span className="absolute inset-0 rounded-full border border-[var(--hover-color)]/18 transition-all duration-300 group-hover:scale-110 group-hover:border-[var(--hover-color)]/28" />
                 <span className="absolute inset-[7px] rounded-full bg-[var(--hover-color)]/6 transition-all duration-300 group-hover:bg-[var(--hover-color)]/10" />
-                <span className="relative text-4xl font-normal transition-all duration-500 group-hover:scale-110 group-hover:-rotate-6">
+                <span className="relative text-3xl font-normal transition-all duration-500 group-hover:scale-110 group-hover:-rotate-6 md:text-4xl">
                   {categoria.icono}
                 </span>
               </div>
 
-              <h3 className="max-w-[11rem] text-base font-medium leading-tight text-[#4f545a] transition-colors duration-300 md:text-[1.05rem]">
+              <h3 className="max-w-[14rem] text-lg font-medium leading-tight text-[#4f545a] transition-colors duration-300">
                 {categoria.nombre}
               </h3>
             </Link>
@@ -506,21 +509,15 @@ export default async function Home() {
                     Catálogos
                   </p>
                   <div className="mt-5 space-y-3 text-white/65">
-                    <Link href="#" className="block transition-colors duration-200 hover:text-[#ed8435]">
-                      Luces y direccionales
-                    </Link>
-                    <Link href="#" className="block transition-colors duration-200 hover:text-[#ed8435]">
-                      Motores y ventiladores
-                    </Link>
-                    <Link href="#" className="block transition-colors duration-200 hover:text-[#ed8435]">
-                      Línea mecanizado
-                    </Link>
-                    <Link href="#" className="block transition-colors duration-200 hover:text-[#ed8435]">
-                      Línea cauchos
-                    </Link>
-                    <Link href="#" className="block transition-colors duration-200 hover:text-[#ed8435]">
-                      Inyección y estrusión
-                    </Link>
+                    {categoriasData.map((categoria) => (
+                      <Link
+                        key={categoria.nombre}
+                        href={`/categorias?categoria=${slugCategoria(categoria.nombre)}`}
+                        className="block transition-colors duration-200 hover:text-[#ed8435]"
+                      >
+                        {categoria.nombre}
+                      </Link>
+                    ))}
                   </div>
                 </div>
               </div>
