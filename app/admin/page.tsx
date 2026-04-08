@@ -979,25 +979,25 @@ export default function AdminPage() {
 
         <div className="space-y-8">
           <div className="admin-fade-up overflow-hidden rounded-[2rem] border border-black/8 bg-white shadow-[0_18px_50px_rgba(15,23,42,0.06)]">
-            <div className="relative px-6 py-10 md:px-10 md:py-14">
+            <div className="relative px-6 py-8 md:px-10 md:py-10">
               <div className="admin-glow absolute left-1/2 top-0 h-40 w-40 -translate-x-1/2 rounded-full bg-[radial-gradient(circle,_rgba(237,132,53,0.26),_rgba(237,132,53,0.06)_55%,_transparent_72%)] blur-2xl" />
               <div className="absolute inset-x-0 top-0 h-28 bg-[radial-gradient(circle_at_top,_rgba(237,132,53,0.16),_transparent_58%)]" />
-              <div className="relative mx-auto flex max-w-3xl flex-col items-center text-center">
+              <div className="relative mx-auto flex max-w-5xl flex-col items-center text-center">
                 <p className="text-xs font-semibold uppercase tracking-[0.38em] text-[#8b8d91]">
                   Flujo de administración
                 </p>
-                <h2 className="mt-4 text-3xl font-semibold tracking-[-0.05em] text-[#1f2328] md:text-5xl">
-                  Gestiona el catálogo con una vista más limpia
+                <h2 className="mt-4 max-w-3xl text-3xl font-semibold tracking-[-0.05em] text-[#1f2328] md:text-4xl">
+                  Elige el módulo que necesitas
                 </h2>
-                <p className="mt-4 max-w-2xl text-sm leading-7 text-[#6e7379] md:text-base">
-                  {productCountLabel}. Elige una acción para abrir solo el módulo que necesitas.
+                <p className="mt-3 max-w-2xl text-sm leading-7 text-[#6e7379] md:text-base">
+                  {productCountLabel}. Mantuvimos el panel por módulos para que crear, editar, inventario y envíos se sientan más claros.
                 </p>
 
-                <div className="mt-8 flex w-full max-w-2xl flex-col gap-4 md:flex-row md:justify-center">
+                <div className="mt-8 grid w-full max-w-4xl gap-4 md:grid-cols-2">
                   <button
                     type="button"
                     onClick={openCreateView}
-                    className={`admin-card-drift relative flex-1 overflow-hidden rounded-[1.6rem] border px-6 py-6 text-left transition-all duration-200 ${
+                    className={`admin-card-drift relative min-h-[220px] overflow-hidden rounded-[1.6rem] border px-6 py-6 text-left transition-all duration-200 ${
                       activeTab === "create"
                         ? "border-[#16384f] bg-[#16384f] text-white shadow-[0_18px_35px_rgba(22,56,79,0.22)]"
                         : "border-black/8 bg-[#fbfbfa] text-[#1f2328] hover:-translate-y-0.5 hover:border-[#16384f]/18 hover:shadow-[0_16px_30px_rgba(15,23,42,0.08)]"
@@ -1026,18 +1026,18 @@ export default function AdminPage() {
                       Crear producto
                     </p>
                     <p
-                      className={`mt-2 text-sm leading-6 ${
+                      className={`mt-3 max-w-[18rem] text-sm leading-6 ${
                         activeTab === "create" ? "text-white/78" : "text-[#6e7379]"
                       }`}
                     >
-                      Abre un formulario limpio para cargar un producto nuevo con imagen y precios.
+                      Carga un producto nuevo con fotos, inventario y precios sin tocar código.
                     </p>
                   </button>
 
                   <button
                     type="button"
                     onClick={openEditView}
-                    className={`admin-card-drift relative flex-1 overflow-hidden rounded-[1.6rem] border px-6 py-6 text-left transition-all duration-200 ${
+                    className={`admin-card-drift relative min-h-[220px] overflow-hidden rounded-[1.6rem] border px-6 py-6 text-left transition-all duration-200 ${
                       activeTab === "edit"
                         ? "border-[#16384f] bg-[#16384f] text-white shadow-[0_18px_35px_rgba(22,56,79,0.22)]"
                         : "border-black/8 bg-[#fbfbfa] text-[#1f2328] hover:-translate-y-0.5 hover:border-[#16384f]/18 hover:shadow-[0_16px_30px_rgba(15,23,42,0.08)]"
@@ -1078,18 +1078,18 @@ export default function AdminPage() {
                       Editar productos
                     </p>
                     <p
-                      className={`mt-2 text-sm leading-6 ${
+                      className={`mt-3 max-w-[18rem] text-sm leading-6 ${
                         activeTab === "edit" ? "text-white/78" : "text-[#6e7379]"
                       }`}
                     >
-                      Explora la grilla del catálogo, filtra productos y abre solo el editor que vas a tocar.
+                      Encuentra un producto rápido y abre solo el editor que vas a modificar.
                     </p>
                   </button>
 
                   <button
                     type="button"
                     onClick={openInventoryView}
-                    className={`admin-card-drift relative flex-1 overflow-hidden rounded-[1.6rem] border px-6 py-6 text-left transition-all duration-200 ${
+                    className={`admin-card-drift relative min-h-[220px] overflow-hidden rounded-[1.6rem] border px-6 py-6 text-left transition-all duration-200 ${
                       activeTab === "inventory"
                         ? "border-[#16384f] bg-[#16384f] text-white shadow-[0_18px_35px_rgba(22,56,79,0.22)]"
                         : "border-black/8 bg-[#fbfbfa] text-[#1f2328] hover:-translate-y-0.5 hover:border-[#16384f]/18 hover:shadow-[0_16px_30px_rgba(15,23,42,0.08)]"
@@ -1118,18 +1118,18 @@ export default function AdminPage() {
                       Inventario
                     </p>
                     <p
-                      className={`mt-2 text-sm leading-6 ${
+                      className={`mt-3 max-w-[18rem] text-sm leading-6 ${
                         activeTab === "inventory" ? "text-white/78" : "text-[#6e7379]"
                       }`}
                     >
-                      Ajusta stock rápido, detecta productos agotados y revisa movimientos recientes.
+                      Ajusta stock, revisa alertas y controla movimientos recientes del inventario.
                     </p>
                   </button>
 
                   <button
                     type="button"
                     onClick={openOrdersView}
-                    className={`admin-card-drift relative flex-1 overflow-hidden rounded-[1.6rem] border px-6 py-6 text-left transition-all duration-200 ${
+                    className={`admin-card-drift relative min-h-[220px] overflow-hidden rounded-[1.6rem] border px-6 py-6 text-left transition-all duration-200 ${
                       activeTab === "orders"
                         ? "border-[#16384f] bg-[#16384f] text-white shadow-[0_18px_35px_rgba(22,56,79,0.22)]"
                         : "border-black/8 bg-[#fbfbfa] text-[#1f2328] hover:-translate-y-0.5 hover:border-[#16384f]/18 hover:shadow-[0_16px_30px_rgba(15,23,42,0.08)]"
@@ -1158,11 +1158,11 @@ export default function AdminPage() {
                       Pedidos y envíos
                     </p>
                     <p
-                      className={`mt-2 text-sm leading-6 ${
+                      className={`mt-3 max-w-[18rem] text-sm leading-6 ${
                         activeTab === "orders" ? "text-white/78" : "text-[#6e7379]"
                       }`}
                     >
-                      Cambia estado, asigna transportadora, guarda guía y controla el despacho desde el panel.
+                      Actualiza estados, guía y transportadora para seguir cada pedido.
                     </p>
                   </button>
                 </div>
