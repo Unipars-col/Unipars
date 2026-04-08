@@ -22,9 +22,16 @@ type AccountOrder = {
   id: string;
   status: "PENDING" | "PAID" | "CANCELLED";
   paymentStatus: "PENDING" | "PAID" | "FAILED";
+  shippingStatus: "PENDING" | "PREPARING" | "SHIPPED" | "DELIVERED" | "CANCELLED";
   department: string;
   city: string;
   addressLine1: string;
+  addressLine2: string | null;
+  carrier: string | null;
+  trackingNumber: string | null;
+  adminNotes: string | null;
+  shippedAt: Date | null;
+  deliveredAt: Date | null;
   totalItems: number;
   subtotal: number;
   createdAt: Date;
@@ -72,6 +79,14 @@ function getPaymentStatusLabel(status: AccountOrder["paymentStatus"]) {
   if (status === "PAID") return "Pago confirmado";
   if (status === "FAILED") return "Pago fallido";
   return "Pago pendiente";
+}
+
+function getShippingStatusLabel(status: AccountOrder["shippingStatus"]) {
+  if (status === "PREPARING") return "En preparación";
+  if (status === "SHIPPED") return "Enviado";
+  if (status === "DELIVERED") return "Entregado";
+  if (status === "CANCELLED") return "Envío cancelado";
+  return "Pendiente de despacho";
 }
 
 export default function AccountProfileForm({
@@ -463,6 +478,7 @@ export default function AccountProfileForm({
                       <p className="mt-2 text-sm text-[#6e7379]">
                         {new Date(order.createdAt).toLocaleDateString("es-CO")} ·{" "}
                         {order.department} · {order.city} · {order.addressLine1}
+                        {order.addressLine2 ? ` · ${order.addressLine2}` : ""}
                       </p>
                     </div>
 
@@ -473,6 +489,48 @@ export default function AccountProfileForm({
                       <span className="rounded-full border border-[#ed8435]/18 bg-[#fff6ee] px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-[#b85d12]">
                         {getPaymentStatusLabel(order.paymentStatus)}
                       </span>
+                      <span className="rounded-full border border-[#1f8b45]/18 bg-[#effaf2] px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-[#1f6b39]">
+                        {getShippingStatusLabel(order.shippingStatus)}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+                    <div className="rounded-[1.1rem] border border-black/8 bg-white px-4 py-3">
+                      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#8b8d91]">
+                        Transportadora
+                      </p>
+                      <p className="mt-2 text-sm font-semibold text-[#16384f]">
+                        {order.carrier || "Por definir"}
+                      </p>
+                    </div>
+                    <div className="rounded-[1.1rem] border border-black/8 bg-white px-4 py-3">
+                      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#8b8d91]">
+                        Número de guía
+                      </p>
+                      <p className="mt-2 text-sm font-semibold text-[#16384f]">
+                        {order.trackingNumber || "Aún no asignado"}
+                      </p>
+                    </div>
+                    <div className="rounded-[1.1rem] border border-black/8 bg-white px-4 py-3">
+                      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#8b8d91]">
+                        Fecha de envío
+                      </p>
+                      <p className="mt-2 text-sm font-semibold text-[#16384f]">
+                        {order.shippedAt
+                          ? new Date(order.shippedAt).toLocaleDateString("es-CO")
+                          : "Pendiente"}
+                      </p>
+                    </div>
+                    <div className="rounded-[1.1rem] border border-black/8 bg-white px-4 py-3">
+                      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#8b8d91]">
+                        Fecha de entrega
+                      </p>
+                      <p className="mt-2 text-sm font-semibold text-[#16384f]">
+                        {order.deliveredAt
+                          ? new Date(order.deliveredAt).toLocaleDateString("es-CO")
+                          : "Sin confirmar"}
+                      </p>
                     </div>
                   </div>
 
@@ -483,15 +541,24 @@ export default function AccountProfileForm({
                         className="rounded-[1.1rem] border border-black/8 bg-white px-4 py-3"
                       >
                         <p className="text-sm font-semibold text-[#1f2328]">{item.name}</p>
-                        <div className="mt-2 flex items-center justify-between text-sm text-[#6e7379]">
+                      <div className="mt-2 flex items-center justify-between text-sm text-[#6e7379]">
                           <span>Cantidad: {item.quantity}</span>
                           <span className="font-semibold text-[#16384f]">
                             {formatCurrency(item.unitPrice)}
                           </span>
                         </div>
                       </div>
-                    ))}
+                      ))}
                   </div>
+
+                  {order.adminNotes && (
+                    <div className="mt-5 rounded-[1.1rem] border border-black/8 bg-white px-4 py-4">
+                      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#8b8d91]">
+                        Nota de envío
+                      </p>
+                      <p className="mt-2 text-sm leading-7 text-[#5d6167]">{order.adminNotes}</p>
+                    </div>
+                  )}
 
                   <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-black/8 pt-4 text-sm">
                     <span className="text-[#6e7379]">

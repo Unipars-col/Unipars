@@ -12,6 +12,13 @@ export type CheckoutInput = {
   notes?: string;
 };
 
+export type ShippingStatus =
+  | "PENDING"
+  | "PREPARING"
+  | "SHIPPED"
+  | "DELIVERED"
+  | "CANCELLED";
+
 function parsePriceValue(price: string) {
   const numeric = Number(price.replace(/[^\d]/g, ""));
   return Number.isFinite(numeric) ? numeric : 0;
@@ -168,6 +175,112 @@ export async function getOrdersForUser(userId: string) {
     where: { userId },
     orderBy: { createdAt: "desc" },
     include: {
+      items: {
+        orderBy: { createdAt: "asc" },
+      },
+    },
+  });
+}
+
+export async function getAllOrders() {
+  if (!prisma) {
+    throw new Error("DATABASE_NOT_CONFIGURED");
+  }
+
+  return await prisma.order.findMany({
+    orderBy: { createdAt: "desc" },
+    include: {
+      user: {
+        select: {
+          id: true,
+          fullName: true,
+          email: true,
+        },
+      },
+      items: {
+        orderBy: { createdAt: "asc" },
+      },
+    },
+  });
+}
+
+export async function updateOrderShipping(
+  orderId: string,
+  input: {
+    shippingStatus: ShippingStatus;
+    paymentStatus?: "PENDING" | "PAID" | "FAILED";
+    carrier?: string;
+    trackingNumber?: string;
+    adminNotes?: string;
+  },
+) {
+  if (!prisma) {
+    throw new Error("DATABASE_NOT_CONFIGURED");
+  }
+
+  const shippingStatus = input.shippingStatus;
+  const paymentStatus = input.paymentStatus;
+  const carrier = input.carrier?.trim() || null;
+  const trackingNumber = input.trackingNumber?.trim() || null;
+  const adminNotes = input.adminNotes?.trim() || null;
+
+  if (!["PENDING", "PREPARING", "SHIPPED", "DELIVERED", "CANCELLED"].includes(shippingStatus)) {
+    throw new Error("INVALID_SHIPPING_STATUS");
+  }
+
+  if (
+    paymentStatus &&
+    !["PENDING", "PAID", "FAILED"].includes(paymentStatus)
+  ) {
+    throw new Error("INVALID_PAYMENT_STATUS");
+  }
+
+  const currentOrder = await prisma.order.findUnique({
+    where: { id: orderId },
+    select: {
+      id: true,
+      status: true,
+      paymentStatus: true,
+    },
+  });
+
+  if (!currentOrder) {
+    throw new Error("ORDER_NOT_FOUND");
+  }
+
+  const nextOrderStatus =
+    shippingStatus === "CANCELLED"
+      ? "CANCELLED"
+      : paymentStatus === "PAID" || currentOrder.paymentStatus === "PAID"
+        ? "PAID"
+        : "PENDING";
+
+  const shippedAt =
+    shippingStatus === "SHIPPED" || shippingStatus === "DELIVERED"
+      ? new Date()
+      : null;
+  const deliveredAt = shippingStatus === "DELIVERED" ? new Date() : null;
+
+  return await prisma.order.update({
+    where: { id: orderId },
+    data: {
+      shippingStatus,
+      paymentStatus: paymentStatus || currentOrder.paymentStatus,
+      status: nextOrderStatus,
+      carrier,
+      trackingNumber,
+      adminNotes,
+      shippedAt,
+      deliveredAt,
+    },
+    include: {
+      user: {
+        select: {
+          id: true,
+          fullName: true,
+          email: true,
+        },
+      },
       items: {
         orderBy: { createdAt: "asc" },
       },

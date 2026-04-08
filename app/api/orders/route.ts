@@ -1,5 +1,31 @@
 import { getSessionFromCookies } from "@/lib/auth";
-import { createOrderFromCart } from "@/lib/orders";
+import { requireAdminUser } from "@/lib/admin";
+import { createOrderFromCart, getAllOrders } from "@/lib/orders";
+
+export async function GET() {
+  try {
+    await requireAdminUser();
+    const orders = await getAllOrders();
+
+    return Response.json({ orders });
+  } catch (error) {
+    const status =
+      error instanceof Error && error.message === "UNAUTHORIZED"
+        ? 401
+        : error instanceof Error && error.message === "FORBIDDEN"
+          ? 403
+          : 500;
+
+    const message =
+      error instanceof Error && error.message === "UNAUTHORIZED"
+        ? "No autorizado."
+        : error instanceof Error && error.message === "FORBIDDEN"
+          ? "No tienes permisos para ver pedidos."
+          : "No fue posible cargar los pedidos.";
+
+    return Response.json({ error: message }, { status });
+  }
+}
 
 export async function POST(request: Request) {
   try {

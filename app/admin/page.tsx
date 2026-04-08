@@ -14,6 +14,7 @@ import { useRouter } from "next/navigation";
 import { useProducts } from "../components/products-provider";
 import { categorias, type Categoria, type ProductoCatalogo } from "../data/catalog";
 import type { InventoryMovementSummary } from "@/lib/products";
+import type { ShippingStatus } from "@/lib/orders";
 
 const disponibilidades: ProductoCatalogo["disponibilidad"][] = [
   "Entrega inmediata",
@@ -48,11 +49,66 @@ const initialState: FormState = {
 const MAX_FILE_SIZE_BYTES = 3 * 1024 * 1024;
 const RECOMMENDED_FILE_SIZE_KB = 500;
 const EXTRA_IMAGE_SLOTS = 3;
+const shippingStatuses: ShippingStatus[] = [
+  "PENDING",
+  "PREPARING",
+  "SHIPPED",
+  "DELIVERED",
+  "CANCELLED",
+];
+const paymentStatuses: Array<"PENDING" | "PAID" | "FAILED"> = [
+  "PENDING",
+  "PAID",
+  "FAILED",
+];
 
 type ToastState = {
   tone: "success" | "error";
   message: string;
 } | null;
+
+type AdminOrder = {
+  id: string;
+  status: "PENDING" | "PAID" | "CANCELLED";
+  paymentStatus: "PENDING" | "PAID" | "FAILED";
+  shippingStatus: ShippingStatus;
+  customerName: string;
+  customerEmail: string;
+  customerPhone: string;
+  company: string | null;
+  department: string;
+  city: string;
+  addressLine1: string;
+  addressLine2: string | null;
+  carrier: string | null;
+  trackingNumber: string | null;
+  adminNotes: string | null;
+  shippedAt: string | Date | null;
+  deliveredAt: string | Date | null;
+  totalItems: number;
+  subtotal: number;
+  createdAt: string | Date;
+  user: {
+    id: string;
+    fullName: string;
+    email: string;
+  };
+  items: Array<{
+    id: string;
+    name: string;
+    quantity: number;
+    unitPrice: number;
+    lineTotal: number;
+  }>;
+};
+
+type OrderEditState = {
+  shippingStatus: ShippingStatus;
+  paymentStatus: "PENDING" | "PAID" | "FAILED";
+  carrier: string;
+  trackingNumber: string;
+  adminNotes: string;
+};
 
 type ProductImageChoice = {
   label: string;
@@ -79,6 +135,38 @@ function getInventoryTone(
   return {
     label: "En stock",
     className: "bg-[#effaf2] text-[#1f6b39]",
+  };
+}
+
+function formatCurrency(value: number) {
+  return new Intl.NumberFormat("es-CO", {
+    style: "currency",
+    currency: "COP",
+    maximumFractionDigits: 0,
+  }).format(value);
+}
+
+function getShippingStatusLabel(status: ShippingStatus) {
+  if (status === "PREPARING") return "En preparación";
+  if (status === "SHIPPED") return "Enviado";
+  if (status === "DELIVERED") return "Entregado";
+  if (status === "CANCELLED") return "Cancelado";
+  return "Pendiente";
+}
+
+function getPaymentStatusLabel(status: "PENDING" | "PAID" | "FAILED") {
+  if (status === "PAID") return "Pago confirmado";
+  if (status === "FAILED") return "Pago fallido";
+  return "Pago pendiente";
+}
+
+function getOrderEditState(order: AdminOrder): OrderEditState {
+  return {
+    shippingStatus: order.shippingStatus,
+    paymentStatus: order.paymentStatus,
+    carrier: order.carrier || "",
+    trackingNumber: order.trackingNumber || "",
+    adminNotes: order.adminNotes || "",
   };
 }
 
@@ -185,11 +273,17 @@ export default function AdminPage() {
     removeProduct,
     adjustInventory,
   } = useProducts();
-  const [activeTab, setActiveTab] = useState<"create" | "edit" | "inventory" | null>(null);
+  const [activeTab, setActiveTab] = useState<
+    "create" | "edit" | "inventory" | "orders" | null
+  >(null);
   const [editSearch, setEditSearch] = useState("");
   const [editCategoryFilter, setEditCategoryFilter] = useState<"Todas" | Categoria>("Todas");
   const [inventoryStatusFilter, setInventoryStatusFilter] = useState<
     "all" | "low-stock" | "out-of-stock"
+  >("all");
+  const [orderSearch, setOrderSearch] = useState("");
+  const [orderShippingFilter, setOrderShippingFilter] = useState<
+    "all" | ShippingStatus
   >("all");
   const [form, setForm] = useState<FormState>(initialState);
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
@@ -209,6 +303,17 @@ export default function AdminPage() {
   const [inventoryAdjustments, setInventoryAdjustments] = useState<Record<string, string>>({});
   const [inventoryMovements, setInventoryMovements] = useState<InventoryMovementSummary[]>([]);
   const [isLoadingInventory, setIsLoadingInventory] = useState(false);
+  const [orders, setOrders] = useState<AdminOrder[]>([]);
+  const [isLoadingOrders, setIsLoadingOrders] = useState(false);
+  const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
+  const [orderForm, setOrderForm] = useState<OrderEditState>({
+    shippingStatus: "PENDING",
+    paymentStatus: "PENDING",
+    carrier: "",
+    trackingNumber: "",
+    adminNotes: "",
+  });
+  const [isSavingOrder, setIsSavingOrder] = useState(false);
   const editFormRef = useRef<HTMLFormElement | null>(null);
   const editingProduct =
     adminProducts.find((product) => product.slug === editingSlug) ?? null;
@@ -245,6 +350,8 @@ export default function AdminPage() {
     ],
     [previewExtraImageUrls, previewImageUrl],
   );
+  const selectedOrder =
+    orders.find((order) => order.id === selectedOrderId) ?? null;
   const filteredProducts = useMemo(() => {
     const search = editSearch.trim().toLowerCase();
 
@@ -263,6 +370,23 @@ export default function AdminPage() {
       return matchesCategory && matchesSearch && matchesInventory;
     });
   }, [adminProducts, editCategoryFilter, editSearch, inventoryStatusFilter]);
+  const filteredOrders = useMemo(() => {
+    const search = orderSearch.trim().toLowerCase();
+
+    return orders.filter((order) => {
+      const matchesFilter =
+        orderShippingFilter === "all" || order.shippingStatus === orderShippingFilter;
+      const matchesSearch =
+        search.length === 0 ||
+        order.id.toLowerCase().includes(search) ||
+        order.customerName.toLowerCase().includes(search) ||
+        order.customerEmail.toLowerCase().includes(search) ||
+        order.city.toLowerCase().includes(search) ||
+        (order.trackingNumber || "").toLowerCase().includes(search);
+
+      return matchesFilter && matchesSearch;
+    });
+  }, [orderSearch, orderShippingFilter, orders]);
 
   const productCountLabel = `${adminProducts.length} producto${adminProducts.length === 1 ? "" : "s"} en catálogo`;
 
@@ -554,6 +678,9 @@ export default function AdminPage() {
     setEditingSlug(null);
     setRequestError("");
     setFileInputKey((current) => current + 1);
+    setSelectedOrderId(null);
+    setOrderSearch("");
+    setOrderShippingFilter("all");
     setActiveTab(null);
   };
 
@@ -597,6 +724,33 @@ export default function AdminPage() {
     }
 
     setInventoryMovements(payload.movements);
+  }
+
+  async function loadOrders() {
+    setIsLoadingOrders(true);
+
+    const response = await fetch("/api/orders");
+    const payload = (await response.json()) as {
+      error?: string;
+      orders?: AdminOrder[];
+    };
+
+    setIsLoadingOrders(false);
+
+    if (!response.ok || !payload.orders) {
+      setToast({
+        tone: "error",
+        message: payload.error || "No fue posible cargar los pedidos.",
+      });
+      return;
+    }
+
+    setOrders(payload.orders);
+
+    if (!selectedOrderId && payload.orders[0]) {
+      setSelectedOrderId(payload.orders[0].id);
+      setOrderForm(getOrderEditState(payload.orders[0]));
+    }
   }
 
   const handleQuickInventoryAdjust = async (
@@ -651,6 +805,65 @@ export default function AdminPage() {
     setInventoryStatusFilter("all");
     setActiveTab("inventory");
     void loadInventoryMovements();
+  };
+
+  const openOrdersView = () => {
+    setSelectedImage(null);
+    setRequestError("");
+    setPrimaryImageIndex(0);
+    setEditingSlug(null);
+    setOrderShippingFilter("all");
+    setActiveTab("orders");
+    void loadOrders();
+  };
+
+  const handleOrderFieldChange = (
+    event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
+  ) => {
+    const { name, value } = event.target;
+    setOrderForm((current) => ({
+      ...current,
+      [name]: value,
+    }));
+  };
+
+  const handleSaveOrder = async () => {
+    if (!selectedOrderId) return;
+
+    setIsSavingOrder(true);
+    setToast(null);
+
+    const response = await fetch(`/api/orders/${selectedOrderId}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(orderForm),
+    });
+
+    const payload = (await response.json()) as {
+      error?: string;
+      message?: string;
+      order?: AdminOrder;
+    };
+
+    setIsSavingOrder(false);
+
+    if (!response.ok || !payload.order) {
+      setToast({
+        tone: "error",
+        message: payload.error || "No fue posible actualizar el pedido.",
+      });
+      return;
+    }
+
+    setOrders((current) =>
+      current.map((order) => (order.id === payload.order?.id ? payload.order : order)),
+    );
+    setToast({
+      tone: "success",
+      message: payload.message || "Pedido actualizado correctamente.",
+    });
   };
 
   const handleLogout = async () => {
@@ -910,6 +1123,46 @@ export default function AdminPage() {
                       }`}
                     >
                       Ajusta stock rápido, detecta productos agotados y revisa movimientos recientes.
+                    </p>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={openOrdersView}
+                    className={`admin-card-drift relative flex-1 overflow-hidden rounded-[1.6rem] border px-6 py-6 text-left transition-all duration-200 ${
+                      activeTab === "orders"
+                        ? "border-[#16384f] bg-[#16384f] text-white shadow-[0_18px_35px_rgba(22,56,79,0.22)]"
+                        : "border-black/8 bg-[#fbfbfa] text-[#1f2328] hover:-translate-y-0.5 hover:border-[#16384f]/18 hover:shadow-[0_16px_30px_rgba(15,23,42,0.08)]"
+                    }`}
+                  >
+                    <span className="pointer-events-none absolute -right-10 -bottom-10 h-32 w-32 rounded-full bg-[radial-gradient(circle,_rgba(99,102,241,0.16),_transparent_68%)]" />
+                    <span className="flex items-center justify-between gap-4">
+                      <span className="text-sm font-semibold uppercase tracking-[0.18em]">
+                        Pedidos
+                      </span>
+                      <span
+                        className={`inline-flex h-10 w-10 items-center justify-center rounded-full transition-colors duration-200 ${
+                          activeTab === "orders"
+                            ? "bg-white/14 text-white"
+                            : "bg-[#6366f1] text-white"
+                        }`}
+                      >
+                        ↗
+                      </span>
+                    </span>
+                    <p
+                      className={`mt-4 text-2xl font-semibold tracking-[-0.04em] ${
+                        activeTab === "orders" ? "text-white" : "text-[#16384f]"
+                      }`}
+                    >
+                      Pedidos y envíos
+                    </p>
+                    <p
+                      className={`mt-2 text-sm leading-6 ${
+                        activeTab === "orders" ? "text-white/78" : "text-[#6e7379]"
+                      }`}
+                    >
+                      Cambia estado, asigna transportadora, guarda guía y controla el despacho desde el panel.
                     </p>
                   </button>
                 </div>
@@ -1628,6 +1881,276 @@ export default function AdminPage() {
                   </div>
                 </form>
               )}
+            </div>
+          )}
+
+          {activeTab === "orders" && (
+            <div className="admin-fade-up space-y-8">
+              <div className="grid gap-8 xl:grid-cols-[360px_minmax(0,1fr)]">
+                <aside className="space-y-5">
+                  <div className="rounded-[1.75rem] border border-black/8 bg-white p-6 shadow-[0_14px_28px_rgba(15,23,42,0.05)]">
+                    <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[#8b8d91]">
+                      Pedidos
+                    </p>
+                    <h2 className="mt-3 text-2xl font-semibold tracking-[-0.04em] text-[#16384f]">
+                      Gestión de envíos
+                    </h2>
+                    <p className="mt-3 text-sm leading-7 text-[#6e7379]">
+                      Aquí controlas el estado logístico del pedido, la transportadora y el número de guía que verá el cliente.
+                    </p>
+                  </div>
+
+                  <div className="rounded-[1.75rem] border border-black/8 bg-white p-6 shadow-[0_14px_28px_rgba(15,23,42,0.05)]">
+                    <label className="space-y-2">
+                      <span className="text-sm font-medium text-[#4f545a]">
+                        Buscar por pedido, cliente o guía
+                      </span>
+                      <input
+                        type="search"
+                        value={orderSearch}
+                        onChange={(event) => setOrderSearch(event.target.value)}
+                        placeholder="Ej: cm..., Brandon, 12345..."
+                        className="w-full rounded-2xl border border-black/10 bg-[#fafaf9] px-4 py-3 text-sm text-[#1f2328] outline-none transition-colors duration-200 focus:border-[#ed8435]"
+                      />
+                    </label>
+
+                    <div className="mt-5 flex flex-wrap gap-3">
+                      <button
+                        type="button"
+                        onClick={() => setOrderShippingFilter("all")}
+                        className={`rounded-full px-4 py-2 text-sm font-semibold transition-colors duration-200 ${
+                          orderShippingFilter === "all"
+                            ? "bg-[#16384f] text-white"
+                            : "border border-black/10 bg-[#fafaf9] text-[#5d6167] hover:bg-[#ececea]"
+                        }`}
+                      >
+                        Todos
+                      </button>
+                      {shippingStatuses.map((status) => (
+                        <button
+                          key={status}
+                          type="button"
+                          onClick={() => setOrderShippingFilter(status)}
+                          className={`rounded-full px-4 py-2 text-sm font-semibold transition-colors duration-200 ${
+                            orderShippingFilter === status
+                              ? "bg-[#6366f1] text-white"
+                              : "border border-black/10 bg-[#fafaf9] text-[#5d6167] hover:bg-[#ececea]"
+                          }`}
+                        >
+                          {getShippingStatusLabel(status)}
+                        </button>
+                      ))}
+                    </div>
+
+                    <p className="mt-5 text-sm text-[#6e7379]">
+                      Mostrando {filteredOrders.length} pedido{filteredOrders.length === 1 ? "" : "s"}.
+                    </p>
+                  </div>
+
+                  <div className="space-y-3">
+                    {isLoadingOrders ? (
+                      <div className="rounded-[1.5rem] border border-black/8 bg-white p-5 text-sm text-[#6e7379] shadow-[0_14px_28px_rgba(15,23,42,0.05)]">
+                        Cargando pedidos...
+                      </div>
+                    ) : filteredOrders.length === 0 ? (
+                      <div className="rounded-[1.5rem] border border-dashed border-black/12 bg-white p-5 text-sm leading-7 text-[#6e7379] shadow-[0_14px_28px_rgba(15,23,42,0.05)]">
+                        Aún no hay pedidos que coincidan con los filtros actuales.
+                      </div>
+                    ) : (
+                      filteredOrders.map((order) => (
+                        <button
+                          key={order.id}
+                          type="button"
+                          onClick={() => {
+                            setSelectedOrderId(order.id);
+                            setOrderForm(getOrderEditState(order));
+                          }}
+                          className={`block w-full rounded-[1.4rem] border p-5 text-left shadow-[0_14px_28px_rgba(15,23,42,0.05)] transition-all duration-200 ${
+                            selectedOrderId === order.id
+                              ? "border-[#16384f] bg-[#16384f] text-white"
+                              : "border-black/8 bg-white hover:-translate-y-0.5 hover:border-[#16384f]/18"
+                          }`}
+                        >
+                          <p className={`text-xs font-semibold uppercase tracking-[0.22em] ${selectedOrderId === order.id ? "text-white/72" : "text-[#8b8d91]"}`}>
+                            Pedido
+                          </p>
+                          <p className="mt-2 text-lg font-semibold">{order.id}</p>
+                          <p className={`mt-2 text-sm ${selectedOrderId === order.id ? "text-white/78" : "text-[#5d6167]"}`}>
+                            {order.customerName} · {order.city}
+                          </p>
+                          <div className="mt-4 flex flex-wrap gap-2">
+                            <span className={`rounded-full px-3 py-1 text-xs font-semibold ${selectedOrderId === order.id ? "bg-white/14 text-white" : "bg-[#effaf2] text-[#1f6b39]"}`}>
+                              {getShippingStatusLabel(order.shippingStatus)}
+                            </span>
+                            <span className={`rounded-full px-3 py-1 text-xs font-semibold ${selectedOrderId === order.id ? "bg-white/14 text-white" : "bg-[#fff6ee] text-[#b85d12]"}`}>
+                              {getPaymentStatusLabel(order.paymentStatus)}
+                            </span>
+                          </div>
+                        </button>
+                      ))
+                    )}
+                  </div>
+                </aside>
+
+                <div className="space-y-8">
+                  {!selectedOrder ? (
+                    <div className="rounded-[1.75rem] border border-dashed border-black/12 bg-white p-8 text-center text-sm leading-7 text-[#6e7379] shadow-[0_14px_28px_rgba(15,23,42,0.05)]">
+                      Selecciona un pedido para editar su envío, guía y notas internas.
+                    </div>
+                  ) : (
+                    <>
+                      <div className="rounded-[1.75rem] border border-black/8 bg-white p-6 shadow-[0_14px_28px_rgba(15,23,42,0.05)]">
+                        <div className="flex flex-wrap items-start justify-between gap-4">
+                          <div>
+                            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#8b8d91]">
+                              Pedido seleccionado
+                            </p>
+                            <h3 className="mt-2 text-3xl font-semibold tracking-[-0.04em] text-[#16384f]">
+                              {selectedOrder.id}
+                            </h3>
+                            <p className="mt-3 text-sm leading-7 text-[#6e7379]">
+                              {selectedOrder.customerName} · {selectedOrder.customerEmail} · {selectedOrder.customerPhone}
+                            </p>
+                            <p className="text-sm leading-7 text-[#6e7379]">
+                              {selectedOrder.department}, {selectedOrder.city} · {selectedOrder.addressLine1}
+                              {selectedOrder.addressLine2 ? ` · ${selectedOrder.addressLine2}` : ""}
+                            </p>
+                          </div>
+
+                          <div className="flex flex-wrap gap-2">
+                            <span className="rounded-full bg-[#16384f] px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-white">
+                              {selectedOrder.status}
+                            </span>
+                            <span className="rounded-full border border-[#ed8435]/18 bg-[#fff6ee] px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-[#b85d12]">
+                              {getPaymentStatusLabel(selectedOrder.paymentStatus)}
+                            </span>
+                            <span className="rounded-full border border-[#1f8b45]/18 bg-[#effaf2] px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-[#1f6b39]">
+                              {getShippingStatusLabel(selectedOrder.shippingStatus)}
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="mt-6 grid gap-5 md:grid-cols-2">
+                          <label className="space-y-2">
+                            <span className="text-sm font-medium text-[#4f545a]">Estado de envío</span>
+                            <select
+                              name="shippingStatus"
+                              value={orderForm.shippingStatus}
+                              onChange={handleOrderFieldChange}
+                              className="w-full rounded-2xl border border-black/10 bg-[#fafaf9] px-4 py-3 text-sm text-[#1f2328] outline-none transition-colors duration-200 focus:border-[#ed8435]"
+                            >
+                              {shippingStatuses.map((status) => (
+                                <option key={status} value={status}>
+                                  {getShippingStatusLabel(status)}
+                                </option>
+                              ))}
+                            </select>
+                          </label>
+
+                          <label className="space-y-2">
+                            <span className="text-sm font-medium text-[#4f545a]">Estado de pago</span>
+                            <select
+                              name="paymentStatus"
+                              value={orderForm.paymentStatus}
+                              onChange={handleOrderFieldChange}
+                              className="w-full rounded-2xl border border-black/10 bg-[#fafaf9] px-4 py-3 text-sm text-[#1f2328] outline-none transition-colors duration-200 focus:border-[#ed8435]"
+                            >
+                              {paymentStatuses.map((status) => (
+                                <option key={status} value={status}>
+                                  {getPaymentStatusLabel(status)}
+                                </option>
+                              ))}
+                            </select>
+                          </label>
+
+                          <label className="space-y-2">
+                            <span className="text-sm font-medium text-[#4f545a]">Transportadora</span>
+                            <input
+                              name="carrier"
+                              value={orderForm.carrier}
+                              onChange={handleOrderFieldChange}
+                              placeholder="Ej. Coordinadora, Servientrega..."
+                              className="w-full rounded-2xl border border-black/10 bg-[#fafaf9] px-4 py-3 text-sm text-[#1f2328] outline-none transition-colors duration-200 focus:border-[#ed8435]"
+                            />
+                          </label>
+
+                          <label className="space-y-2">
+                            <span className="text-sm font-medium text-[#4f545a]">Número de guía</span>
+                            <input
+                              name="trackingNumber"
+                              value={orderForm.trackingNumber}
+                              onChange={handleOrderFieldChange}
+                              placeholder="Ej. 123456789"
+                              className="w-full rounded-2xl border border-black/10 bg-[#fafaf9] px-4 py-3 text-sm text-[#1f2328] outline-none transition-colors duration-200 focus:border-[#ed8435]"
+                            />
+                          </label>
+
+                          <label className="space-y-2 md:col-span-2">
+                            <span className="text-sm font-medium text-[#4f545a]">Notas internas del envío</span>
+                            <textarea
+                              name="adminNotes"
+                              value={orderForm.adminNotes}
+                              onChange={handleOrderFieldChange}
+                              rows={4}
+                              placeholder="Ej. Sale hoy en la tarde, cliente pidió entregar en portería..."
+                              className="w-full rounded-2xl border border-black/10 bg-[#fafaf9] px-4 py-3 text-sm text-[#1f2328] outline-none transition-colors duration-200 focus:border-[#ed8435]"
+                            />
+                          </label>
+                        </div>
+
+                        <div className="mt-6 flex flex-wrap gap-3">
+                          <button
+                            type="button"
+                            onClick={handleSaveOrder}
+                            disabled={isSavingOrder}
+                            className="inline-flex rounded-full bg-[#16384f] px-6 py-3 text-sm font-semibold text-white transition-colors duration-200 hover:bg-[#0f2a3b] disabled:cursor-not-allowed disabled:opacity-70"
+                          >
+                            {isSavingOrder ? "Guardando..." : "Actualizar pedido"}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => void loadOrders()}
+                            className="inline-flex rounded-full border border-black/10 px-6 py-3 text-sm font-semibold text-[#16384f] transition-colors duration-200 hover:bg-[#16384f] hover:text-white"
+                          >
+                            Recargar pedidos
+                          </button>
+                        </div>
+                      </div>
+
+                      <div className="rounded-[1.75rem] border border-black/8 bg-white p-6 shadow-[0_14px_28px_rgba(15,23,42,0.05)]">
+                        <h3 className="text-2xl font-semibold tracking-[-0.04em] text-[#16384f]">
+                          Productos del pedido
+                        </h3>
+                        <div className="mt-5 grid gap-3 md:grid-cols-2">
+                          {selectedOrder.items.map((item) => (
+                            <div
+                              key={item.id}
+                              className="rounded-[1.1rem] border border-black/8 bg-[#fafaf9] px-4 py-4"
+                            >
+                              <p className="text-sm font-semibold text-[#1f2328]">{item.name}</p>
+                              <div className="mt-2 flex items-center justify-between text-sm text-[#6e7379]">
+                                <span>Cantidad: {item.quantity}</span>
+                                <span className="font-semibold text-[#16384f]">
+                                  {formatCurrency(item.unitPrice)}
+                                </span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+
+                        <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-black/8 pt-4 text-sm">
+                          <span className="text-[#6e7379]">
+                            {selectedOrder.totalItems} producto{selectedOrder.totalItems === 1 ? "" : "s"}
+                          </span>
+                          <span className="text-lg font-semibold text-[#ed8435]">
+                            {formatCurrency(selectedOrder.subtotal)}
+                          </span>
+                        </div>
+                      </div>
+                    </>
+                  )}
+                </div>
+              </div>
             </div>
           )}
 
