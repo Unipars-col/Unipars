@@ -101,7 +101,7 @@ export default function LoginPage() {
     const payload = (await response.json()) as {
       error?: string;
       message?: string;
-      user?: { id: string };
+      user?: { id: string; role: "CUSTOMER" | "ADMIN" };
     };
 
     setIsSubmitting(false);
@@ -120,8 +120,14 @@ export default function LoginPage() {
       message: payload.message || "Inicio de sesión correcto.",
     });
 
-    const nextPath = searchParams.get("next") || "/mi-cuenta";
+    const requestedPath = searchParams.get("next");
     const userId = payload.user?.id;
+    const nextPath =
+      payload.user?.role === "ADMIN"
+        ? "/admin"
+        : requestedPath === "/admin"
+          ? "/mi-cuenta"
+          : requestedPath || "/mi-cuenta";
 
     window.setTimeout(async () => {
       if (userId) {
@@ -180,6 +186,7 @@ export default function LoginPage() {
           </h1>
           <p className="mt-3 text-sm text-slate-600">
             Ingresa con los mismos datos que usaste para crear tu cuenta.
+            Si tu cuenta tiene permisos de administración, entrarás al panel automáticamente.
           </p>
         </div>
 

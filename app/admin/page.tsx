@@ -203,9 +203,6 @@ export default function AdminPage() {
   const [requestError, setRequestError] = useState("");
   const [toast, setToast] = useState<ToastState>(null);
   const [isSavingProduct, setIsSavingProduct] = useState(false);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [authError, setAuthError] = useState("");
   const [isCheckingSession, setIsCheckingSession] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [adminName, setAdminName] = useState("");
@@ -334,6 +331,12 @@ export default function AdminPage() {
       });
     }
   }, [activeTab, editingSlug]);
+
+  useEffect(() => {
+    if (!isCheckingSession && !isAuthenticated) {
+      router.replace("/login?next=/admin");
+    }
+  }, [isAuthenticated, isCheckingSession, router]);
 
   const handleChange = (
     event: ChangeEvent<HTMLInputElement | HTMLSelectElement>,
@@ -650,57 +653,12 @@ export default function AdminPage() {
     void loadInventoryMovements();
   };
 
-  const handleAdminLogin = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    setAuthError("");
-    setToast(null);
-
-    const response = await fetch("/api/auth/admin/login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        email,
-        password,
-      }),
-    });
-
-    const payload = (await response.json()) as {
-      error?: string;
-      message?: string;
-      user?: { fullName: string };
-    };
-
-    if (!response.ok || !payload.user) {
-      setAuthError(payload.error || "No fue posible iniciar sesión.");
-      setToast({
-        tone: "error",
-        message: payload.error || "No fue posible iniciar sesión.",
-      });
-      return;
-    }
-
-    setIsAuthenticated(true);
-    setAdminName(payload.user.fullName);
-    setEmail("");
-    setPassword("");
-    setToast({
-      tone: "success",
-      message: payload.message || "Acceso administrador correcto.",
-    });
-    router.refresh();
-  };
-
   const handleLogout = async () => {
     await fetch("/api/auth/logout", {
       method: "POST",
     });
     setIsAuthenticated(false);
     setAdminName("");
-    setEmail("");
-    setPassword("");
-    setAuthError("");
     router.refresh();
   };
 
@@ -725,68 +683,13 @@ export default function AdminPage() {
     return (
       <main className="min-h-screen bg-[#f5f5f5] text-[#111]">
         <section className="mx-auto flex max-w-[1440px] px-6 py-16">
-          <div className="mx-auto w-full max-w-md rounded-[2rem] border border-black/8 bg-white p-8 shadow-[0_16px_35px_rgba(15,23,42,0.05)]">
-            <Link
-              href="/"
-              className="text-sm font-semibold uppercase tracking-[0.2em] text-[#16384f] transition-colors duration-200 hover:text-[#ed8435]"
-            >
-              Volver al inicio
-            </Link>
-
-            <div className="mt-6">
-              <p className="text-sm font-semibold uppercase tracking-[0.25em] text-[#ed8435]">
-                Acceso administrador
-              </p>
-              <h1 className="mt-3 text-3xl font-semibold tracking-[-0.04em] text-[#16384f]">
-                Ingresar al panel
-              </h1>
-              <p className="mt-3 text-sm leading-7 text-[#6e7379]">
-                Solo una cuenta autorizada puede administrar productos.
-              </p>
-            </div>
-
-            <form onSubmit={handleAdminLogin} className="mt-8 space-y-5">
-              <label className="block space-y-2">
-                <span className="text-sm font-medium text-[#4f545a]">
-                  Correo electrónico
-                </span>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(event) => setEmail(event.target.value)}
-                  placeholder="uniparscolombia@gmail.com"
-                  required
-                  className="w-full rounded-2xl border border-black/10 bg-[#fafaf9] px-4 py-3 text-sm text-[#1f2328] outline-none transition-colors duration-200 focus:border-[#ed8435]"
-                />
-              </label>
-
-              <label className="block space-y-2">
-                <span className="text-sm font-medium text-[#4f545a]">
-                  Contraseña
-                </span>
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(event) => setPassword(event.target.value)}
-                  placeholder="Ingresa tu contraseña"
-                  required
-                  className="w-full rounded-2xl border border-black/10 bg-[#fafaf9] px-4 py-3 text-sm text-[#1f2328] outline-none transition-colors duration-200 focus:border-[#ed8435]"
-                />
-              </label>
-
-              {authError && (
-                <p className="rounded-2xl border border-[#ed8435]/20 bg-[#fff6ee] px-4 py-3 text-sm font-medium text-[#b85d12]">
-                  {authError}
-                </p>
-              )}
-
-              <button
-                type="submit"
-                className="w-full rounded-full bg-[#ed8435] px-5 py-3 text-sm font-semibold text-white transition-colors duration-200 hover:bg-[#d67024]"
-              >
-                Entrar como administrador
-              </button>
-            </form>
+          <div className="mx-auto w-full max-w-md rounded-[2rem] border border-black/8 bg-white p-8 text-center shadow-[0_16px_35px_rgba(15,23,42,0.05)]">
+            <p className="text-sm font-semibold uppercase tracking-[0.25em] text-[#ed8435]">
+              Administrador
+            </p>
+            <p className="mt-4 text-sm leading-7 text-[#6e7379]">
+              Redirigiendo al ingreso general para validar tu cuenta.
+            </p>
           </div>
         </section>
       </main>

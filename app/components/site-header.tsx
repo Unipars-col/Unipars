@@ -89,31 +89,6 @@ export default function SiteHeader({ currentUser }: SiteHeaderProps) {
               priority
             />
           </Link>
-          <Link
-            href={currentUser?.role === "ADMIN" ? "/admin" : "/admin"}
-            aria-label="Acceso administrador"
-            title={
-              currentUser?.role === "ADMIN"
-                ? "Panel de administrador"
-                : "Ingresar como administrador"
-            }
-            className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[#16384f]/14 bg-[#f8f8f7] text-[#16384f] transition-colors duration-200 hover:bg-[#16384f] hover:text-white"
-          >
-            <svg
-              aria-hidden="true"
-              viewBox="0 0 24 24"
-              className="h-5 w-5"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.8"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M12 3l7 3v5c0 4.5-2.9 8.2-7 10-4.1-1.8-7-5.5-7-10V6l7-3Z" />
-              <path d="M12 10a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z" />
-              <path d="M8.5 17a3.5 3.5 0 0 1 7 0" />
-            </svg>
-          </Link>
         </div>
 
         <div className="flex w-full flex-col gap-4 md:w-auto md:flex-row md:items-center md:gap-8">
@@ -199,7 +174,7 @@ export default function SiteHeader({ currentUser }: SiteHeaderProps) {
                   Hola, {currentUser.fullName}
                 </span>
                 <Link
-                  href="/mi-cuenta"
+                  href={currentUser.role === "ADMIN" ? "/admin" : "/mi-cuenta"}
                   className="inline-flex items-center gap-2 rounded-full bg-[#ed8435] px-5 py-2.5 text-xs font-semibold uppercase tracking-[0.08em] text-white transition-colors duration-200 hover:bg-[#d67024]"
                 >
                   <svg
