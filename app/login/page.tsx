@@ -7,7 +7,6 @@ import { useRouter, useSearchParams } from "next/navigation";
 type LoginFormState = {
   email: string;
   password: string;
-  adminPin: string;
 };
 
 type ToastState = {
@@ -21,7 +20,6 @@ const GUEST_CART_SYNC_KEY = "unipars-cart-synced-user";
 const initialState: LoginFormState = {
   email: "",
   password: "",
-  adminPin: "",
 };
 
 async function syncGuestCartAfterLogin(userId: string) {
@@ -65,9 +63,12 @@ export default function LoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [form, setForm] = useState<LoginFormState>(initialState);
+  const [adminPin, setAdminPin] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [toast, setToast] = useState<ToastState>(null);
   const [inlineError, setInlineError] = useState("");
+  const [showAdminPinModal, setShowAdminPinModal] = useState(false);
+  const [pendingAdminUserId, setPendingAdminUserId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!toast) return;
@@ -86,36 +87,14 @@ export default function LoginPage() {
     setForm((current) => ({ ...current, [id]: value }));
   };
 
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    setInlineError("");
-    setToast(null);
-    setIsSubmitting(true);
-
-    const response = await fetch("/api/auth/login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(form),
-    });
-
-    const payload = (await response.json()) as {
-      error?: string;
-      message?: string;
-      user?: { id: string; role: "CUSTOMER" | "ADMIN" };
-    };
-
-    setIsSubmitting(false);
-
-    if (!response.ok) {
-      const message = payload.error || "No fue posible iniciar sesión.";
-      setInlineError(message);
-      setToast({ tone: "error", message });
-      return;
-    }
-
+  const completeLogin = async (payload: {
+    message?: string;
+    user?: { id: string; role: "CUSTOMER" | "ADMIN" };
+  }) => {
     setForm(initialState);
+    setAdminPin("");
+    setShowAdminPinModal(false);
+    setPendingAdminUserId(null);
     setInlineError("");
     setToast({
       tone: "success",
@@ -140,8 +119,144 @@ export default function LoginPage() {
     }, 500);
   };
 
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setInlineError("");
+    setToast(null);
+    setIsSubmitting(true);
+
+    const response = await fetch("/api/auth/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(form),
+    });
+
+    const payload = (await response.json()) as {
+      error?: string;
+      message?: string;
+      user?: { id: string; role: "CUSTOMER" | "ADMIN" };
+      requiresAdminPin?: boolean;
+    };
+
+    setIsSubmitting(false);
+
+    if (response.status === 202 && payload.requiresAdminPin && payload.user?.role === "ADMIN") {
+      setPendingAdminUserId(payload.user.id);
+      setShowAdminPinModal(true);
+      setToast({
+        tone: "success",
+        message: payload.message || "Confirma el PIN de administrador para continuar.",
+      });
+      return;
+    }
+
+    if (!response.ok) {
+      const message = payload.error || "No fue posible iniciar sesión.";
+      setInlineError(message);
+      setToast({ tone: "error", message });
+      return;
+    }
+
+    await completeLogin(payload);
+  };
+
+  const handleAdminPinSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setInlineError("");
+    setToast(null);
+    setIsSubmitting(true);
+
+    const response = await fetch("/api/auth/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        ...form,
+        adminPin,
+      }),
+    });
+
+    const payload = (await response.json()) as {
+      error?: string;
+      message?: string;
+      user?: { id: string; role: "CUSTOMER" | "ADMIN" };
+    };
+
+    setIsSubmitting(false);
+
+    if (!response.ok) {
+      const message = payload.error || "No fue posible validar el PIN.";
+      setInlineError(message);
+      setToast({ tone: "error", message });
+      return;
+    }
+
+    await completeLogin(payload);
+  };
+
   return (
     <main className="flex min-h-[calc(100vh-88px)] items-center justify-center bg-[#f5f5f5] px-6 py-16">
+      {showAdminPinModal && (
+        <div className="fixed inset-0 z-[90] flex items-center justify-center bg-[#0f172a]/45 px-6 backdrop-blur-[2px]">
+          <div className="w-full max-w-md rounded-[1.8rem] border border-black/8 bg-white p-7 shadow-[0_30px_80px_rgba(15,23,42,0.28)]">
+            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[#ed8435]">
+              Validación extra
+            </p>
+            <h2 className="mt-3 text-2xl font-bold text-[#16384f]">
+              Ingresa el PIN de administrador
+            </h2>
+            <p className="mt-3 text-sm leading-7 text-slate-600">
+              Detectamos una cuenta administrativa. Para entrar al panel, confirma el código adicional.
+            </p>
+
+            <form onSubmit={handleAdminPinSubmit} className="mt-6 space-y-4">
+              <div>
+                <label
+                  htmlFor="adminPinModal"
+                  className="mb-2 block text-sm font-medium text-slate-700"
+                >
+                  PIN extra
+                </label>
+                <input
+                  id="adminPinModal"
+                  type="password"
+                  value={adminPin}
+                  onChange={(event) => setAdminPin(event.target.value)}
+                  placeholder="Ingresa el código"
+                  autoFocus
+                  required
+                  className="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none transition-colors duration-200 focus:border-[#ed8435]"
+                />
+              </div>
+
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowAdminPinModal(false);
+                    setAdminPin("");
+                    setPendingAdminUserId(null);
+                  }}
+                  className="flex-1 rounded-xl border border-[#16384f]/20 px-4 py-3 font-semibold text-[#16384f] transition-colors duration-200 hover:bg-[#16384f] hover:text-white"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSubmitting || !pendingAdminUserId}
+                  className="flex-1 rounded-xl bg-[#ed8435] px-4 py-3 font-semibold text-white transition-colors duration-200 hover:bg-[#d67024] disabled:cursor-not-allowed disabled:opacity-70"
+                >
+                  {isSubmitting ? "Validando..." : "Confirmar PIN"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
       {toast && (
         <div className="fixed right-5 top-5 z-[80] w-[min(92vw,380px)]">
           <div
@@ -227,26 +342,6 @@ export default function LoginPage() {
               required
               className="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none transition-colors duration-200 focus:border-[#ed8435]"
             />
-          </div>
-
-          <div>
-            <label
-              htmlFor="adminPin"
-              className="mb-2 block text-sm font-medium text-slate-700"
-            >
-              PIN de administrador
-            </label>
-            <input
-              id="adminPin"
-              type="password"
-              value={form.adminPin}
-              onChange={handleChange}
-              placeholder="Solo si tu cuenta es admin"
-              className="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none transition-colors duration-200 focus:border-[#ed8435]"
-            />
-            <p className="mt-2 text-xs leading-6 text-slate-500">
-              Las cuentas de cliente pueden dejar este campo vacío. Las cuentas de administrador necesitan el PIN adicional.
-            </p>
           </div>
 
           {inlineError && (

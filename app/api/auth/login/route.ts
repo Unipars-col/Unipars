@@ -23,6 +23,20 @@ export async function POST(request: Request) {
     const user = await authenticateUser(email, password);
     const expectedAdminPin = process.env.ADMIN_EXTRA_PIN?.trim() || "1234";
 
+    if (user.role === "ADMIN" && !adminPin) {
+      return Response.json(
+        {
+          requiresAdminPin: true,
+          user: {
+            id: user.id,
+            role: user.role,
+          },
+          message: "Confirma el PIN adicional para entrar al panel.",
+        },
+        { status: 202 },
+      );
+    }
+
     if (user.role === "ADMIN" && adminPin !== expectedAdminPin) {
       return Response.json(
         { error: "El PIN de administrador es incorrecto." },
