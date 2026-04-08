@@ -8,6 +8,7 @@ type Props = {
   nombre: string;
   precio: string;
   imagen: string;
+  disabled?: boolean;
 };
 
 export default function AddToCartButton({
@@ -15,6 +16,7 @@ export default function AddToCartButton({
   nombre,
   precio,
   imagen,
+  disabled = false,
 }: Props) {
   const { addItem } = useCart();
   const [added, setAdded] = useState(false);
@@ -22,18 +24,22 @@ export default function AddToCartButton({
   return (
     <button
       type="button"
+      disabled={disabled}
       onClick={() => {
+        if (disabled) return;
         addItem({ id, nombre, precio, imagen });
         setAdded(true);
         window.setTimeout(() => setAdded(false), 1200);
       }}
       className={`inline-flex rounded-full px-5 py-3 text-sm font-semibold transition-colors duration-200 ${
-        added
+        disabled
+          ? "cursor-not-allowed bg-[#d8dbe0] text-[#6b7280]"
+          : added
           ? "bg-[#16384f] text-white"
           : "bg-[#ed8435] text-white hover:bg-[#d67024]"
       }`}
     >
-      {added ? "Agregado" : "Agregar al carrito"}
+      {disabled ? "Sin stock" : added ? "Agregado" : "Agregar al carrito"}
     </button>
   );
 }

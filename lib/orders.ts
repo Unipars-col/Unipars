@@ -1,0 +1,176 @@
+import { prisma } from "@/lib/prisma";
+
+export type CheckoutInput = {
+  customerName: string;
+  customerEmail: string;
+  customerPhone: string;
+  company?: string;
+  department: string;
+  city: string;
+  addressLine1: string;
+  addressLine2?: string;
+  notes?: string;
+};
+
+function parsePriceValue(price: string) {
+  const numeric = Number(price.replace(/[^\d]/g, ""));
+  return Number.isFinite(numeric) ? numeric : 0;
+}
+
+export async function createOrderFromCart(userId: string, input: CheckoutInput) {
+  if (!prisma) {
+    throw new Error("DATABASE_NOT_CONFIGURED");
+  }
+
+  const customerName = input.customerName.trim();
+  const customerEmail = input.customerEmail.trim().toLowerCase();
+  const customerPhone = input.customerPhone.trim();
+  const company = input.company?.trim() || null;
+  const department = input.department.trim();
+  const city = input.city.trim();
+  const addressLine1 = input.addressLine1.trim();
+  const addressLine2 = input.addressLine2?.trim() || null;
+  const notes = input.notes?.trim() || null;
+
+  if (
+    !customerName ||
+    !customerEmail ||
+    !customerPhone ||
+    !department ||
+    !city ||
+    !addressLine1
+  ) {
+    throw new Error("INVALID_CHECKOUT");
+  }
+
+  const cartItems = await prisma.cartItem.findMany({
+    where: { userId },
+    orderBy: { createdAt: "desc" },
+  });
+
+  if (cartItems.length === 0) {
+    throw new Error("EMPTY_CART");
+  }
+
+  const subtotal = cartItems.reduce(
+    (total, item) => total + parsePriceValue(item.price) * item.quantity,
+    0,
+  );
+  const totalItems = cartItems.reduce((total, item) => total + item.quantity, 0);
+
+  const order = await prisma.$transaction(async (tx) => {
+    const productSlugs = cartItems.map((item) => item.productId);
+    const products = await tx.product.findMany({
+      where: {
+        slug: {
+          in: productSlugs,
+        },
+      },
+      select: {
+        id: true,
+        slug: true,
+        stock: true,
+        minimumStock: true,
+      },
+    });
+
+    for (const item of cartItems) {
+      const product = products.find((entry) => entry.slug === item.productId);
+
+      if (!product || product.stock < item.quantity) {
+        throw new Error("INSUFFICIENT_STOCK");
+      }
+    }
+
+    const createdOrder = await tx.order.create({
+      data: {
+        userId,
+        customerName,
+        customerEmail,
+        customerPhone,
+        company,
+        department,
+        city,
+        addressLine1,
+        addressLine2,
+        notes,
+        subtotal,
+        totalItems,
+        items: {
+          create: cartItems.map((item) => {
+            const unitPrice = parsePriceValue(item.price);
+
+            return {
+              productId: item.productId,
+              name: item.name,
+              image: item.image,
+              unitPrice,
+              quantity: item.quantity,
+              lineTotal: unitPrice * item.quantity,
+            };
+          }),
+        },
+      },
+      include: {
+        items: {
+          orderBy: { createdAt: "asc" },
+        },
+      },
+    });
+
+    for (const item of cartItems) {
+      const product = products.find((entry) => entry.slug === item.productId);
+
+      if (!product) {
+        continue;
+      }
+
+      const nextStock = product.stock - item.quantity;
+
+      await tx.product.update({
+        where: { id: product.id },
+        data: {
+          stock: nextStock,
+          availability:
+            nextStock <= 0
+              ? "Agotado"
+              : nextStock <= product.minimumStock
+                ? "Disponible por pedido"
+                : "Entrega inmediata",
+          inventoryMovements: {
+            create: {
+              type: "ORDER_DEDUCTION",
+              quantity: -item.quantity,
+              stockAfter: nextStock,
+              note: `Descuento automático por pedido ${createdOrder.id}`,
+            },
+          },
+        },
+      });
+    }
+
+    await tx.cartItem.deleteMany({
+      where: { userId },
+    });
+
+    return createdOrder;
+  });
+
+  return order;
+}
+
+export async function getOrdersForUser(userId: string) {
+  if (!prisma) {
+    throw new Error("DATABASE_NOT_CONFIGURED");
+  }
+
+  return await prisma.order.findMany({
+    where: { userId },
+    orderBy: { createdAt: "desc" },
+    include: {
+      items: {
+        orderBy: { createdAt: "asc" },
+      },
+    },
+  });
+}

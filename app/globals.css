@@ -10,3 +10,51 @@ body {
   color: #111;
   font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
 }
+
+@keyframes adminFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes adminGlow {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.55;
+  }
+
+  50% {
+    transform: scale(1.06);
+    opacity: 0.9;
+  }
+}
+
+@keyframes adminCardDrift {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-3px);
+  }
+}
+
+.admin-fade-up {
+  animation: adminFadeUp 420ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.admin-glow {
+  animation: adminGlow 6s ease-in-out infinite;
+}
+
+.admin-card-drift {
+  animation: adminCardDrift 5.5s ease-in-out infinite;
+}

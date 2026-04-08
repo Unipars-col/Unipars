@@ -126,12 +126,12 @@ export default function CarritoPage() {
                 ))}
               </div>
 
-              <button
-                type="button"
-                className="mt-8 w-full rounded-full bg-[#ed8435] px-6 py-3 text-sm font-semibold text-white transition-colors duration-200 hover:bg-[#d67024]"
+              <Link
+                href="/checkout"
+                className="mt-8 inline-flex w-full items-center justify-center rounded-full bg-[#ed8435] px-6 py-3 text-sm font-semibold text-white transition-colors duration-200 hover:bg-[#d67024]"
               >
                 Continuar compra
-              </button>
+              </Link>
             </aside>
           </div>
         )}

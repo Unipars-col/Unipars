@@ -4,49 +4,7 @@ import Link from "next/link";
 import HeroCarousel from "./components/hero-carousel";
 import HoverCartControl from "./components/hover-cart-control";
 import { categoriasData, slugCategoria } from "./data/catalog";
-
-const productos = [
-  {
-    slug: "kit-luces-delanteras-premium",
-    marca: "Unipars",
-    nombre: "Kit luces delanteras premium",
-    descripcion: 'Compatibles con linea LED de alto rendimiento para vehiculo particular.',
-    descuento: "-25%",
-    precioAnterior: "$320.000",
-    precioActual: "$239.900",
-    imagen: "/hero-unipars.jpg",
-  },
-  {
-    slug: "motor-ventilador-compacto",
-    marca: "Unipars",
-    nombre: "Motor ventilador compacto",
-    descripcion: "Diseno resistente, flujo constante y montaje rapido en diferentes referencias.",
-    descuento: "-18%",
-    precioAnterior: "$410.000",
-    precioActual: "$335.500",
-    imagen: "/hero-unipars.jpg",
-  },
-  {
-    slug: "juego-cauchos-industriales",
-    marca: "Unipars",
-    nombre: "Juego cauchos industriales",
-    descripcion: "Mayor durabilidad, agarre seguro y compuesto pensado para trabajo continuo.",
-    descuento: "-32%",
-    precioAnterior: "$289.000",
-    precioActual: "$196.800",
-    imagen: "/hero-unipars.jpg",
-  },
-  {
-    slug: "modulo-inyeccion-de-precision",
-    marca: "Unipars",
-    nombre: "Modulo inyeccion de precision",
-    descripcion: "Pieza calibrada para rendimiento estable y respuesta uniforme en produccion.",
-    descuento: "-21%",
-    precioAnterior: "$520.000",
-    precioActual: "$409.900",
-    imagen: "/hero-unipars.jpg",
-  },
-];
+import { getFeaturedProducts } from "@/lib/products";
 
 const testimonios = [
   {
@@ -128,7 +86,9 @@ const soluciones = [
   },
 ];
 
-export default function Home() {
+export default async function Home() {
+  const productos = await getFeaturedProducts();
+
   return (
     <main className="min-h-screen bg-[#f5f5f5] text-[#111]">
       <HeroCarousel />
@@ -225,8 +185,9 @@ export default function Home() {
                 <HoverCartControl
                   id={producto.slug}
                   nombre={producto.nombre}
-                  precio={producto.precioActual}
+                  precio={producto.precio}
                   imagen={producto.imagen}
+                  disabled={!producto.puedeComprar}
                 />
               </div>
 
@@ -244,12 +205,16 @@ export default function Home() {
                   {producto.descripcion}
                 </p>
 
+                <p className="text-sm font-medium text-[#6e7379]">
+                  Stock: {producto.stock ?? 0}
+                </p>
+
                 <div className="border-t border-black/6 pt-4">
                   <p className="text-sm text-[#a0a3a8] line-through">
-                    {producto.precioAnterior}
+                  {producto.precioAnterior}
                   </p>
                   <p className="text-3xl font-semibold tracking-[-0.03em] text-[#ed8435]">
-                    {producto.precioActual}
+                    {producto.precio}
                   </p>
                 </div>
 

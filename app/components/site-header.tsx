@@ -1,15 +1,24 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCart } from "./cart-provider";
 import { categorias, slugCategoria } from "../data/catalog";
 
-export default function SiteHeader() {
+type SiteHeaderProps = {
+  currentUser: {
+    fullName: string;
+    role: "CUSTOMER" | "ADMIN";
+  } | null;
+};
+
+export default function SiteHeader({ currentUser }: SiteHeaderProps) {
   const [menuAbierto, setMenuAbierto] = useState(false);
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const menuRef = useRef<HTMLDivElement | null>(null);
   const { totalItems } = useCart();
 
@@ -33,6 +42,39 @@ export default function SiteHeader() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  const handleSearch = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    const formData = new FormData(event.currentTarget);
+    const query = String(formData.get("q") || "").trim();
+    const params = new URLSearchParams(searchParams.toString());
+
+    if (query) {
+      params.set("q", query);
+    } else {
+      params.delete("q");
+    }
+
+    const targetUrl = params.toString()
+      ? `/categorias?${params.toString()}`
+      : "/categorias";
+
+    if (pathname === "/categorias") {
+      router.replace(targetUrl);
+      return;
+    }
+
+    router.push(targetUrl);
+  };
+
+  const handleLogout = async () => {
+    await fetch("/api/auth/logout", {
+      method: "POST",
+    });
+    router.push("/");
+    router.refresh();
+  };
+
   return (
     <header className="sticky top-0 z-50 border-b border-black/8 bg-white text-[#16384f] shadow-[0_12px_30px_rgba(15,23,42,0.05)]">
       <div className="mx-auto flex max-w-[1440px] flex-col gap-4 px-6 py-4 md:flex-row md:items-center md:justify-between">
@@ -48,9 +90,13 @@ export default function SiteHeader() {
             />
           </Link>
           <Link
-            href="/admin"
-            aria-label="Panel de administrador"
-            title="Administrador"
+            href={currentUser?.role === "ADMIN" ? "/admin" : "/admin"}
+            aria-label="Acceso administrador"
+            title={
+              currentUser?.role === "ADMIN"
+                ? "Panel de administrador"
+                : "Ingresar como administrador"
+            }
             className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[#16384f]/14 bg-[#f8f8f7] text-[#16384f] transition-colors duration-200 hover:bg-[#16384f] hover:text-white"
           >
             <svg
@@ -71,9 +117,15 @@ export default function SiteHeader() {
         </div>
 
         <div className="flex w-full flex-col gap-4 md:w-auto md:flex-row md:items-center md:gap-8">
-          <form className="flex w-full max-w-[520px] items-center rounded-full border border-black/10 bg-[#f8f8f7] px-2 py-2 md:w-[520px]">
+          <form
+            onSubmit={handleSearch}
+            className="flex w-full max-w-[520px] items-center rounded-full border border-black/10 bg-[#f8f8f7] px-2 py-2 md:w-[520px]"
+          >
             <input
+              key={searchParams.get("q") || ""}
+              name="q"
               type="search"
+              defaultValue={searchParams.get("q") || ""}
               placeholder="Buscar repuestos..."
               className="w-full bg-transparent px-4 text-sm text-[#16384f] outline-none placeholder:text-slate-400"
             />
@@ -141,18 +193,54 @@ export default function SiteHeader() {
                 </span>
               )}
             </Link>
-            <Link
-              href="/registro"
-              className="rounded-full bg-[#ed8435] px-5 py-2.5 text-xs font-semibold uppercase tracking-[0.08em] text-white transition-colors duration-200 hover:bg-[#d67024]"
-            >
-              Registro
-            </Link>
-            <Link
-              href="/login"
-              className="rounded-full border border-[#16384f]/25 px-5 py-2.5 text-xs font-semibold uppercase tracking-[0.08em] text-[#16384f] transition-colors duration-200 hover:border-[#16384f] hover:bg-[#16384f] hover:text-white"
-            >
-              Ingresar
-            </Link>
+            {currentUser ? (
+              <>
+                <span className="hidden text-sm font-semibold text-[#16384f] md:inline">
+                  Hola, {currentUser.fullName}
+                </span>
+                <Link
+                  href="/mi-cuenta"
+                  className="inline-flex items-center gap-2 rounded-full bg-[#ed8435] px-5 py-2.5 text-xs font-semibold uppercase tracking-[0.08em] text-white transition-colors duration-200 hover:bg-[#d67024]"
+                >
+                  <svg
+                    aria-hidden="true"
+                    viewBox="0 0 24 24"
+                    className="h-4 w-4"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.9"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M20 21a8 8 0 0 0-16 0" />
+                    <circle cx="12" cy="8" r="4" />
+                  </svg>
+                  {currentUser.fullName}
+                </Link>
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  className="rounded-full border border-[#16384f]/25 px-5 py-2.5 text-xs font-semibold uppercase tracking-[0.08em] text-[#16384f] transition-colors duration-200 hover:border-[#16384f] hover:bg-[#16384f] hover:text-white"
+                >
+                  Salir
+                </button>
+              </>
+            ) : (
+              <>
+                <Link
+                  href="/registro"
+                  className="rounded-full bg-[#ed8435] px-5 py-2.5 text-xs font-semibold uppercase tracking-[0.08em] text-white transition-colors duration-200 hover:bg-[#d67024]"
+                >
+                  Registro
+                </Link>
+                <Link
+                  href="/login"
+                  className="rounded-full border border-[#16384f]/25 px-5 py-2.5 text-xs font-semibold uppercase tracking-[0.08em] text-[#16384f] transition-colors duration-200 hover:border-[#16384f] hover:bg-[#16384f] hover:text-white"
+                >
+                  Ingresar
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </div>

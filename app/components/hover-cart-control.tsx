@@ -8,6 +8,7 @@ type Props = {
   nombre: string;
   precio: string;
   imagen: string;
+  disabled?: boolean;
 };
 
 export default function HoverCartControl({
@@ -15,6 +16,7 @@ export default function HoverCartControl({
   nombre,
   precio,
   imagen,
+  disabled = false,
 }: Props) {
   const { addItem } = useCart();
   const [added, setAdded] = useState(false);
@@ -30,6 +32,8 @@ export default function HoverCartControl({
   }, []);
 
   const handleAdd = () => {
+    if (disabled) return;
+
     Array.from({ length: cantidad }).forEach(() => {
       addItem({ id, nombre, precio, imagen });
     });
@@ -49,14 +53,23 @@ export default function HoverCartControl({
       <button
         type="button"
         aria-label={`Agregar ${nombre} al carrito`}
-        className="relative inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/85 bg-[#f8f8f7] text-[#16384f] shadow-[0_14px_28px_rgba(15,23,42,0.18)] transition-all duration-250 ease-out hover:-translate-y-0.5 hover:bg-white hover:text-[#ed8435] hover:shadow-[0_18px_34px_rgba(15,23,42,0.22)] focus-visible:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ed8435] focus-visible:ring-offset-2"
+        disabled={disabled}
+        className={`relative inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/85 shadow-[0_14px_28px_rgba(15,23,42,0.18)] transition-all duration-250 ease-out focus-visible:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ed8435] focus-visible:ring-offset-2 ${
+          disabled
+            ? "cursor-not-allowed bg-[#e6e7ea] text-[#7a8087]"
+            : "bg-[#f8f8f7] text-[#16384f] hover:-translate-y-0.5 hover:bg-white hover:text-[#ed8435] hover:shadow-[0_18px_34px_rgba(15,23,42,0.22)]"
+        }`}
       >
         <span className="text-lg transition-transform duration-250 ease-out group-hover/cart:scale-105 group-focus-within/cart:scale-105">
           🛒
         </span>
       </button>
 
-      <div className="pointer-events-none absolute bottom-0 right-0 translate-y-3 opacity-0 transition-all duration-250 ease-out group-hover/cart:pointer-events-auto group-hover/cart:translate-y-0 group-hover/cart:opacity-100 group-focus-within/cart:pointer-events-auto group-focus-within/cart:translate-y-0 group-focus-within/cart:opacity-100">
+      <div className={`absolute bottom-0 right-0 translate-y-3 transition-all duration-250 ease-out ${
+        disabled
+          ? "pointer-events-none opacity-0"
+          : "pointer-events-none opacity-0 group-hover/cart:pointer-events-auto group-hover/cart:translate-y-0 group-hover/cart:opacity-100 group-focus-within/cart:pointer-events-auto group-focus-within/cart:translate-y-0 group-focus-within/cart:opacity-100"
+      }`}>
         <div className="min-w-[286px] rounded-[1.1rem] border border-black/8 bg-white/98 p-2.5 shadow-[0_18px_34px_rgba(15,23,42,0.14)]">
           <div className="flex items-center gap-3">
             <div className="flex overflow-hidden rounded-[0.95rem] border border-black/10 bg-white">

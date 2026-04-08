@@ -17,6 +17,7 @@ const disponibilidades = [
   "Entrega inmediata",
   "Disponible por pedido",
   "Recoger en tienda",
+  "Agotado",
 ] as const;
 const rangosPrecio = [
   "Hasta $200.000",
@@ -31,9 +32,11 @@ export default function CategoriasPage() {
   const searchParams = useSearchParams();
   const marcas = Array.from(new Set(products.map((product) => product.marca)));
 
-  const categoriaActiva =
-    categoriaDesdeSlug(searchParams.get("categoria")) ?? "Luces y direccionales";
-  const categoriaVisual = categoriaMeta(categoriaActiva);
+  const categoriaActiva = categoriaDesdeSlug(searchParams.get("categoria"));
+  const categoriaVisual = categoriaMeta(
+    categoriaActiva ?? "Luces y direccionales",
+  );
+  const queryActiva = searchParams.get("q")?.trim().toLowerCase() || "";
 
   const [marcasActivas, setMarcasActivas] = useState<string[]>([]);
   const [disponibilidadActiva, setDisponibilidadActiva] = useState<string[]>([]);
@@ -60,7 +63,14 @@ export default function CategoriasPage() {
   };
 
   const productosFiltrados = products.filter((producto) => {
-    const coincideCategoria = producto.categoria === categoriaActiva;
+    const coincideCategoria =
+      !categoriaActiva || producto.categoria === categoriaActiva;
+    const coincideBusqueda =
+      queryActiva.length === 0 ||
+      producto.nombre.toLowerCase().includes(queryActiva) ||
+      producto.marca.toLowerCase().includes(queryActiva) ||
+      producto.categoria.toLowerCase().includes(queryActiva) ||
+      producto.descripcion.toLowerCase().includes(queryActiva);
     const coincideMarca =
       marcasActivas.length === 0 || marcasActivas.includes(producto.marca);
     const coincideDisponibilidad =
@@ -76,6 +86,7 @@ export default function CategoriasPage() {
       });
 
     return (
+      coincideBusqueda &&
       coincideCategoria &&
       coincideMarca &&
       coincideDisponibilidad &&
@@ -126,8 +137,10 @@ export default function CategoriasPage() {
                 className="h-2.5 w-2.5 rounded-full bg-white"
                 style={{ backgroundColor: categoriaVisual.color }}
               />
-              Categoría activa:
-              <span className="font-semibold text-white">{categoriaActiva}</span>
+              {categoriaActiva ? "Categoría activa:" : "Vista actual:"}
+              <span className="font-semibold text-white">
+                {categoriaActiva ?? "Todas las categorías"}
+              </span>
             </div>
           </div>
 
@@ -151,10 +164,12 @@ export default function CategoriasPage() {
                 Filtros
               </p>
               <h2 className="mt-3 text-2xl font-semibold tracking-[-0.04em] text-[#16384f]">
-                {categoriaActiva}
+                {categoriaActiva ?? "Todas las categorías"}
               </h2>
               <p className="mt-3 text-sm leading-7 text-[#6e7379]">
-                Estás viendo los productos filtrados de esta categoría.
+                {categoriaActiva
+                  ? "Estás viendo los productos filtrados de esta categoría."
+                  : "Estás viendo el catálogo completo y puedes filtrar por palabra o categoría."}
               </p>
             </div>
 
@@ -263,14 +278,22 @@ export default function CategoriasPage() {
                     Resultados
                   </p>
                   <h2 className="mt-2 text-3xl font-semibold tracking-[-0.04em] text-[#1f2328]">
-                    {productosFiltrados.length} productos en {categoriaActiva}
+                    {productosFiltrados.length} productos en{" "}
+                    {categoriaActiva ?? "todo el catálogo"}
                   </h2>
-                  <p className="mt-3 text-sm text-[#6e7379]">
-                    Filtro principal activo:{" "}
-                    <span className="font-semibold text-[#16384f]">
-                      {categoriaActiva}
-                    </span>
-                  </p>
+                  <div className="mt-3 flex flex-wrap gap-3 text-sm text-[#6e7379]">
+                    <p>
+                      Filtro principal activo:{" "}
+                      <span className="font-semibold text-[#16384f]">
+                        {categoriaActiva ?? "Todas las categorías"}
+                      </span>
+                    </p>
+                    {queryActiva && (
+                      <p className="rounded-full border border-[#ed8435]/18 bg-[#fff6ee] px-3 py-1 font-medium text-[#b85d12]">
+                        Búsqueda: {searchParams.get("q")}
+                      </p>
+                    )}
+                  </div>
                 </div>
 
                 <div className="flex flex-wrap gap-3">
@@ -309,6 +332,7 @@ export default function CategoriasPage() {
                       nombre={producto.nombre}
                       precio={producto.precio}
                       imagen={producto.imagen}
+                      disabled={!producto.puedeComprar}
                     />
                   </div>
 
@@ -324,6 +348,10 @@ export default function CategoriasPage() {
 
                     <p className="text-sm text-[#6e7379]">
                       {producto.disponibilidad}
+                    </p>
+
+                    <p className="text-sm font-medium text-[#6e7379]">
+                      Stock: {producto.stock ?? 0}
                     </p>
 
                     <div className="border-t border-black/6 pt-4">

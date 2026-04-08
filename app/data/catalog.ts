@@ -35,18 +35,33 @@ export const categorias = categoriasData.map((item) => item.nombre) as [
 ];
 
 export type Categoria = (typeof categorias)[number];
+export const disponibilidades = [
+  "Entrega inmediata",
+  "Disponible por pedido",
+  "Recoger en tienda",
+  "Agotado",
+] as const;
+export type Disponibilidad = (typeof disponibilidades)[number];
 
 export type ProductoCatalogo = {
   slug: string;
+  sku?: string;
   categoria: Categoria;
   nombre: string;
   marca: string;
   precio: string;
   precioAnterior: string;
   precioValor: number;
+  stock?: number;
+  stockMinimo?: number;
+  estadoInventario?: "in-stock" | "low-stock" | "out-of-stock";
+  puedeComprar?: boolean;
   descuento: string;
   imagen: string;
-  disponibilidad: "Entrega inmediata" | "Disponible por pedido" | "Recoger en tienda";
+  imagenesExtra?: string[];
+  disponibilidad: Disponibilidad;
+  descripcion?: string;
+  destacado?: boolean;
 };
 
 export const productosCatalogo: ProductoCatalogo[] = [
@@ -368,3 +383,45 @@ export const categoriaMeta = (categoria: string) =>
 
 export const productoPorSlug = (slug: string) =>
   productosCatalogo.find((producto) => producto.slug === slug) ?? null;
+
+export function slugify(value: string) {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
+}
+
+export function formatearMoneda(value: number) {
+  return new Intl.NumberFormat("es-CO", {
+    style: "currency",
+    currency: "COP",
+    maximumFractionDigits: 0,
+  }).format(value);
+}
+
+export function formatearDescuento(
+  precioActual: number,
+  precioAnterior: number,
+) {
+  const precioBase = Math.max(precioActual, precioAnterior, 1);
+  const descuento = Math.max(
+    0,
+    Math.round(((precioBase - precioActual) / precioBase) * 100),
+  );
+
+  return `-${descuento}%`;
+}
+
+export function descripcionProducto({
+  nombre,
+  categoria,
+  marca,
+}: {
+  nombre: string;
+  categoria: string;
+  marca: string;
+}) {
+  return `${nombre} de la línea ${categoria}, marca ${marca}, pensado para reposición confiable y operación continua.`;
+}
