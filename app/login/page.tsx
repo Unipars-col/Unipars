@@ -7,6 +7,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 type LoginFormState = {
   email: string;
   password: string;
+  adminPin: string;
 };
 
 type ToastState = {
@@ -20,6 +21,7 @@ const GUEST_CART_SYNC_KEY = "unipars-cart-synced-user";
 const initialState: LoginFormState = {
   email: "",
   password: "",
+  adminPin: "",
 };
 
 async function syncGuestCartAfterLogin(userId: string) {
@@ -225,6 +227,26 @@ export default function LoginPage() {
               required
               className="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none transition-colors duration-200 focus:border-[#ed8435]"
             />
+          </div>
+
+          <div>
+            <label
+              htmlFor="adminPin"
+              className="mb-2 block text-sm font-medium text-slate-700"
+            >
+              PIN de administrador
+            </label>
+            <input
+              id="adminPin"
+              type="password"
+              value={form.adminPin}
+              onChange={handleChange}
+              placeholder="Solo si tu cuenta es admin"
+              className="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none transition-colors duration-200 focus:border-[#ed8435]"
+            />
+            <p className="mt-2 text-xs leading-6 text-slate-500">
+              Las cuentas de cliente pueden dejar este campo vacío. Las cuentas de administrador necesitan el PIN adicional.
+            </p>
           </div>
 
           {inlineError && (

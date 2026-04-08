@@ -6,10 +6,12 @@ export async function POST(request: Request) {
     const body = (await request.json()) as {
       email?: string;
       password?: string;
+      adminPin?: string;
     };
 
     const email = body.email?.trim() || "";
     const password = body.password || "";
+    const adminPin = body.adminPin?.trim() || "";
 
     if (!email || !password) {
       return Response.json(
@@ -19,6 +21,14 @@ export async function POST(request: Request) {
     }
 
     const user = await authenticateUser(email, password);
+    const expectedAdminPin = process.env.ADMIN_EXTRA_PIN?.trim() || "1234";
+
+    if (user.role === "ADMIN" && adminPin !== expectedAdminPin) {
+      return Response.json(
+        { error: "El PIN de administrador es incorrecto." },
+        { status: 403 },
+      );
+    }
 
     await setSessionCookie({
       userId: user.id,
