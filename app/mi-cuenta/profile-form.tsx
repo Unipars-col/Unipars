@@ -61,6 +61,8 @@ type FormState = {
   confirmPassword: string;
 };
 
+type AccountPanel = "summary" | "details" | "orders";
+
 function formatCurrency(value: number) {
   return new Intl.NumberFormat("es-CO", {
     style: "currency",
@@ -249,6 +251,8 @@ export default function AccountProfileForm({
   orders: AccountOrder[];
 }) {
   const router = useRouter();
+  const [activePanel, setActivePanel] = useState<AccountPanel>("summary");
+  const [showFullOrderHistory, setShowFullOrderHistory] = useState(false);
   const [expandedOrderId, setExpandedOrderId] = useState<string | null>(
     orders[0]?.id ?? null,
   );
@@ -271,6 +275,35 @@ export default function AccountProfileForm({
     () => getCitiesForDepartment(form.department),
     [form.department],
   );
+  const summaryItems = [
+    {
+      label: "Correo principal",
+      value: user.email,
+    },
+    {
+      label: "Teléfono",
+      value: user.phone || "Por completar",
+    },
+    {
+      label: "Ubicación",
+      value:
+        user.department && user.city
+          ? `${user.department} · ${user.city}`
+          : "Aún sin ubicación guardada",
+    },
+    {
+      label: "Dirección",
+      value: user.addressLine1 || "Sin dirección principal",
+    },
+  ];
+  const paidOrders = orders.filter((order) => order.paymentStatus === "PAID").length;
+  const activeShipments = orders.filter((order) =>
+    ["PREPARING", "SHIPPED"].includes(order.shippingStatus),
+  ).length;
+  const deliveredOrders = orders.filter(
+    (order) => order.shippingStatus === "DELIVERED",
+  ).length;
+  const recentOrders = showFullOrderHistory ? orders : orders.slice(0, 3);
 
   useEffect(() => {
     if (!toast) return;
@@ -391,17 +424,44 @@ export default function AccountProfileForm({
               </p>
             </div>
 
-            <div className="flex gap-3">
-              <Link
-                href="/"
-                className="rounded-full border border-[#16384f]/20 px-5 py-3 text-sm font-semibold text-[#16384f] transition-colors duration-200 hover:bg-[#16384f] hover:text-white"
+            <div className="flex flex-wrap gap-3">
+              <button
+                type="button"
+                onClick={() => setActivePanel("summary")}
+                className={`rounded-full px-5 py-3 text-sm font-semibold transition-colors duration-200 ${
+                  activePanel === "summary"
+                    ? "bg-[#16384f] text-white"
+                    : "border border-[#16384f]/20 text-[#16384f] hover:bg-[#16384f] hover:text-white"
+                }`}
               >
-                Ir al inicio
-              </Link>
+                Resumen
+              </button>
+              <button
+                type="button"
+                onClick={() => setActivePanel("details")}
+                className={`rounded-full px-5 py-3 text-sm font-semibold transition-colors duration-200 ${
+                  activePanel === "details"
+                    ? "bg-[#16384f] text-white"
+                    : "border border-[#16384f]/20 text-[#16384f] hover:bg-[#16384f] hover:text-white"
+                }`}
+              >
+                Datos
+              </button>
+              <button
+                type="button"
+                onClick={() => setActivePanel("orders")}
+                className={`rounded-full px-5 py-3 text-sm font-semibold transition-colors duration-200 ${
+                  activePanel === "orders"
+                    ? "bg-[#16384f] text-white"
+                    : "border border-[#16384f]/20 text-[#16384f] hover:bg-[#16384f] hover:text-white"
+                }`}
+              >
+                Pedidos
+              </button>
               <button
                 type="button"
                 onClick={handleLogout}
-                className="rounded-full bg-[#16384f] px-5 py-3 text-sm font-semibold text-white transition-colors duration-200 hover:bg-[#0f2a3b]"
+                className="rounded-full border border-[#16384f]/20 px-5 py-3 text-sm font-semibold text-[#16384f] transition-colors duration-200 hover:bg-[#16384f] hover:text-white"
               >
                 Cerrar sesión
               </button>
@@ -415,179 +475,208 @@ export default function AccountProfileForm({
             </span>
           </div>
 
-          <form onSubmit={handleSubmit} className="mt-8 grid gap-5 md:grid-cols-2">
-            <div>
-              <label htmlFor="fullName" className="mb-2 block text-sm font-medium text-slate-700">
-                Nombre completo
-              </label>
-              <input
-                id="fullName"
-                type="text"
-                value={form.fullName}
-                onChange={handleChange}
-                required
-                className="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none transition-colors duration-200 focus:border-[#ed8435]"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="company" className="mb-2 block text-sm font-medium text-slate-700">
-                Empresa o taller
-              </label>
-              <input
-                id="company"
-                type="text"
-                value={form.company}
-                onChange={handleChange}
-                className="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none transition-colors duration-200 focus:border-[#ed8435]"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="email" className="mb-2 block text-sm font-medium text-slate-700">
-                Correo electrónico
-              </label>
-              <input
-                id="email"
-                type="email"
-                value={form.email}
-                onChange={handleChange}
-                required
-                className="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none transition-colors duration-200 focus:border-[#ed8435]"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="phone" className="mb-2 block text-sm font-medium text-slate-700">
-                Teléfono
-              </label>
-              <input
-                id="phone"
-                type="tel"
-                value={form.phone}
-                onChange={handleChange}
-                className="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none transition-colors duration-200 focus:border-[#ed8435]"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="department" className="mb-2 block text-sm font-medium text-slate-700">
-                Departamento
-              </label>
-              <select
-                id="department"
-                value={form.department}
-                onChange={handleChange}
-                className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 outline-none transition-colors duration-200 focus:border-[#ed8435]"
-              >
-                <option value="">Selecciona un departamento</option>
-                {departamentosColombia.map((department) => (
-                  <option key={department} value={department}>
-                    {department}
-                  </option>
+          {activePanel === "summary" && (
+            <div className="mt-8 space-y-6">
+              <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+                {summaryItems.map((item) => (
+                  <div
+                    key={item.label}
+                    className="rounded-[1.3rem] border border-black/8 bg-white px-5 py-4"
+                  >
+                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#8b8d91]">
+                      {item.label}
+                    </p>
+                    <p className="mt-3 text-sm font-semibold leading-7 text-[#16384f]">
+                      {item.value}
+                    </p>
+                  </div>
                 ))}
-              </select>
-            </div>
+              </div>
 
-            <div>
-              <label htmlFor="city" className="mb-2 block text-sm font-medium text-slate-700">
-                Ciudad
-              </label>
-              <input
-                id="city"
-                type="text"
-                value={form.city}
-                onChange={handleChange}
-                list="account-cities"
-                disabled={!form.department}
-                placeholder={
-                  form.department
-                    ? "Busca o escribe tu ciudad"
-                    : "Primero selecciona un departamento"
-                }
-                className="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none transition-colors duration-200 focus:border-[#ed8435]"
-              />
-              <datalist id="account-cities">
-                {cityOptions.map((city) => (
-                  <option key={city} value={city} />
-                ))}
-              </datalist>
+              <div className="rounded-[1.5rem] border border-black/8 bg-[#fafaf9] px-5 py-5 text-sm leading-7 text-[#5d6167]">
+                Desde aquí puedes entrar a <span className="font-semibold text-[#16384f]">Datos</span>{" "}
+                para actualizar tu cuenta o a <span className="font-semibold text-[#16384f]">Pedidos</span>{" "}
+                para revisar el estado de tus compras.
+              </div>
             </div>
+          )}
 
-            <div className="md:col-span-2">
-              <label htmlFor="addressLine1" className="mb-2 block text-sm font-medium text-slate-700">
-                Dirección principal
-              </label>
-              <input
-                id="addressLine1"
-                type="text"
-                value={form.addressLine1}
-                onChange={handleChange}
-                className="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none transition-colors duration-200 focus:border-[#ed8435]"
-              />
-            </div>
+          {activePanel === "details" && (
+            <form onSubmit={handleSubmit} className="mt-8 grid gap-5 md:grid-cols-2">
+              <div>
+                <label htmlFor="fullName" className="mb-2 block text-sm font-medium text-slate-700">
+                  Nombre completo
+                </label>
+                <input
+                  id="fullName"
+                  type="text"
+                  value={form.fullName}
+                  onChange={handleChange}
+                  required
+                  className="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none transition-colors duration-200 focus:border-[#ed8435]"
+                />
+              </div>
 
-            <div className="md:col-span-2">
-              <label htmlFor="addressLine2" className="mb-2 block text-sm font-medium text-slate-700">
-                Complemento de dirección
-              </label>
-              <input
-                id="addressLine2"
-                type="text"
-                value={form.addressLine2}
-                onChange={handleChange}
-                placeholder="Opcional"
-                className="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none transition-colors duration-200 focus:border-[#ed8435]"
-              />
-            </div>
+              <div>
+                <label htmlFor="company" className="mb-2 block text-sm font-medium text-slate-700">
+                  Empresa o taller
+                </label>
+                <input
+                  id="company"
+                  type="text"
+                  value={form.company}
+                  onChange={handleChange}
+                  className="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none transition-colors duration-200 focus:border-[#ed8435]"
+                />
+              </div>
 
-            <div>
-              <label htmlFor="newPassword" className="mb-2 block text-sm font-medium text-slate-700">
-                Nueva contraseña
-              </label>
-              <input
-                id="newPassword"
-                type="password"
-                value={form.newPassword}
-                onChange={handleChange}
-                placeholder="Opcional"
-                className="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none transition-colors duration-200 focus:border-[#ed8435]"
-              />
-            </div>
+              <div>
+                <label htmlFor="email" className="mb-2 block text-sm font-medium text-slate-700">
+                  Correo electrónico
+                </label>
+                <input
+                  id="email"
+                  type="email"
+                  value={form.email}
+                  onChange={handleChange}
+                  required
+                  className="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none transition-colors duration-200 focus:border-[#ed8435]"
+                />
+              </div>
 
-            <div>
-              <label htmlFor="confirmPassword" className="mb-2 block text-sm font-medium text-slate-700">
-                Confirmar nueva contraseña
-              </label>
-              <input
-                id="confirmPassword"
-                type="password"
-                value={form.confirmPassword}
-                onChange={handleChange}
-                placeholder="Repite la nueva contraseña"
-                className="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none transition-colors duration-200 focus:border-[#ed8435]"
-              />
-            </div>
+              <div>
+                <label htmlFor="phone" className="mb-2 block text-sm font-medium text-slate-700">
+                  Teléfono
+                </label>
+                <input
+                  id="phone"
+                  type="tel"
+                  value={form.phone}
+                  onChange={handleChange}
+                  className="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none transition-colors duration-200 focus:border-[#ed8435]"
+                />
+              </div>
 
-            {inlineError && (
-              <p className="rounded-xl border border-[#ed8435]/20 bg-[#fff6ee] px-4 py-3 text-sm font-medium text-[#b85d12] md:col-span-2">
-                {inlineError}
-              </p>
-            )}
+              <div>
+                <label htmlFor="department" className="mb-2 block text-sm font-medium text-slate-700">
+                  Departamento
+                </label>
+                <select
+                  id="department"
+                  value={form.department}
+                  onChange={handleChange}
+                  className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 outline-none transition-colors duration-200 focus:border-[#ed8435]"
+                >
+                  <option value="">Selecciona un departamento</option>
+                  {departamentosColombia.map((department) => (
+                    <option key={department} value={department}>
+                      {department}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-            <div className="md:col-span-2">
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="w-full rounded-xl bg-[#ed8435] px-4 py-3 font-semibold text-white transition-colors duration-200 hover:bg-[#d67024] disabled:cursor-not-allowed disabled:opacity-70"
-              >
-                {isSubmitting ? "Guardando cambios..." : "Actualizar cuenta"}
-              </button>
-            </div>
-          </form>
+              <div>
+                <label htmlFor="city" className="mb-2 block text-sm font-medium text-slate-700">
+                  Ciudad
+                </label>
+                <input
+                  id="city"
+                  type="text"
+                  value={form.city}
+                  onChange={handleChange}
+                  list="account-cities"
+                  disabled={!form.department}
+                  placeholder={
+                    form.department
+                      ? "Busca o escribe tu ciudad"
+                      : "Primero selecciona un departamento"
+                  }
+                  className="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none transition-colors duration-200 focus:border-[#ed8435]"
+                />
+                <datalist id="account-cities">
+                  {cityOptions.map((city) => (
+                    <option key={city} value={city} />
+                  ))}
+                </datalist>
+              </div>
+
+              <div className="md:col-span-2">
+                <label htmlFor="addressLine1" className="mb-2 block text-sm font-medium text-slate-700">
+                  Dirección principal
+                </label>
+                <input
+                  id="addressLine1"
+                  type="text"
+                  value={form.addressLine1}
+                  onChange={handleChange}
+                  className="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none transition-colors duration-200 focus:border-[#ed8435]"
+                />
+              </div>
+
+              <div className="md:col-span-2">
+                <label htmlFor="addressLine2" className="mb-2 block text-sm font-medium text-slate-700">
+                  Complemento de dirección
+                </label>
+                <input
+                  id="addressLine2"
+                  type="text"
+                  value={form.addressLine2}
+                  onChange={handleChange}
+                  placeholder="Opcional"
+                  className="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none transition-colors duration-200 focus:border-[#ed8435]"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="newPassword" className="mb-2 block text-sm font-medium text-slate-700">
+                  Nueva contraseña
+                </label>
+                <input
+                  id="newPassword"
+                  type="password"
+                  value={form.newPassword}
+                  onChange={handleChange}
+                  placeholder="Opcional"
+                  className="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none transition-colors duration-200 focus:border-[#ed8435]"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="confirmPassword" className="mb-2 block text-sm font-medium text-slate-700">
+                  Confirmar nueva contraseña
+                </label>
+                <input
+                  id="confirmPassword"
+                  type="password"
+                  value={form.confirmPassword}
+                  onChange={handleChange}
+                  placeholder="Repite la nueva contraseña"
+                  className="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none transition-colors duration-200 focus:border-[#ed8435]"
+                />
+              </div>
+
+              {inlineError && (
+                <p className="rounded-xl border border-[#ed8435]/20 bg-[#fff6ee] px-4 py-3 text-sm font-medium text-[#b85d12] md:col-span-2">
+                  {inlineError}
+                </p>
+              )}
+
+              <div className="md:col-span-2">
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="w-full rounded-xl bg-[#ed8435] px-4 py-3 font-semibold text-white transition-colors duration-200 hover:bg-[#d67024] disabled:cursor-not-allowed disabled:opacity-70"
+                >
+                  {isSubmitting ? "Guardando cambios..." : "Actualizar cuenta"}
+                </button>
+              </div>
+            </form>
+          )}
         </section>
 
-        <section className="rounded-[2rem] bg-white p-8 shadow-lg shadow-black/10 md:p-10">
+        {activePanel === "orders" && (
+          <section className="rounded-[2rem] bg-white p-8 shadow-lg shadow-black/10 md:p-10">
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div>
               <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[#ed8435]">
@@ -610,6 +699,55 @@ export default function AccountProfileForm({
             </Link>
           </div>
 
+          <div className="mt-6 grid gap-4 md:grid-cols-3">
+            <div className="rounded-[1.3rem] border border-black/8 bg-[#fafaf9] px-5 py-4">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#8b8d91]">
+                Pedidos totales
+              </p>
+              <p className="mt-3 text-3xl font-bold tracking-[-0.04em] text-[#16384f]">
+                {orders.length}
+              </p>
+            </div>
+            <div className="rounded-[1.3rem] border border-black/8 bg-[#fafaf9] px-5 py-4">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#8b8d91]">
+                En proceso
+              </p>
+              <p className="mt-3 text-3xl font-bold tracking-[-0.04em] text-[#16384f]">
+                {activeShipments}
+              </p>
+            </div>
+            <div className="rounded-[1.3rem] border border-black/8 bg-[#fafaf9] px-5 py-4">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#8b8d91]">
+                Entregados
+              </p>
+              <p className="mt-3 text-3xl font-bold tracking-[-0.04em] text-[#16384f]">
+                {deliveredOrders}
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-5 rounded-[1.5rem] border border-black/8 bg-[#fafaf9] p-5">
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#8b8d91]">
+                  Vista del historial
+                </p>
+                <p className="mt-2 text-sm leading-7 text-[#5d6167]">
+                  Tienes {paidOrders} compra{paidOrders === 1 ? "" : "s"} confirmada
+                  {paidOrders === 1 ? "" : "s"} y {orders.length} pedido
+                  {orders.length === 1 ? "" : "s"} en total.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowFullOrderHistory((current) => !current)}
+                className="rounded-full border border-[#16384f]/20 px-5 py-3 text-sm font-semibold text-[#16384f] transition-colors duration-200 hover:bg-[#16384f] hover:text-white"
+              >
+                {showFullOrderHistory ? "Ver solo recientes" : "Ver historial completo"}
+              </button>
+            </div>
+          </div>
+
           {orders.length === 0 ? (
             <div className="mt-6 rounded-[1.5rem] border border-dashed border-black/12 bg-[#fafaf9] p-8 text-center text-sm leading-7 text-[#6e7379]">
               Aún no tienes pedidos guardados. Cuando completes tu checkout, aparecerán
@@ -617,7 +755,7 @@ export default function AccountProfileForm({
             </div>
           ) : (
             <div className="mt-6 space-y-5">
-              {orders.map((order) => (
+              {recentOrders.map((order) => (
                 <article
                   key={order.id}
                   className="overflow-hidden rounded-[1.75rem] border border-black/8 bg-[#fafaf9]"
@@ -772,7 +910,8 @@ export default function AccountProfileForm({
               ))}
             </div>
           )}
-        </section>
+          </section>
+        )}
       </section>
     </main>
   );

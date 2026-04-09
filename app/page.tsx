@@ -353,180 +353,164 @@ export default async function Home() {
       </section>
 
       <footer className="bg-[#102b3c] text-white">
-        <div className="mx-auto max-w-[1440px] px-6 py-14">
-          <div className="grid gap-12 border-b border-white/10 pb-12 lg:grid-cols-[1.2fr_2fr]">
-            <div className="lg:pr-10 lg:border-r lg:border-white/10">
-              <Link href="/" className="inline-flex">
-                <Image
-                  src="/logo.png"
-                  alt="Unipars"
-                  width={170}
-                  height={60}
-                  style={{ width: "170px", height: "auto" }}
-                />
-              </Link>
-
-              <p className="mt-6 max-w-md text-base leading-8 text-white/68">
-                Unipars conecta personas, talleres y negocios con repuestos,
-                categorias y soluciones confiables para comprar con claridad,
-                rapidez y respaldo.
-              </p>
-
-              <div className="mt-8 rounded-[1.5rem] border border-white/10 bg-white/5 p-5">
-                <p className="text-sm font-semibold uppercase tracking-[0.28em] text-[#ed8435]">
-                  Comentarios
-                </p>
-                <p className="mt-3 max-w-xs text-sm leading-7 text-white/70">
-                  Tus comentarios nos ayudan a mejorar la experiencia de compra
-                  y el servicio de Unipars.
-                </p>
-                <Link
-                  href="#"
-                  className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-white transition-colors duration-200 hover:text-[#ed8435]"
-                >
-                  Envíanos tus comentarios
-                  <span className="text-[#ed8435]">›</span>
+        <div className="mx-auto max-w-[1440px] px-6 py-12">
+          <div className="rounded-[2rem] border border-white/10 bg-[linear-gradient(135deg,rgba(255,255,255,0.04),rgba(255,255,255,0.01))] p-6 shadow-[0_32px_90px_rgba(0,0,0,0.18)] md:p-8">
+            <div className="grid gap-8 border-b border-white/10 pb-8 xl:grid-cols-[1.05fr_1.35fr]">
+              <div className="space-y-5">
+                <Link href="/" className="inline-flex">
+                  <Image
+                    src="/logo.png"
+                    alt="Unipars"
+                    width={170}
+                    height={60}
+                    style={{ width: "170px", height: "auto" }}
+                  />
                 </Link>
-              </div>
-            </div>
 
-            <div className="space-y-10">
-              <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-5">
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.25em] text-white/45">
-                    Teléfono
-                  </p>
-                  <p className="mt-3 text-2xl font-semibold tracking-[-0.03em]">
-                    (601) 286-70-87
-                  </p>
-                </div>
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.25em] text-white/45">
-                    Celular y WhatsApp
-                  </p>
-                  <p className="mt-3 text-2xl font-semibold tracking-[-0.03em]">
-                    (57) 3057249454
-                  </p>
-                </div>
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.25em] text-white/45">
-                    Lunes - Viernes
-                  </p>
-                  <p className="mt-3 text-2xl font-semibold tracking-[-0.03em]">
-                    8:00 am - 5:30 pm
-                  </p>
-                </div>
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.25em] text-white/45">
-                    Sábados
-                  </p>
-                  <p className="mt-3 text-2xl font-semibold tracking-[-0.03em]">
-                    9:00 am - 1:00 pm
-                  </p>
-                </div>
-                <div className="flex items-start xl:justify-end">
+                <p className="max-w-xl text-base leading-8 text-white/70">
+                  Repuestos, soporte y compras claras para talleres, negocios y
+                  clientes que necesitan resolver rápido.
+                </p>
+
+                <div className="flex flex-wrap gap-3">
                   <Link
                     href="#"
                     className="inline-flex rounded-full bg-[#ed8435] px-5 py-3 text-sm font-semibold text-white transition-colors duration-200 hover:bg-[#d67024]"
                   >
                     Ver el mapa
                   </Link>
+                  <Link
+                    href="#"
+                    className="inline-flex rounded-full border border-white/12 bg-white/5 px-5 py-3 text-sm font-semibold text-white transition-colors duration-200 hover:border-[#ed8435]/40 hover:text-[#ed8435]"
+                  >
+                    Envíanos tus comentarios
+                  </Link>
                 </div>
               </div>
 
-              <div className="grid gap-8 border-t border-white/10 pt-10 md:grid-cols-2 xl:grid-cols-4">
-                <div>
-                  <p className="text-sm font-semibold uppercase tracking-[0.18em] text-white">
-                    Servicio al cliente
+              <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                <div className="rounded-[1.35rem] border border-white/10 bg-white/5 p-4">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-white/45">
+                    Teléfono
                   </p>
-                  <div className="mt-5 space-y-3 text-white/65">
-                    <Link href="#" className="block transition-colors duration-200 hover:text-[#ed8435]">
-                      Ayuda y soporte
-                    </Link>
-                    <Link href="#" className="block transition-colors duration-200 hover:text-[#ed8435]">
-                      Mi cuenta
-                    </Link>
-                    <Link href="#" className="block transition-colors duration-200 hover:text-[#ed8435]">
-                      Estado del pedido
-                    </Link>
-                    <Link href="#" className="block transition-colors duration-200 hover:text-[#ed8435]">
-                      Políticas de devolución
-                    </Link>
-                    <Link href="#" className="block transition-colors duration-200 hover:text-[#ed8435]">
-                      Envíos y entregas
-                    </Link>
-                  </div>
+                  <p className="mt-3 text-xl font-semibold tracking-[-0.03em]">
+                    (601) 286-70-87
+                  </p>
+                </div>
+                <div className="rounded-[1.35rem] border border-white/10 bg-white/5 p-4">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-white/45">
+                    WhatsApp
+                  </p>
+                  <p className="mt-3 text-xl font-semibold tracking-[-0.03em]">
+                    (57) 3057249454
+                  </p>
+                </div>
+                <div className="rounded-[1.35rem] border border-white/10 bg-white/5 p-4">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-white/45">
+                    Lunes a viernes
+                  </p>
+                  <p className="mt-3 text-xl font-semibold tracking-[-0.03em]">
+                    8:00 am - 5:30 pm
+                  </p>
+                </div>
+                <div className="rounded-[1.35rem] border border-white/10 bg-white/5 p-4">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-white/45">
+                    Sábados
+                  </p>
+                  <p className="mt-3 text-xl font-semibold tracking-[-0.03em]">
+                    9:00 am - 1:00 pm
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="grid gap-8 pt-8 xl:grid-cols-[1.05fr_1fr]">
+              <div>
+                <p className="text-sm font-semibold uppercase tracking-[0.18em] text-white">
+                  Navegación esencial
+                </p>
+                <div className="mt-5 grid gap-3 text-white/68 sm:grid-cols-2 lg:grid-cols-3">
+                  <Link href="/quienes-somos" className="transition-colors duration-200 hover:text-[#ed8435]">
+                    Quiénes somos
+                  </Link>
+                  <Link href="/tips-y-videos" className="transition-colors duration-200 hover:text-[#ed8435]">
+                    Tips y videos
+                  </Link>
+                  <Link href="/categorias" className="transition-colors duration-200 hover:text-[#ed8435]">
+                    Categorías
+                  </Link>
+                  <Link href="#" className="transition-colors duration-200 hover:text-[#ed8435]">
+                    Ayuda y soporte
+                  </Link>
+                  <Link href="#" className="transition-colors duration-200 hover:text-[#ed8435]">
+                    Estado del pedido
+                  </Link>
+                  <Link href="#" className="transition-colors duration-200 hover:text-[#ed8435]">
+                    Términos y privacidad
+                  </Link>
+                </div>
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between gap-4">
+                  <p className="text-sm font-semibold uppercase tracking-[0.18em] text-white">
+                    Líneas destacadas
+                  </p>
+                  <Link
+                    href="/categorias"
+                    className="text-sm font-semibold text-[#ed8435] transition-colors duration-200 hover:text-white"
+                  >
+                    Ver todas
+                  </Link>
                 </div>
 
-                <div>
-                  <p className="text-sm font-semibold uppercase tracking-[0.18em] text-white">
-                    Sobre nosotros
-                  </p>
-                  <div className="mt-5 space-y-3 text-white/65">
-                    <Link href="/quienes-somos" className="block transition-colors duration-200 hover:text-[#ed8435]">
-                      Quiénes somos
+                <div className="mt-5 grid gap-3 sm:grid-cols-2">
+                  {categoriasData.slice(0, 6).map((categoria) => (
+                    <Link
+                      key={categoria.nombre}
+                      href={`/categorias?categoria=${slugCategoria(categoria.nombre)}`}
+                      className="rounded-[1rem] border border-white/10 bg-white/5 px-4 py-3 text-sm text-white/78 transition-colors duration-200 hover:border-[#ed8435]/40 hover:text-[#ed8435]"
+                    >
+                      {categoria.nombre}
                     </Link>
-                    <Link href="#" className="block transition-colors duration-200 hover:text-[#ed8435]">
-                      Noticias
-                    </Link>
-                    <Link href="#" className="block transition-colors duration-200 hover:text-[#ed8435]">
-                      Métodos de pago
-                    </Link>
-                    <Link href="#" className="block transition-colors duration-200 hover:text-[#ed8435]">
-                      Opiniones
-                    </Link>
-                    <Link href="#" className="block transition-colors duration-200 hover:text-[#ed8435]">
-                      Aliados comerciales
-                    </Link>
-                  </div>
-                </div>
-
-                <div>
-                  <p className="text-sm font-semibold uppercase tracking-[0.18em] text-white">
-                    Enlaces rápidos
-                  </p>
-                  <div className="mt-5 space-y-3 text-white/65">
-                    <Link href="#" className="block transition-colors duration-200 hover:text-[#ed8435]">
-                      Buscar
-                    </Link>
-                    <Link href="#" className="block transition-colors duration-200 hover:text-[#ed8435]">
-                      Ventas al por mayor
-                    </Link>
-                    <Link href="#" className="block transition-colors duration-200 hover:text-[#ed8435]">
-                      Categorías
-                    </Link>
-                    <Link href="#" className="block transition-colors duration-200 hover:text-[#ed8435]">
-                      Privacidad de datos
-                    </Link>
-                    <Link href="#" className="block transition-colors duration-200 hover:text-[#ed8435]">
-                      Términos y condiciones
-                    </Link>
-                  </div>
-                </div>
-
-                <div>
-                  <p className="text-sm font-semibold uppercase tracking-[0.18em] text-white">
-                    Catálogos
-                  </p>
-                  <div className="mt-5 space-y-3 text-white/65">
-                    {categoriasData.map((categoria) => (
-                      <Link
-                        key={categoria.nombre}
-                        href={`/categorias?categoria=${slugCategoria(categoria.nombre)}`}
-                        className="block transition-colors duration-200 hover:text-[#ed8435]"
-                      >
-                        {categoria.nombre}
-                      </Link>
-                    ))}
-                  </div>
+                  ))}
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="flex flex-col gap-3 pt-6 text-sm text-white/45 md:flex-row md:items-center md:justify-between">
-            <p>© 2026 Unipars. Todos los derechos reservados.</p>
-            <p>Diseñado para una experiencia clara, rápida y confiable.</p>
+          <div className="flex flex-col gap-6 border-t border-white/10 pt-6 text-sm text-white/45 lg:flex-row lg:items-center lg:justify-between">
+            <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
+              <p>© 2026 Unipars. Todos los derechos reservados.</p>
+              <Link href="#" className="transition-colors duration-200 hover:text-[#ed8435]">
+                Términos del servicio
+              </Link>
+              <Link href="#" className="transition-colors duration-200 hover:text-[#ed8435]">
+                Política de privacidad
+              </Link>
+              <Link href="#" className="transition-colors duration-200 hover:text-[#ed8435]">
+                Mapa del sitio
+              </Link>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-3">
+              {[
+                { label: "f", name: "Facebook" },
+                { label: "wa", name: "WhatsApp" },
+                { label: "yt", name: "YouTube" },
+                { label: "ig", name: "Instagram" },
+                { label: "tt", name: "TikTok" },
+              ].map((social) => (
+                <Link
+                  key={social.name}
+                  href="#"
+                  aria-label={social.name}
+                  className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/12 bg-white/5 text-xs font-semibold uppercase tracking-[0.08em] text-white transition-colors duration-200 hover:border-[#ed8435]/45 hover:text-[#ed8435]"
+                >
+                  {social.label}
+                </Link>
+              ))}
+            </div>
           </div>
         </div>
       </footer>

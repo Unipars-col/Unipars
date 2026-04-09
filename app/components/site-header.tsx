@@ -77,60 +77,63 @@ export default function SiteHeader({ currentUser }: SiteHeaderProps) {
 
   return (
     <header className="sticky top-0 z-50 border-b border-black/8 bg-white text-[#16384f] shadow-[0_12px_30px_rgba(15,23,42,0.05)]">
-      <div className="mx-auto flex max-w-[1600px] items-center gap-6 px-5 py-4">
-        <Link href="/" className="inline-flex shrink-0">
-          <Image
-            src="/logo.png"
-            alt="Unipars"
-            width={104}
-            height={27}
-            style={{ width: "104px", height: "auto" }}
-            priority
-          />
-        </Link>
+      <div className="mx-auto max-w-[1600px] px-4 py-4 lg:px-5">
+        <div className="flex items-center gap-3">
+          <Link href="/" className="inline-flex shrink-0">
+            <Image
+              src="/logo.png"
+              alt="Unipars"
+              width={104}
+              height={27}
+              style={{ width: "104px", height: "auto" }}
+              priority
+            />
+          </Link>
 
-        <form
-          onSubmit={handleSearch}
-          className="flex min-w-0 max-w-[620px] flex-1 items-center rounded-full border border-black/10 bg-[#f8f8f7] p-2 shadow-[0_8px_20px_rgba(15,23,42,0.04)]"
-        >
-          <input
-            key={searchParams.get("q") || ""}
-            name="q"
-            type="search"
-            defaultValue={searchParams.get("q") || ""}
-            placeholder="Buscar repuestos..."
-            className="w-full min-w-0 bg-transparent px-5 text-sm text-[#16384f] outline-none placeholder:text-slate-400"
-          />
-          <div className="ml-2 flex items-center gap-2 rounded-full bg-white/88 pl-2">
-            <button
-              type="submit"
-              className="rounded-full bg-[#ed8435] px-7 py-3 text-sm font-semibold text-white transition-colors duration-200 hover:bg-[#d67024]"
-            >
-              Buscar
-            </button>
-            <Link
-              href="/buscar-por-imagen"
-              aria-label="Abrir búsqueda por imagen"
-              className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-[#16384f]/12 bg-white text-[#16384f] transition-colors duration-200 hover:border-[#ed8435] hover:bg-[#fff6ee] hover:text-[#ed8435]"
-            >
-              <svg
-                aria-hidden="true"
-                viewBox="0 0 24 24"
-                className="h-5 w-5"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.8"
-                strokeLinecap="round"
-                strokeLinejoin="round"
+          <form
+            onSubmit={handleSearch}
+            className="flex min-w-0 flex-1 items-center rounded-full border border-black/10 bg-[#f8f8f7] p-2 shadow-[0_8px_20px_rgba(15,23,42,0.04)]"
+          >
+            <input
+              key={searchParams.get("q") || ""}
+              name="q"
+              type="search"
+              defaultValue={searchParams.get("q") || ""}
+              placeholder="Buscar repuestos..."
+              className="w-full min-w-0 bg-transparent px-4 text-sm text-[#16384f] outline-none placeholder:text-slate-400 md:px-5"
+            />
+            <div className="ml-2 flex items-center gap-2 rounded-full bg-white/88 pl-2">
+              <button
+                type="submit"
+                className="rounded-full bg-[#ed8435] px-5 py-3 text-sm font-semibold text-white transition-colors duration-200 hover:bg-[#d67024] lg:px-7"
               >
-                <path d="M14.5 4H9.5L8 6H5a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-3l-1.5-2Z" />
-                <circle cx="12" cy="12" r="3.5" />
-              </svg>
-            </Link>
-          </div>
-        </form>
+                Buscar
+              </button>
+              <Link
+                href="/buscar-por-imagen"
+                aria-label="Abrir búsqueda por imagen"
+                className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-[#16384f]/12 bg-white text-[#16384f] transition-colors duration-200 hover:border-[#ed8435] hover:bg-[#fff6ee] hover:text-[#ed8435]"
+              >
+                <svg
+                  aria-hidden="true"
+                  viewBox="0 0 24 24"
+                  className="h-5 w-5"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M14.5 4H9.5L8 6H5a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-3l-1.5-2Z" />
+                  <circle cx="12" cy="12" r="3.5" />
+                </svg>
+              </Link>
+            </div>
+          </form>
+        </div>
 
-        <nav className="hidden items-center gap-6 text-sm font-semibold tracking-[0.01em] text-[#16384f] xl:flex">
+        <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
+          <nav className="flex shrink-0 items-center gap-4 text-[13px] font-semibold tracking-[0.01em] text-[#16384f] md:gap-5 lg:text-sm xl:gap-6">
           <div className="relative" ref={menuRef}>
             <div className="flex items-center gap-2">
               <button
@@ -178,68 +181,70 @@ export default function SiteHeader({ currentUser }: SiteHeaderProps) {
           >
             Tips y videos
           </Link>
-        </nav>
+          </nav>
 
-        <div className="hidden items-center gap-3 xl:flex">
-          <Link
-            href="/carrito"
-            className="relative inline-flex h-11 w-11 items-center justify-center rounded-full border border-[#16384f]/18 bg-[#f8f8f7] text-[#16384f] transition-colors duration-200 hover:bg-[#16384f] hover:text-white"
-          >
-            <span className="text-lg">🛒</span>
-            {totalItems > 0 && (
-              <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-[#ed8435] px-1 text-[10px] font-semibold text-white">
-                {totalItems}
-              </span>
-            )}
-          </Link>
-          {currentUser ? (
-            <>
-              <span className="whitespace-nowrap text-sm font-semibold text-[#16384f]">
-                Hola, {currentUser.fullName}
-              </span>
-              <Link
-                href={currentUser.role === "ADMIN" ? "/admin" : "/mi-cuenta"}
-                className="inline-flex items-center gap-2 rounded-full bg-[#ed8435] px-5 py-2.5 text-xs font-semibold tracking-[0.04em] text-white transition-colors duration-200 hover:bg-[#d67024]"
-              >
-                <svg
-                  aria-hidden="true"
-                  viewBox="0 0 24 24"
-                  className="h-4 w-4"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.9"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
+          <div className="flex shrink-0 items-center gap-2 xl:gap-3">
+            <Link
+              href="/carrito"
+              className="relative inline-flex h-11 w-11 items-center justify-center rounded-full border border-[#16384f]/18 bg-[#f8f8f7] text-[#16384f] transition-colors duration-200 hover:bg-[#16384f] hover:text-white"
+            >
+              <span className="text-lg">🛒</span>
+              {totalItems > 0 && (
+                <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-[#ed8435] px-1 text-[10px] font-semibold text-white">
+                  {totalItems}
+                </span>
+              )}
+            </Link>
+            {currentUser ? (
+              <>
+                <span className="hidden max-w-[96px] truncate whitespace-nowrap text-sm font-semibold text-[#16384f] lg:inline xl:max-w-none">
+                  Hola, {currentUser.fullName}
+                </span>
+                <Link
+                  href={currentUser.role === "ADMIN" ? "/admin" : "/mi-cuenta"}
+                  className="inline-flex items-center gap-2 rounded-full bg-[#ed8435] px-3 py-2.5 text-[11px] font-semibold tracking-[0.04em] text-white transition-colors duration-200 hover:bg-[#d67024] lg:px-4 lg:text-xs xl:px-5"
                 >
-                  <path d="M20 21a8 8 0 0 0-16 0" />
-                  <circle cx="12" cy="8" r="4" />
-                </svg>
-                {currentUser.fullName}
-              </Link>
-              <button
-                type="button"
-                onClick={handleLogout}
-                className="rounded-full border border-[#16384f]/25 px-5 py-2.5 text-xs font-semibold tracking-[0.04em] text-[#16384f] transition-colors duration-200 hover:border-[#16384f] hover:bg-[#16384f] hover:text-white"
-              >
-                Salir
-              </button>
-            </>
-          ) : (
-            <>
-              <Link
-                href="/registro"
-                className="rounded-full bg-[#ed8435] px-5 py-2.5 text-xs font-semibold tracking-[0.04em] text-white transition-colors duration-200 hover:bg-[#d67024]"
-              >
-                Registro
-              </Link>
-              <Link
-                href="/login"
-                className="rounded-full border border-[#16384f]/25 px-5 py-2.5 text-xs font-semibold tracking-[0.04em] text-[#16384f] transition-colors duration-200 hover:border-[#16384f] hover:bg-[#16384f] hover:text-white"
-              >
-                Ingresar
-              </Link>
-            </>
-          )}
+                  <svg
+                    aria-hidden="true"
+                    viewBox="0 0 24 24"
+                    className="h-4 w-4"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.9"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M20 21a8 8 0 0 0-16 0" />
+                    <circle cx="12" cy="8" r="4" />
+                  </svg>
+                  <span className="hidden lg:inline">{currentUser.fullName}</span>
+                  <span className="lg:hidden">Cuenta</span>
+                </Link>
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  className="rounded-full border border-[#16384f]/25 px-3 py-2.5 text-[11px] font-semibold tracking-[0.04em] text-[#16384f] transition-colors duration-200 hover:border-[#16384f] hover:bg-[#16384f] hover:text-white lg:px-4 lg:text-xs xl:px-5"
+                >
+                  Salir
+                </button>
+              </>
+            ) : (
+              <>
+                <Link
+                  href="/registro"
+                  className="rounded-full bg-[#ed8435] px-3 py-2.5 text-[11px] font-semibold tracking-[0.04em] text-white transition-colors duration-200 hover:bg-[#d67024] lg:px-4 lg:text-xs xl:px-5"
+                >
+                  Registro
+                </Link>
+                <Link
+                  href="/login"
+                  className="rounded-full border border-[#16384f]/25 px-3 py-2.5 text-[11px] font-semibold tracking-[0.04em] text-[#16384f] transition-colors duration-200 hover:border-[#16384f] hover:bg-[#16384f] hover:text-white lg:px-4 lg:text-xs xl:px-5"
+                >
+                  Ingresar
+                </Link>
+              </>
+            )}
+          </div>
         </div>
       </div>
     </header>
