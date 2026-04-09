@@ -287,3 +287,54 @@ export async function updateOrderShipping(
     },
   });
 }
+
+export async function confirmSimulatedOrderPayment(
+  orderId: string,
+  userId: string,
+  paymentCode: string,
+) {
+  if (!prisma) {
+    throw new Error("DATABASE_NOT_CONFIGURED");
+  }
+
+  const expectedPaymentCode =
+    process.env.SIMULATED_PAYMENT_CODE?.trim() || "1234";
+
+  if (paymentCode.trim() !== expectedPaymentCode) {
+    throw new Error("INVALID_PAYMENT_CODE");
+  }
+
+  const order = await prisma.order.findFirst({
+    where: {
+      id: orderId,
+      userId,
+    },
+    include: {
+      items: {
+        orderBy: { createdAt: "asc" },
+      },
+    },
+  });
+
+  if (!order) {
+    throw new Error("ORDER_NOT_FOUND");
+  }
+
+  return await prisma.order.update({
+    where: { id: orderId },
+    data: {
+      paymentStatus: "PAID",
+      status: "PAID",
+      shippingStatus:
+        order.shippingStatus === "PENDING" ? "PREPARING" : order.shippingStatus,
+      adminNotes:
+        order.adminNotes ||
+        "Pago demo confirmado con código interno de validación.",
+    },
+    include: {
+      items: {
+        orderBy: { createdAt: "asc" },
+      },
+    },
+  });
+}

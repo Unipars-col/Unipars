@@ -3,23 +3,26 @@ import Link from "next/link";
 export default async function CheckoutSuccessPage({
   searchParams,
 }: {
-  searchParams: Promise<{ pedido?: string }>;
+  searchParams: Promise<{ pedido?: string; pagado?: string }>;
 }) {
   const params = await searchParams;
+  const paymentConfirmed = params.pagado === "1";
 
   return (
     <main className="flex min-h-[calc(100vh-88px)] items-center justify-center bg-[#f5f5f5] px-6 py-16">
       <section className="w-full max-w-2xl rounded-[2rem] bg-white p-8 text-center shadow-lg shadow-black/10 md:p-10">
         <p className="text-sm font-semibold uppercase tracking-[0.24em] text-[#ed8435]">
-          Pedido creado
+          {paymentConfirmed ? "Pago confirmado" : "Pedido creado"}
         </p>
         <h1 className="mt-3 text-3xl font-bold text-[#16384f] md:text-4xl">
-          Recibimos tu solicitud correctamente
+          {paymentConfirmed
+            ? "Tu pago demo quedó aprobado"
+            : "Recibimos tu solicitud correctamente"}
         </h1>
         <p className="mt-4 text-sm leading-7 text-slate-600">
-          Tu pedido quedó guardado en la base de datos y ya aparece dentro de tu
-          cuenta. El siguiente paso será conectar el pago con Wompi sobre esta misma
-          orden.
+          {paymentConfirmed
+            ? "El pedido quedó pagado dentro del flujo demo y ya puedes mostrar el seguimiento completo en tu cuenta."
+            : "Tu pedido quedó guardado en la base de datos y ya aparece dentro de tu cuenta. El siguiente paso será conectar el pago con Wompi sobre esta misma orden."}
         </p>
 
         {params.pedido && (
