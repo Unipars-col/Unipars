@@ -94,7 +94,7 @@ export default function SiteHeader({ currentUser }: SiteHeaderProps) {
         <div className="flex w-full flex-col gap-4 md:w-auto md:flex-row md:items-center md:gap-8">
           <form
             onSubmit={handleSearch}
-            className="flex w-full max-w-[520px] items-center rounded-full border border-black/10 bg-[#f8f8f7] px-2 py-2 md:w-[520px]"
+            className="flex w-full max-w-[600px] items-center rounded-full border border-black/10 bg-[#f8f8f7] p-2 shadow-[0_8px_20px_rgba(15,23,42,0.04)] md:w-[600px]"
           >
             <input
               key={searchParams.get("q") || ""}
@@ -102,14 +102,35 @@ export default function SiteHeader({ currentUser }: SiteHeaderProps) {
               type="search"
               defaultValue={searchParams.get("q") || ""}
               placeholder="Buscar repuestos..."
-              className="w-full bg-transparent px-4 text-sm text-[#16384f] outline-none placeholder:text-slate-400"
+              className="w-full bg-transparent px-5 text-sm text-[#16384f] outline-none placeholder:text-slate-400"
             />
-            <button
-              type="submit"
-              className="rounded-full bg-[#ed8435] px-6 py-2.5 text-sm font-semibold text-white transition-colors duration-200 hover:bg-[#d67024]"
-            >
-              Buscar
-            </button>
+            <div className="ml-2 flex items-center gap-2 rounded-full bg-white/88 pl-2">
+              <button
+                type="submit"
+                className="rounded-full bg-[#ed8435] px-7 py-3 text-sm font-semibold text-white transition-colors duration-200 hover:bg-[#d67024]"
+              >
+                Buscar
+              </button>
+              <Link
+                href="/buscar-por-imagen"
+                aria-label="Abrir búsqueda por imagen"
+                className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-[#16384f]/12 bg-white text-[#16384f] transition-colors duration-200 hover:border-[#ed8435] hover:bg-[#fff6ee] hover:text-[#ed8435]"
+              >
+                <svg
+                  aria-hidden="true"
+                  viewBox="0 0 24 24"
+                  className="h-5 w-5"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M14.5 4H9.5L8 6H5a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-3l-1.5-2Z" />
+                  <circle cx="12" cy="12" r="3.5" />
+                </svg>
+              </Link>
+            </div>
           </form>
 
           <nav className="flex items-center gap-6 text-sm font-medium uppercase tracking-[0.04em] text-[#16384f]">

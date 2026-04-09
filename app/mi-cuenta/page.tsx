@@ -4,6 +4,8 @@ import { getOrdersForUser } from "@/lib/orders";
 import { getUserById } from "@/lib/users";
 import AccountProfileForm from "./profile-form";
 
+export const dynamic = "force-dynamic";
+
 export default async function MiCuentaPage() {
   const session = await getSessionFromCookies();
 

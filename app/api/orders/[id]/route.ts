@@ -1,3 +1,4 @@
+import { revalidatePath } from "next/cache";
 import { requireAdminUser } from "@/lib/admin";
 import { updateOrderShipping } from "@/lib/orders";
 
@@ -31,6 +32,9 @@ export async function PATCH(
       trackingNumber: body.trackingNumber,
       adminNotes: body.adminNotes,
     });
+
+    revalidatePath("/mi-cuenta");
+    revalidatePath("/admin");
 
     return Response.json({
       order,

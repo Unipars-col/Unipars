@@ -248,10 +248,11 @@ export async function updateOrderShipping(
     throw new Error("ORDER_NOT_FOUND");
   }
 
+  const nextPaymentStatus = paymentStatus || currentOrder.paymentStatus;
   const nextOrderStatus =
     shippingStatus === "CANCELLED"
       ? "CANCELLED"
-      : paymentStatus === "PAID" || currentOrder.paymentStatus === "PAID"
+      : nextPaymentStatus === "PAID"
         ? "PAID"
         : "PENDING";
 
@@ -265,7 +266,7 @@ export async function updateOrderShipping(
     where: { id: orderId },
     data: {
       shippingStatus,
-      paymentStatus: paymentStatus || currentOrder.paymentStatus,
+      paymentStatus: nextPaymentStatus,
       status: nextOrderStatus,
       carrier,
       trackingNumber,

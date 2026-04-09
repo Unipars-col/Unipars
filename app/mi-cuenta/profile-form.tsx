@@ -89,6 +89,158 @@ function getShippingStatusLabel(status: AccountOrder["shippingStatus"]) {
   return "Pendiente de despacho";
 }
 
+function getOrderProgressStep(order: AccountOrder) {
+  if (order.shippingStatus === "DELIVERED") return 3;
+  if (order.shippingStatus === "SHIPPED") return 2;
+  if (order.shippingStatus === "PREPARING") return 1;
+  if (order.paymentStatus === "PAID" || order.status === "PAID") return 0;
+  return -1;
+}
+
+function OrderProgressTimeline({ order }: { order: AccountOrder }) {
+  const activeStep = getOrderProgressStep(order);
+  const steps = [
+    {
+      label: "Pedido confirmado",
+      icon: (
+        <svg
+          aria-hidden="true"
+          viewBox="0 0 24 24"
+          className="h-4 w-4"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.8"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="M6 3h9l3 3v15H6z" />
+          <path d="M15 3v3h3" />
+          <path d="M9 12h6" />
+          <path d="M9 16h4" />
+        </svg>
+      ),
+    },
+    {
+      label: "En preparación",
+      icon: (
+        <svg
+          aria-hidden="true"
+          viewBox="0 0 24 24"
+          className="h-4 w-4"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.8"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="M12 3 4 7l8 4 8-4-8-4Z" />
+          <path d="M4 7v10l8 4 8-4V7" />
+          <path d="M12 11v10" />
+        </svg>
+      ),
+    },
+    {
+      label: "Enviado",
+      icon: (
+        <svg
+          aria-hidden="true"
+          viewBox="0 0 24 24"
+          className="h-4 w-4"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.8"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="M3 7h11v8H3z" />
+          <path d="M14 10h3l4 3v2h-7z" />
+          <circle cx="7.5" cy="17.5" r="1.5" />
+          <circle cx="17.5" cy="17.5" r="1.5" />
+        </svg>
+      ),
+    },
+    {
+      label: "Recibido",
+      icon: (
+        <svg
+          aria-hidden="true"
+          viewBox="0 0 24 24"
+          className="h-4 w-4"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="m5 12 4 4L19 6" />
+        </svg>
+      ),
+    },
+  ];
+
+  return (
+    <div className="rounded-[1.2rem] border border-black/8 bg-white px-4 py-5">
+      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#8b8d91]">
+        Seguimiento del pedido
+      </p>
+      <div className="mt-5 overflow-x-auto">
+        <div className="relative min-w-[620px] px-1 py-2">
+          <div className="absolute left-[12.5%] right-[12.5%] top-8">
+            <span className="block h-[4px] rounded-full bg-black/10" />
+            <span
+              className="absolute left-0 top-0 h-[4px] rounded-full bg-[#ed8435] transition-all duration-300"
+              style={{
+                width:
+                  activeStep < 0
+                    ? "0%"
+                    : `${(activeStep / (steps.length - 1)) * 100}%`,
+              }}
+            />
+          </div>
+
+          <div className="relative flex items-start justify-between gap-0">
+            {steps.map((step, index) => {
+              const isCompleted = activeStep >= 0 && index <= activeStep;
+              const isCurrent = index === activeStep;
+
+              return (
+                <div
+                  key={step.label}
+                  className="relative flex min-w-[136px] flex-1 flex-col items-center text-center"
+                >
+                  <span
+                    className={`relative z-10 flex h-12 w-12 shrink-0 items-center justify-center rounded-full border ${
+                      isCompleted
+                        ? "border-[#ed8435] bg-[#ed8435] text-white"
+                        : "border-black/10 bg-[#f8f8f7] text-[#8b8d91]"
+                    } ${isCurrent ? "shadow-[0_10px_24px_rgba(237,132,53,0.2)]" : ""}`}
+                  >
+                    {step.icon}
+                  </span>
+                  <div className="mt-3">
+                    <p
+                      className={`text-sm font-semibold ${
+                        isCompleted ? "text-[#16384f]" : "text-[#8b8d91]"
+                      }`}
+                    >
+                      {step.label}
+                    </p>
+                    {isCurrent && (
+                      <p className="mt-1 text-xs font-medium uppercase tracking-[0.14em] text-[#ed8435]">
+                        Actual
+                      </p>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function AccountProfileForm({
   user,
   orders,
@@ -97,6 +249,9 @@ export default function AccountProfileForm({
   orders: AccountOrder[];
 }) {
   const router = useRouter();
+  const [expandedOrderId, setExpandedOrderId] = useState<string | null>(
+    orders[0]?.id ?? null,
+  );
   const [form, setForm] = useState<FormState>({
     fullName: user.fullName,
     company: user.company || "",
@@ -465,109 +620,154 @@ export default function AccountProfileForm({
               {orders.map((order) => (
                 <article
                   key={order.id}
-                  className="rounded-[1.75rem] border border-black/8 bg-[#fafaf9] p-5"
+                  className="overflow-hidden rounded-[1.75rem] border border-black/8 bg-[#fafaf9]"
                 >
-                  <div className="flex flex-wrap items-start justify-between gap-4">
-                    <div>
-                      <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#8b8d91]">
-                        Pedido
-                      </p>
-                      <h3 className="mt-2 text-xl font-semibold text-[#16384f]">
-                        {order.id}
-                      </h3>
-                      <p className="mt-2 text-sm text-[#6e7379]">
-                        {new Date(order.createdAt).toLocaleDateString("es-CO")} ·{" "}
-                        {order.department} · {order.city} · {order.addressLine1}
-                        {order.addressLine2 ? ` · ${order.addressLine2}` : ""}
-                      </p>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setExpandedOrderId((current) =>
+                        current === order.id ? null : order.id,
+                      )
+                    }
+                    className="flex w-full flex-col gap-4 p-5 text-left transition-colors duration-200 hover:bg-white/45"
+                  >
+                    <div className="flex flex-wrap items-start justify-between gap-4">
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#8b8d91]">
+                          Pedido
+                        </p>
+                        <h3 className="mt-2 text-lg font-semibold text-[#16384f] md:text-xl">
+                          {order.id}
+                        </h3>
+                        <p className="mt-2 text-sm text-[#6e7379]">
+                          {new Date(order.createdAt).toLocaleDateString("es-CO")} ·{" "}
+                          {order.city} · {order.totalItems} producto
+                          {order.totalItems === 1 ? "" : "s"}
+                        </p>
+                      </div>
+
+                      <div className="flex flex-wrap items-center justify-end gap-2">
+                        <span className="rounded-full bg-[#16384f] px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-white">
+                          {getOrderStatusLabel(order.status)}
+                        </span>
+                        <span className="rounded-full border border-[#ed8435]/18 bg-[#fff6ee] px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-[#b85d12]">
+                          {getPaymentStatusLabel(order.paymentStatus)}
+                        </span>
+                        <span className="rounded-full border border-[#1f8b45]/18 bg-[#effaf2] px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-[#1f6b39]">
+                          {getShippingStatusLabel(order.shippingStatus)}
+                        </span>
+                        <span className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-black/8 bg-white text-[#16384f]">
+                          <svg
+                            aria-hidden="true"
+                            viewBox="0 0 24 24"
+                            className={`h-4 w-4 transition-transform duration-200 ${
+                              expandedOrderId === order.id ? "rotate-180" : ""
+                            }`}
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          >
+                            <path d="m6 9 6 6 6-6" />
+                          </svg>
+                        </span>
+                      </div>
                     </div>
 
-                    <div className="flex flex-wrap gap-2">
-                      <span className="rounded-full bg-[#16384f] px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-white">
-                        {getOrderStatusLabel(order.status)}
+                    <div className="flex items-center justify-between gap-3 border-t border-black/8 pt-4 text-sm">
+                      <span className="text-[#6e7379]">
+                        {order.carrier || "Transportadora pendiente"} ·{" "}
+                        {order.trackingNumber || "Sin guía"}
                       </span>
-                      <span className="rounded-full border border-[#ed8435]/18 bg-[#fff6ee] px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-[#b85d12]">
-                        {getPaymentStatusLabel(order.paymentStatus)}
-                      </span>
-                      <span className="rounded-full border border-[#1f8b45]/18 bg-[#effaf2] px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-[#1f6b39]">
-                        {getShippingStatusLabel(order.shippingStatus)}
+                      <span className="text-lg font-semibold text-[#ed8435]">
+                        {formatCurrency(order.subtotal)}
                       </span>
                     </div>
-                  </div>
+                  </button>
 
-                  <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-                    <div className="rounded-[1.1rem] border border-black/8 bg-white px-4 py-3">
-                      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#8b8d91]">
-                        Transportadora
-                      </p>
-                      <p className="mt-2 text-sm font-semibold text-[#16384f]">
-                        {order.carrier || "Por definir"}
-                      </p>
-                    </div>
-                    <div className="rounded-[1.1rem] border border-black/8 bg-white px-4 py-3">
-                      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#8b8d91]">
-                        Número de guía
-                      </p>
-                      <p className="mt-2 text-sm font-semibold text-[#16384f]">
-                        {order.trackingNumber || "Aún no asignado"}
-                      </p>
-                    </div>
-                    <div className="rounded-[1.1rem] border border-black/8 bg-white px-4 py-3">
-                      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#8b8d91]">
-                        Fecha de envío
-                      </p>
-                      <p className="mt-2 text-sm font-semibold text-[#16384f]">
-                        {order.shippedAt
-                          ? new Date(order.shippedAt).toLocaleDateString("es-CO")
-                          : "Pendiente"}
-                      </p>
-                    </div>
-                    <div className="rounded-[1.1rem] border border-black/8 bg-white px-4 py-3">
-                      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#8b8d91]">
-                        Fecha de entrega
-                      </p>
-                      <p className="mt-2 text-sm font-semibold text-[#16384f]">
-                        {order.deliveredAt
-                          ? new Date(order.deliveredAt).toLocaleDateString("es-CO")
-                          : "Sin confirmar"}
-                      </p>
-                    </div>
-                  </div>
+                  {expandedOrderId === order.id && (
+                    <div className="border-t border-black/8 px-5 pb-5 pt-5">
+                      <OrderProgressTimeline order={order} />
 
-                  <div className="mt-5 grid gap-3 md:grid-cols-2">
-                    {order.items.map((item) => (
-                      <div
-                        key={item.id}
-                        className="rounded-[1.1rem] border border-black/8 bg-white px-4 py-3"
-                      >
-                        <p className="text-sm font-semibold text-[#1f2328]">{item.name}</p>
-                      <div className="mt-2 flex items-center justify-between text-sm text-[#6e7379]">
-                          <span>Cantidad: {item.quantity}</span>
-                          <span className="font-semibold text-[#16384f]">
-                            {formatCurrency(item.unitPrice)}
-                          </span>
+                      <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+                        <div className="rounded-[1.1rem] border border-black/8 bg-white px-4 py-3">
+                          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#8b8d91]">
+                            Transportadora
+                          </p>
+                          <p className="mt-2 text-sm font-semibold text-[#16384f]">
+                            {order.carrier || "Por definir"}
+                          </p>
+                        </div>
+                        <div className="rounded-[1.1rem] border border-black/8 bg-white px-4 py-3">
+                          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#8b8d91]">
+                            Número de guía
+                          </p>
+                          <p className="mt-2 text-sm font-semibold text-[#16384f]">
+                            {order.trackingNumber || "Aún no asignado"}
+                          </p>
+                        </div>
+                        <div className="rounded-[1.1rem] border border-black/8 bg-white px-4 py-3">
+                          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#8b8d91]">
+                            Fecha de envío
+                          </p>
+                          <p className="mt-2 text-sm font-semibold text-[#16384f]">
+                            {order.shippedAt
+                              ? new Date(order.shippedAt).toLocaleDateString("es-CO")
+                              : "Pendiente"}
+                          </p>
+                        </div>
+                        <div className="rounded-[1.1rem] border border-black/8 bg-white px-4 py-3">
+                          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#8b8d91]">
+                            Fecha de entrega
+                          </p>
+                          <p className="mt-2 text-sm font-semibold text-[#16384f]">
+                            {order.deliveredAt
+                              ? new Date(order.deliveredAt).toLocaleDateString("es-CO")
+                              : "Sin confirmar"}
+                          </p>
                         </div>
                       </div>
-                      ))}
-                  </div>
 
-                  {order.adminNotes && (
-                    <div className="mt-5 rounded-[1.1rem] border border-black/8 bg-white px-4 py-4">
-                      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#8b8d91]">
-                        Nota de envío
-                      </p>
-                      <p className="mt-2 text-sm leading-7 text-[#5d6167]">{order.adminNotes}</p>
+                      <div className="mt-5 rounded-[1.1rem] border border-black/8 bg-white px-4 py-4">
+                        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#8b8d91]">
+                          Dirección de entrega
+                        </p>
+                        <p className="mt-2 text-sm leading-7 text-[#5d6167]">
+                          {order.department} · {order.city} · {order.addressLine1}
+                          {order.addressLine2 ? ` · ${order.addressLine2}` : ""}
+                        </p>
+                      </div>
+
+                      <div className="mt-5 grid gap-3 md:grid-cols-2">
+                        {order.items.map((item) => (
+                          <div
+                            key={item.id}
+                            className="rounded-[1.1rem] border border-black/8 bg-white px-4 py-3"
+                          >
+                            <p className="text-sm font-semibold text-[#1f2328]">{item.name}</p>
+                            <div className="mt-2 flex items-center justify-between text-sm text-[#6e7379]">
+                              <span>Cantidad: {item.quantity}</span>
+                              <span className="font-semibold text-[#16384f]">
+                                {formatCurrency(item.unitPrice)}
+                              </span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+
+                      {order.adminNotes && (
+                        <div className="mt-5 rounded-[1.1rem] border border-black/8 bg-white px-4 py-4">
+                          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#8b8d91]">
+                            Nota de envío
+                          </p>
+                          <p className="mt-2 text-sm leading-7 text-[#5d6167]">
+                            {order.adminNotes}
+                          </p>
+                        </div>
+                      )}
                     </div>
                   )}
-
-                  <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-black/8 pt-4 text-sm">
-                    <span className="text-[#6e7379]">
-                      {order.totalItems} producto{order.totalItems === 1 ? "" : "s"}
-                    </span>
-                    <span className="text-lg font-semibold text-[#ed8435]">
-                      {formatCurrency(order.subtotal)}
-                    </span>
-                  </div>
                 </article>
               ))}
             </div>

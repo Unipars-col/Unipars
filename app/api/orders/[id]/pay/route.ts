@@ -1,3 +1,4 @@
+import { revalidatePath } from "next/cache";
 import { getSessionFromCookies } from "@/lib/auth";
 import { confirmSimulatedOrderPayment } from "@/lib/orders";
 
@@ -29,6 +30,9 @@ export async function POST(
       session.userId,
       body.paymentCode,
     );
+
+    revalidatePath("/mi-cuenta");
+    revalidatePath("/admin");
 
     return Response.json({
       order: {

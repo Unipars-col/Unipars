@@ -3,6 +3,7 @@ import "./globals.css";
 import { CartProvider } from "./components/cart-provider";
 import { ProductsProvider } from "./components/products-provider";
 import SiteHeader from "./components/site-header";
+import SupportChat from "./components/support-chat";
 import { getProducts } from "@/lib/products";
 import { getSessionFromCookies } from "@/lib/auth";
 import { getUserById } from "@/lib/users";
@@ -45,6 +46,7 @@ export default async function RootLayout({
               }
             />
             {children}
+            <SupportChat />
           </CartProvider>
         </ProductsProvider>
       </body>
