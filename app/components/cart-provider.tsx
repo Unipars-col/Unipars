@@ -39,7 +39,7 @@ function normalizeCartItems(items: CartItem[]) {
 type CartContextValue = {
   items: CartItem[];
   totalItems: number;
-  addItem: (item: Omit<CartItem, "cantidad">) => void;
+  addItem: (item: Omit<CartItem, "cantidad"> & { cantidad?: number }) => void;
   incrementItem: (id: string) => void;
   decrementItem: (id: string) => void;
   removeItem: (id: string) => void;
@@ -124,8 +124,9 @@ export function CartProvider({
     () => ({
       items,
       totalItems: items.reduce((acc, item) => acc + item.cantidad, 0),
-      addItem: (item: Omit<CartItem, "cantidad">) => {
+      addItem: (item: Omit<CartItem, "cantidad"> & { cantidad?: number }) => {
         const normalizedId = normalizeCartId(item.id);
+        const quantityToAdd = Math.max(1, Math.trunc(item.cantidad ?? 1));
 
         if (currentUserId) {
           void (async () => {
@@ -134,7 +135,11 @@ export function CartProvider({
               headers: {
                 "Content-Type": "application/json",
               },
-              body: JSON.stringify({ ...item, id: normalizedId }),
+              body: JSON.stringify({
+                ...item,
+                id: normalizedId,
+                cantidad: quantityToAdd,
+              }),
             });
             if (!response.ok) return;
             const payload = (await response.json()) as { items?: CartItem[] };
@@ -150,11 +155,14 @@ export function CartProvider({
           if (existing) {
             return current.map((entry) =>
               entry.id === normalizedId
-                ? { ...entry, cantidad: entry.cantidad + 1 }
+                ? { ...entry, cantidad: entry.cantidad + quantityToAdd }
                 : entry,
             );
           }
-          return [...current, { ...item, id: normalizedId, cantidad: 1 }];
+          return [
+            ...current,
+            { ...item, id: normalizedId, cantidad: quantityToAdd },
+          ];
         });
       },
       incrementItem: (id: string) => {

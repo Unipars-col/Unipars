@@ -166,6 +166,7 @@ function ProductImageGallery({
 export default function ProductoDetallePage() {
   const params = useParams<{ slug: string }>();
   const { products } = useProducts();
+  const [cantidad, setCantidad] = useState(1);
   const slug = params.slug;
   const producto = products.find((item) => item.slug === slug);
   const galleryImages = useMemo(
@@ -175,6 +176,8 @@ export default function ProductoDetallePage() {
         : [],
     [producto],
   );
+
+  const maxCantidad = Math.max(1, producto?.stock ?? 1);
 
   if (!producto) {
     return (
@@ -198,6 +201,15 @@ export default function ProductoDetallePage() {
       </main>
     );
   }
+
+  const ajustarCantidad = (delta: number) => {
+    setCantidad((actual) => {
+      const siguiente = actual + delta;
+      if (siguiente < 1) return 1;
+      if (siguiente > maxCantidad) return maxCantidad;
+      return siguiente;
+    });
+  };
 
   const relacionados = products
     .filter(
@@ -344,11 +356,25 @@ export default function ProductoDetallePage() {
 
             <div className="flex flex-wrap items-center gap-3 pt-4">
               <div className="flex items-center overflow-hidden rounded-xl border border-black/10">
-                <button className="px-5 py-3 text-2xl text-[#4f545a]">−</button>
+                <button
+                  type="button"
+                  onClick={() => ajustarCantidad(-1)}
+                  className="px-5 py-3 text-2xl text-[#4f545a] transition-colors duration-200 hover:bg-[#f5f5f5]"
+                  aria-label="Disminuir cantidad"
+                >
+                  −
+                </button>
                 <div className="border-x border-black/10 px-7 py-3 text-xl text-[#33373d]">
-                  1
+                  {cantidad}
                 </div>
-                <button className="px-5 py-3 text-2xl text-[#4f545a]">+</button>
+                <button
+                  type="button"
+                  onClick={() => ajustarCantidad(1)}
+                  className="px-5 py-3 text-2xl text-[#4f545a] transition-colors duration-200 hover:bg-[#f5f5f5]"
+                  aria-label="Aumentar cantidad"
+                >
+                  +
+                </button>
               </div>
 
               <AddToCartButton
@@ -356,6 +382,7 @@ export default function ProductoDetallePage() {
                 nombre={producto.nombre}
                 precio={producto.precio}
                 imagen={producto.imagen}
+                cantidad={cantidad}
                 disabled={!producto.puedeComprar}
               />
             </div>

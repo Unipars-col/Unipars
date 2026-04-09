@@ -146,6 +146,7 @@ export default function SupportChat() {
                     src="/chatbot/uniparcero-bot.png"
                     alt="Uniparcero"
                     fill
+                    sizes="56px"
                     className="object-contain object-bottom"
                   />
                 </div>
@@ -185,6 +186,7 @@ export default function SupportChat() {
                           src="/chatbot/uniparcero-icon.png"
                           alt="Uniparcero"
                           fill
+                          sizes="40px"
                           className="object-cover p-1"
                         />
                       </div>
@@ -278,6 +280,7 @@ export default function SupportChat() {
             src="/chatbot/uniparcero-icon.png"
             alt="Uniparcero"
             fill
+            sizes="44px"
             className="object-cover p-1"
           />
         </span>

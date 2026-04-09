@@ -30,7 +30,7 @@ export default async function RootLayout({
     .join("|")}`;
 
   return (
-    <html lang="en" className="h-full antialiased">
+    <html lang="es" className="h-full antialiased" data-scroll-behavior="smooth">
       <body className="min-h-full flex flex-col">
         <ProductsProvider initialProducts={initialProducts}>
           <CartProvider

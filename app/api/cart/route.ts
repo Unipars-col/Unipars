@@ -38,6 +38,7 @@ export async function POST(request: Request) {
       nombre: string;
       precio: string;
       imagen: string;
+      cantidad?: number;
     };
 
     const items = await addCartItemForUser(session.userId, body);

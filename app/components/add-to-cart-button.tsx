@@ -8,6 +8,7 @@ type Props = {
   nombre: string;
   precio: string;
   imagen: string;
+  cantidad?: number;
   disabled?: boolean;
 };
 
@@ -16,6 +17,7 @@ export default function AddToCartButton({
   nombre,
   precio,
   imagen,
+  cantidad = 1,
   disabled = false,
 }: Props) {
   const { addItem } = useCart();
@@ -27,7 +29,7 @@ export default function AddToCartButton({
       disabled={disabled}
       onClick={() => {
         if (disabled) return;
-        addItem({ id, nombre, precio, imagen });
+        addItem({ id, nombre, precio, imagen, cantidad });
         setAdded(true);
         window.setTimeout(() => setAdded(false), 1200);
       }}

@@ -29,11 +29,13 @@ export async function getCartItemsForUser(userId: string) {
 
 export async function addCartItemForUser(
   userId: string,
-  item: Omit<PersistedCartItem, "cantidad">,
+  item: Omit<PersistedCartItem, "cantidad"> & { cantidad?: number },
 ) {
   if (!prisma) {
     throw new Error("DATABASE_NOT_CONFIGURED");
   }
+
+  const quantityToAdd = Math.max(1, Math.trunc(item.cantidad ?? 1));
 
   await prisma.cartItem.upsert({
     where: {
@@ -47,7 +49,7 @@ export async function addCartItemForUser(
       price: item.precio,
       image: item.imagen,
       quantity: {
-        increment: 1,
+        increment: quantityToAdd,
       },
     },
     create: {
@@ -56,7 +58,7 @@ export async function addCartItemForUser(
       name: item.nombre,
       price: item.precio,
       image: item.imagen,
-      quantity: 1,
+      quantity: quantityToAdd,
     },
   });
 
