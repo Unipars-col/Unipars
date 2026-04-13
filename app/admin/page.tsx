@@ -857,6 +857,8 @@ export default function AdminPage() {
 
     setForm({
       sku: product.sku || "",
+      oemReferencia: product.oemReferencia || "",
+      referenciasAlternas: product.referenciasAlternas?.join(", ") || "",
       categoria: product.categoria,
       nombre: product.nombre,
       marca: product.marca,
@@ -865,6 +867,9 @@ export default function AdminPage() {
       stock: String(product.stock ?? 0),
       stockMinimo: String(product.stockMinimo ?? 0),
       disponibilidad: product.disponibilidad,
+      aplicacion: product.aplicacion || "",
+      compatibilidad: product.compatibilidad?.join(", ") || "",
+      garantia: product.garantia || initialState.garantia,
     });
     setEditingSlug(product.slug);
     setActiveTab("edit");

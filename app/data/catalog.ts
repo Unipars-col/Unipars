@@ -1,4 +1,13 @@
-export const categoriasData = [
+export type CategoriaMeta = {
+  nombre: string;
+  color: string;
+  icono: string;
+  iconoImagen?: string;
+  bannerImagen?: string;
+  bannerCopy?: string;
+};
+
+export const categoriasData: readonly CategoriaMeta[] = [
   {
     nombre: "Espejos retrovisores y soportes",
     color: "#117f2d",

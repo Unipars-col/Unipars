@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState, type ChangeEvent, type FormEvent } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { departamentosColombia, getCitiesForDepartment } from "@/lib/colombia-locations";
 
 type AccountUser = {
@@ -249,6 +250,7 @@ export default function AccountProfileForm({
   user: AccountUser;
   orders: AccountOrder[];
 }) {
+  const router = useRouter();
   const [activePanel, setActivePanel] = useState<AccountPanel>("summary");
   const [showFullOrderHistory, setShowFullOrderHistory] = useState(false);
   const [expandedOrderId, setExpandedOrderId] = useState<string | null>(
