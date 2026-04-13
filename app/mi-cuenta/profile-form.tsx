@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useState, type ChangeEvent, type FormEvent } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { departamentosColombia, getCitiesForDepartment } from "@/lib/colombia-locations";
 
 type AccountUser = {
@@ -250,7 +249,6 @@ export default function AccountProfileForm({
   user: AccountUser;
   orders: AccountOrder[];
 }) {
-  const router = useRouter();
   const [activePanel, setActivePanel] = useState<AccountPanel>("summary");
   const [showFullOrderHistory, setShowFullOrderHistory] = useState(false);
   const [expandedOrderId, setExpandedOrderId] = useState<string | null>(
@@ -370,14 +368,6 @@ export default function AccountProfileForm({
     router.refresh();
   };
 
-  const handleLogout = async () => {
-    await fetch("/api/auth/logout", {
-      method: "POST",
-    });
-    router.push("/");
-    router.refresh();
-  };
-
   return (
     <main className="bg-[#f5f5f5] px-6 py-16">
       {toast && (
@@ -457,13 +447,6 @@ export default function AccountProfileForm({
                 }`}
               >
                 Pedidos
-              </button>
-              <button
-                type="button"
-                onClick={handleLogout}
-                className="rounded-full border border-[#16384f]/20 px-5 py-3 text-sm font-semibold text-[#16384f] transition-colors duration-200 hover:bg-[#16384f] hover:text-white"
-              >
-                Cerrar sesión
               </button>
             </div>
           </div>

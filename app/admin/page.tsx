@@ -24,6 +24,8 @@ const disponibilidades: ProductoCatalogo["disponibilidad"][] = [
 
 type FormState = {
   sku: string;
+  oemReferencia: string;
+  referenciasAlternas: string;
   categoria: Categoria;
   nombre: string;
   marca: string;
@@ -32,10 +34,15 @@ type FormState = {
   stock: string;
   stockMinimo: string;
   disponibilidad: ProductoCatalogo["disponibilidad"];
+  aplicacion: string;
+  compatibilidad: string;
+  garantia: string;
 };
 
 const initialState: FormState = {
   sku: "",
+  oemReferencia: "",
+  referenciasAlternas: "",
   categoria: categorias[0],
   nombre: "",
   marca: "Unipars",
@@ -44,6 +51,9 @@ const initialState: FormState = {
   stock: "0",
   stockMinimo: "0",
   disponibilidad: "Entrega inmediata",
+  aplicacion: "",
+  compatibilidad: "",
+  garantia: "1 año de garantía del fabricante",
 };
 
 const MAX_FILE_SIZE_BYTES = 3 * 1024 * 1024;
@@ -434,6 +444,13 @@ function ProductImageSelector({
       </div>
     </div>
   );
+}
+
+function splitCommaSeparatedValues(value: string) {
+  return value
+    .split(",")
+    .map((item) => item.trim())
+    .filter(Boolean);
 }
 
 export default function AdminPage() {

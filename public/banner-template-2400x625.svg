@@ -1,0 +1,71 @@
+<svg width="2400" height="625" viewBox="0 0 2400 625" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="2400" height="625" rx="32" fill="#0B1018"/>
+  <rect x="4" y="4" width="2392" height="617" rx="28" stroke="#D9DEE7" stroke-width="4"/>
+
+  <line x1="150" y1="35" x2="150" y2="590" stroke="#CFD6DE" stroke-width="2"/>
+  <line x1="2250" y1="35" x2="2250" y2="590" stroke="#CFD6DE" stroke-width="2"/>
+  <line x1="35" y1="60" x2="2365" y2="60" stroke="#CFD6DE" stroke-width="2"/>
+  <line x1="35" y1="565" x2="2365" y2="565" stroke="#CFD6DE" stroke-width="2"/>
+
+  <rect x="150" y="60" width="800" height="505" rx="24" fill="#2077C9" fill-opacity="0.18" stroke="#2077C9" stroke-width="3"/>
+  <rect x="950" y="60" width="270" height="505" rx="24" fill="white" fill-opacity="0.06" stroke="#8FA4BB" stroke-width="2"/>
+  <rect x="1220" y="60" width="980" height="505" rx="24" fill="#ED8435" fill-opacity="0.16" stroke="#ED8435" stroke-width="3"/>
+
+  <circle cx="150" cy="60" r="8" fill="#F6F7FB"/>
+  <circle cx="150" cy="565" r="8" fill="#F6F7FB"/>
+  <circle cx="2250" cy="60" r="8" fill="#F6F7FB"/>
+  <circle cx="2250" cy="565" r="8" fill="#F6F7FB"/>
+
+  <text x="150" y="108" fill="#F6F7FB" font-family="Arial, Helvetica, sans-serif" font-size="42" font-weight="700">
+    PLANTILLA BANNER 2400 x 625
+  </text>
+  <text x="150" y="148" fill="#C7D1DC" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="500">
+    Proporcion 3.84:1 | margenes seguros 150 px laterales y 60 px verticales
+  </text>
+
+  <text x="180" y="220" fill="#69B7FF" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="700">
+    ZONA SEGURA DE TEXTO
+  </text>
+  <text x="180" y="260" fill="#F6F7FB" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700">
+    x: 150 a 950
+  </text>
+  <text x="180" y="300" fill="#C7D1DC" font-family="Arial, Helvetica, sans-serif" font-size="22">
+    Usar para subtitulo, titulo y copy
+  </text>
+  <text x="180" y="334" fill="#C7D1DC" font-family="Arial, Helvetica, sans-serif" font-size="22">
+    Deja fondo limpio y oscuro detras
+  </text>
+
+  <text x="990" y="294" fill="#D5DDE7" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700">
+    SEPARACION
+  </text>
+  <text x="980" y="328" fill="#C7D1DC" font-family="Arial, Helvetica, sans-serif" font-size="22">
+    No pongas elementos
+  </text>
+
+  <text x="1260" y="220" fill="#ED8435" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="700">
+    ZONA SEGURA DE IMAGEN
+  </text>
+  <text x="1260" y="260" fill="#F6F7FB" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700">
+    x: 1220 a 2200
+  </text>
+  <text x="1260" y="300" fill="#C7D1DC" font-family="Arial, Helvetica, sans-serif" font-size="22">
+    Ubica aqui el producto
+  </text>
+  <text x="1260" y="334" fill="#C7D1DC" font-family="Arial, Helvetica, sans-serif" font-size="22">
+    Sin tocar bordes ni salir del marco
+  </text>
+
+  <text x="88" y="28" fill="#F6F7FB" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700">
+    150 px
+  </text>
+  <text x="2175" y="28" fill="#F6F7FB" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700">
+    150 px
+  </text>
+  <text x="40" y="82" fill="#F6F7FB" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700">
+    60 px
+  </text>
+  <text x="40" y="550" fill="#F6F7FB" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700">
+    60 px
+  </text>
+</svg>

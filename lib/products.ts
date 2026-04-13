@@ -16,6 +16,8 @@ type ProductRecord = {
   id?: string;
   slug: string;
   sku?: string | null;
+  oemReference?: string | null;
+  alternativeReferences?: string[] | null;
   category: string;
   name: string;
   brand: string;
@@ -27,6 +29,9 @@ type ProductRecord = {
   galleryImages?: string[] | null;
   availability: string;
   description: string;
+  application?: string | null;
+  compatibility?: string[] | null;
+  warranty?: string | null;
   featured: boolean;
 };
 
@@ -49,6 +54,8 @@ export type InventoryMovementSummary = {
 
 export type ProductMutationInput = {
   sku?: string;
+  oemReferencia?: string;
+  referenciasAlternas?: string[];
   categoria: Categoria;
   nombre: string;
   marca: string;
@@ -60,6 +67,9 @@ export type ProductMutationInput = {
   imagenesExtra?: string[];
   disponibilidad: Disponibilidad;
   descripcion?: string;
+  aplicacion?: string;
+  compatibilidad?: string[];
+  garantia?: string;
 };
 
 function createSkuFromName(name: string) {
@@ -114,6 +124,12 @@ function normalizeGalleryImages(images: Array<string | null | undefined>) {
     .slice(0, 3);
 }
 
+function normalizeTextList(values: Array<string | null | undefined>) {
+  return values
+    .map((value) => (value || "").trim())
+    .filter(Boolean);
+}
+
 function normalizeCategoria(value: string): Categoria {
   return categorias.includes(value as Categoria)
     ? (value as Categoria)
@@ -138,6 +154,8 @@ function toStoreProduct(product: ProductRecord): StoreProduct {
   return {
     slug: product.slug,
     sku: product.sku || undefined,
+    oemReferencia: product.oemReference || undefined,
+    referenciasAlternas: normalizeTextList(product.alternativeReferences || []),
     categoria,
     nombre: product.name,
     marca: product.brand,
@@ -159,6 +177,11 @@ function toStoreProduct(product: ProductRecord): StoreProduct {
         categoria,
         marca: product.brand,
       }),
+    aplicacion:
+      product.application?.trim() ||
+      `Aplicación recomendada para la línea ${categoria}.`,
+    compatibilidad: normalizeTextList(product.compatibility || []),
+    garantia: product.warranty?.trim() || "1 año de garantía del fabricante",
     destacado: product.featured,
   };
 }
@@ -183,6 +206,16 @@ function getFallbackProducts(): StoreProduct[] {
         categoria: producto.categoria,
         marca: producto.marca,
       }),
+    oemReferencia:
+      producto.oemReferencia ||
+      (producto.sku ? `OEM-${producto.sku}` : undefined),
+    referenciasAlternas: producto.referenciasAlternas || [],
+    aplicacion:
+      producto.aplicacion ||
+      `Aplicación comercial para ${producto.categoria.toLowerCase()}.`,
+    compatibilidad:
+      producto.compatibilidad || [producto.marca, producto.categoria],
+    garantia: producto.garantia || "1 año de garantía del fabricante",
     destacado: producto.destacado ?? index < 4,
   }));
 }
@@ -251,6 +284,10 @@ export async function createProduct(input: ProductMutationInput) {
     data: {
       slug,
       sku,
+      oemReference: input.oemReferencia?.trim() || null,
+      alternativeReferences: {
+        set: normalizeTextList(input.referenciasAlternas || []),
+      },
       category: input.categoria,
       name: nombre,
       brand: marca,
@@ -270,6 +307,11 @@ export async function createProduct(input: ProductMutationInput) {
           categoria: input.categoria,
           marca,
         }),
+      application: input.aplicacion?.trim() || null,
+      compatibility: {
+        set: normalizeTextList(input.compatibilidad || []),
+      },
+      warranty: input.garantia?.trim() || "1 año de garantía del fabricante",
       featured: false,
       active: true,
       inventoryMovements: {
@@ -357,6 +399,10 @@ export async function updateProduct(slug: string, input: ProductMutationInput) {
     data: {
       slug: nextSlug,
       sku: nextSku,
+      oemReference: input.oemReferencia?.trim() || null,
+      alternativeReferences: {
+        set: normalizeTextList(input.referenciasAlternas || []),
+      },
       category: input.categoria,
       name: nombre,
       brand: marca,
@@ -376,6 +422,11 @@ export async function updateProduct(slug: string, input: ProductMutationInput) {
           categoria: input.categoria,
           marca,
         }),
+      application: input.aplicacion?.trim() || null,
+      compatibility: {
+        set: normalizeTextList(input.compatibilidad || []),
+      },
+      warranty: input.garantia?.trim() || "1 año de garantía del fabricante",
       inventoryMovements:
         stockDelta !== 0
           ? {

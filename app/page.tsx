@@ -1,6 +1,7 @@
 import type { CSSProperties } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import BusXrayBanner from "./components/bus-xray-banner";
 import HeroCarousel from "./components/hero-carousel";
 import HoverCartControl from "./components/hover-cart-control";
 import { categoriasData, slugCategoria } from "./data/catalog";
@@ -107,29 +108,35 @@ export default async function Home() {
           </p>
         </div>
 
-        <div className="mx-auto grid max-w-[1180px] grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:gap-5">
+        <div className="mx-auto grid max-w-[1080px] grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {categoriasData.map((categoria) => (
             <Link
               key={categoria.nombre}
               href={`/categorias?categoria=${slugCategoria(categoria.nombre)}`}
-              className="group flex min-h-[188px] flex-col items-center justify-center rounded-[1.6rem] border border-black/8 bg-white px-6 py-7 text-center transition-all duration-300 hover:-translate-y-1 hover:border-[var(--hover-color)] hover:shadow-[0_0_0_1px_var(--hover-color),0_18px_34px_color-mix(in_srgb,var(--hover-color)_18%,transparent)] focus-visible:border-[var(--hover-color)] focus-visible:shadow-[0_0_0_1px_var(--hover-color),0_18px_34px_color-mix(in_srgb,var(--hover-color)_18%,transparent)] lg:min-h-[210px]"
+              className="group flex min-h-[220px] flex-col items-center justify-between rounded-[1rem] border border-black/8 bg-white px-5 pb-6 pt-5 text-center transition-all duration-300 hover:-translate-y-1 hover:border-[var(--hover-color)] hover:shadow-[0_0_0_1px_var(--hover-color),0_14px_26px_color-mix(in_srgb,var(--hover-color)_14%,transparent)] focus-visible:border-[var(--hover-color)] focus-visible:shadow-[0_0_0_1px_var(--hover-color),0_14px_26px_color-mix(in_srgb,var(--hover-color)_14%,transparent)]"
               style={
                 {
                   "--hover-color": categoria.color,
                 } as CSSProperties
               }
             >
-              <div
-                className="relative mb-5 flex h-18 w-18 items-center justify-center text-[var(--hover-color)] transition-all duration-300 md:h-20 md:w-20"
-              >
-                <span className="absolute inset-0 rounded-full border border-[var(--hover-color)]/18 transition-all duration-300 group-hover:scale-110 group-hover:border-[var(--hover-color)]/28" />
-                <span className="absolute inset-[7px] rounded-full bg-[var(--hover-color)]/6 transition-all duration-300 group-hover:bg-[var(--hover-color)]/10" />
-                <span className="relative text-3xl font-normal transition-all duration-500 group-hover:scale-110 group-hover:-rotate-6 md:text-4xl">
-                  {categoria.icono}
-                </span>
+              <div className="flex h-[124px] w-full items-center justify-center transition-all duration-300 md:h-[132px]">
+                {categoria.iconoImagen ? (
+                  <div className="transition-all duration-500 group-hover:scale-[1.04]">
+                    <Image
+                      src={categoria.iconoImagen}
+                      alt={categoria.nombre}
+                      width={140}
+                      height={96}
+                      className="h-[104px] w-[148px] object-contain drop-shadow-[0_10px_18px_rgba(15,23,42,0.12)] md:h-[110px] md:w-[156px]"
+                    />
+                  </div>
+                ) : (
+                  <span className="text-3xl text-[var(--hover-color)]">{categoria.icono}</span>
+                )}
               </div>
 
-              <h3 className="max-w-[14rem] text-lg font-medium leading-tight text-[#4f545a] transition-colors duration-300">
+              <h3 className="max-w-[11rem] text-[15px] font-semibold leading-[1.08] text-[#5b6470] transition-colors duration-300 group-hover:text-[var(--hover-color)]">
                 {categoria.nombre}
               </h3>
             </Link>
@@ -138,15 +145,7 @@ export default async function Home() {
       </section>
 
       <section className="mx-auto max-w-[1440px] px-6 pb-16">
-        <div className="overflow-hidden rounded-[2rem] shadow-[0_20px_45px_rgba(15,23,42,0.08)]">
-          <Image
-            src="/Banner de que vendemos.jpg"
-            alt="Banner de que vendemos"
-            width={1600}
-            height={700}
-            className="h-auto w-full object-cover"
-          />
-        </div>
+        <BusXrayBanner />
       </section>
 
       <section className="mx-auto max-w-[1440px] px-6 pb-16">
@@ -214,7 +213,7 @@ export default async function Home() {
 
                 <div className="border-t border-black/6 pt-4">
                   <p className="text-sm text-[#a0a3a8] line-through">
-                  {producto.precioAnterior}
+                    {producto.precioAnterior}
                   </p>
                   <p className="text-3xl font-semibold tracking-[-0.03em] text-[#ed8435]">
                     {producto.precio}

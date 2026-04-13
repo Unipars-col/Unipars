@@ -14,6 +14,8 @@ import type { StoreProduct } from "@/lib/products";
 
 export type AdminProductInput = {
   sku?: string;
+  oemReferencia?: string;
+  referenciasAlternas?: string[];
   categoria: Categoria;
   nombre: string;
   marca: string;
@@ -25,6 +27,9 @@ export type AdminProductInput = {
   imagenesExtra?: string[];
   disponibilidad: Disponibilidad;
   descripcion?: string;
+  aplicacion?: string;
+  compatibilidad?: string[];
+  garantia?: string;
 };
 
 type ProductsContextValue = {

@@ -8,7 +8,7 @@ const slides = [
     title: "Encuentra el repuesto que necesitas sin saber su nombre",
     description:
       "Busca por placa, modelo o referencia y compara opciones confiables en segundos.",
-    image: "/hero-unipars.jpg",
+    image: "/hero-banner-1.jpg",
   },
   {
     id: 2,
@@ -72,7 +72,7 @@ export default function HeroCarousel() {
               className="absolute inset-0 bg-cover bg-center"
               style={{ backgroundImage: `url('${slide.image}')` }}
             />
-            <div className="absolute inset-0 bg-gradient-to-r from-[#16384f]/90 via-[#16384f]/70 to-black/35" />
+            <div className="absolute inset-0 bg-gradient-to-r from-black/72 via-black/42 to-black/18" />
 
             <div className="relative mx-auto flex min-h-[520px] max-w-[1440px] items-center px-6 py-24">
               <div className="max-w-2xl">

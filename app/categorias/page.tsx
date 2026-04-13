@@ -37,6 +37,14 @@ export default function CategoriasPage() {
     categoriaActiva ?? categorias[0],
   );
   const queryActiva = searchParams.get("q")?.trim().toLowerCase() || "";
+  const heroTitulo = categoriaActiva
+    ? categoriaVisual.nombre
+    : "Filtra por categoría y encuentra exactamente lo que necesitas.";
+  const heroDestacado = categoriaActiva ? "de alta calidad" : "";
+  const heroCopy = categoriaActiva
+    ? categoriaVisual.bannerCopy ||
+      "Explora esta línea con una vista más clara del catálogo y encuentra referencias listas para cotizar."
+    : "Construimos una sola ventana de catálogo para que explores todas las líneas de producto sin duplicar páginas ni perder claridad.";
 
   const [marcasActivas, setMarcasActivas] = useState<string[]>([]);
   const [disponibilidadActiva, setDisponibilidadActiva] = useState<string[]>([]);
@@ -96,62 +104,42 @@ export default function CategoriasPage() {
 
   return (
     <main className="min-h-screen bg-[#f5f5f5] text-[#111]">
-      <section
-        className="text-white"
-        style={{
-          background: `linear-gradient(135deg, ${categoriaVisual.color} 0%, #16384f 62%, #0f2a3b 100%)`,
-        }}
-      >
-        <div className="mx-auto grid max-w-[1440px] gap-10 px-6 py-16 lg:grid-cols-[1.15fr_0.85fr] lg:items-center">
-          <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.3em] text-white/60">
-              Catálogo Unipars
-            </p>
-            <h1 className="mt-4 max-w-4xl text-4xl font-semibold tracking-[-0.05em] md:text-6xl">
-              Filtra por categoría y encuentra exactamente lo que necesitas.
-            </h1>
-            <p className="mt-6 max-w-2xl text-lg leading-8 text-white/75">
-              Construimos una sola ventana de catálogo para que explores todas
-              las líneas de producto sin duplicar páginas ni perder claridad.
-            </p>
-
-            <div className="mt-8 flex flex-wrap gap-3">
-              {categorias.map((item) => (
-                <button
-                  key={item}
-                  type="button"
-                  onClick={() => cambiarCategoria(item)}
-                  className={`rounded-full border px-4 py-2 text-sm font-medium backdrop-blur-sm transition-colors duration-200 ${
-                    categoriaActiva === item
-                      ? "border-white bg-white text-[#16384f] shadow-[0_12px_24px_rgba(255,255,255,0.18)]"
-                      : "border-white/15 bg-white/10 text-white/90 hover:bg-white/18"
-                  }`}
-                >
-                  {item}
-                </button>
-              ))}
-            </div>
-
-            <div className="mt-8 inline-flex items-center gap-3 rounded-full border border-white/15 bg-white/10 px-5 py-3 text-sm font-medium text-white/92">
-              <span
-                className="h-2.5 w-2.5 rounded-full bg-white"
-                style={{ backgroundColor: categoriaVisual.color }}
+      <section className="px-6 pb-8 pt-6 text-white">
+        <div className="overflow-hidden rounded-[1.9rem] border border-black/8 bg-[#070b14] shadow-[0_26px_70px_rgba(0,0,0,0.16)]">
+          <div className="relative aspect-[1920/500] min-h-[240px] overflow-hidden">
+            {categoriaVisual.bannerImagen ? (
+              <Image
+                src={categoriaVisual.bannerImagen}
+                alt={categoriaVisual.nombre}
+                fill
+                priority
+                sizes="100vw"
+                className="object-cover object-center"
               />
-              {categoriaActiva ? "Categoría activa:" : "Vista actual:"}
-              <span className="font-semibold text-white">
-                {categoriaActiva ?? "Todas las categorías"}
-              </span>
+            ) : null}
+            <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(2,5,11,0.86)_0%,rgba(2,5,11,0.74)_20%,rgba(2,5,11,0.28)_38%,rgba(2,5,11,0.06)_58%,rgba(2,5,11,0)_100%)]" />
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_82%_54%,rgba(255,140,64,0.1),transparent_16%),radial-gradient(circle_at_76%_48%,rgba(255,255,255,0.05),transparent_22%)]" />
+            <div className="relative z-10 mx-auto flex h-full max-w-[1440px] items-center">
+              <div className="px-6 py-8 md:px-8 lg:px-10">
+                <div className="max-w-[560px]">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-[#ffb46c]/72">
+                    Catálogo Unipars
+                  </p>
+                  <h1 className="mt-3 max-w-[13ch] text-4xl font-semibold leading-[0.95] tracking-[-0.05em] text-white md:max-w-[14ch] md:text-5xl xl:max-w-[15ch] xl:text-[4rem]">
+                    {heroTitulo}
+                    {heroDestacado ? (
+                      <>
+                        {" "}
+                        <span className="text-[#ed8435]">{heroDestacado}</span>
+                      </>
+                    ) : null}
+                  </h1>
+                  <p className="mt-4 max-w-[34rem] text-base leading-8 text-white/76">
+                    {heroCopy}
+                  </p>
+                </div>
+              </div>
             </div>
-          </div>
-
-          <div className="overflow-hidden rounded-[2rem] border border-white/10 bg-white/10 shadow-[0_24px_60px_rgba(0,0,0,0.18)]">
-            <Image
-              src="/Banner de que vendemos.jpg"
-              alt="Categorías y catálogo Unipars"
-              width={1200}
-              height={900}
-              className="h-full w-full object-cover"
-            />
           </div>
         </div>
       </section>

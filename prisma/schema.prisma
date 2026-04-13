@@ -42,6 +42,8 @@ model Product {
   id                 String              @id @default(cuid())
   slug               String              @unique
   sku                String?             @unique
+  oemReference       String?
+  alternativeReferences String[]         @default([])
   category           String
   name               String
   brand              String
@@ -53,6 +55,9 @@ model Product {
   galleryImages      String[]            @default([])
   availability       String
   description        String
+  application        String?
+  compatibility      String[]            @default([])
+  warranty           String?
   featured           Boolean             @default(false)
   active             Boolean             @default(true)
   inventoryMovements InventoryMovement[]

@@ -3,46 +3,72 @@ export const categoriasData = [
     nombre: "Espejos retrovisores y soportes",
     color: "#117f2d",
     icono: "◒",
+    iconoImagen: "/category-icon-espejo.png",
+    bannerImagen: "/category-banner-espejo-v2.jpg",
+    bannerCopy: "Explora espejos, soportes y soluciones listas para una instalación más precisa.",
   },
   {
     nombre: "Motores y ventiladores",
     color: "#7b4bb7",
     icono: "◎",
+    iconoImagen: "/category-icon-motor.png",
+    bannerImagen: "/category-banner-motor.jpg",
+    bannerCopy: "Encuentra motores y ventiladores con foco en rendimiento, ajuste y continuidad de operación.",
   },
   {
     nombre: "Luces y direccionales",
     color: "#f39a05",
     icono: "◐",
+    iconoImagen: "/category-icon-luces.png",
+    bannerImagen: "/category-banner-luces.jpg",
+    bannerCopy: "Iluminación y direccionales para mejorar visibilidad, seguridad y presencia del vehículo.",
   },
   {
     nombre: "Sistemas limpiaparabrisas",
     color: "#f5b160",
     icono: "◔",
+    iconoImagen: "/category-icon-limpiaparabrisas.png",
+    bannerImagen: "/category-banner-limpiaparabrisas.jpg",
+    bannerCopy: "Componentes para barrido eficiente, mantenimiento ágil y mejor desempeño en ruta.",
   },
   {
     nombre: "Línea neumática",
     color: "#6a5852",
     icono: "⬡",
+    iconoImagen: "/category-icon-neumatica.png",
+    bannerImagen: "/category-banner-neumatica.jpg",
+    bannerCopy: "Conecta mangueras, sellos y accesorios para sistemas neumáticos más confiables.",
   },
   {
     nombre: "Línea inyección y extrusión",
     color: "#2fa8ad",
     icono: "◍",
+    iconoImagen: "/category-icon-inyeccion-extrusion.png",
+    bannerImagen: "/category-banner-inyeccion-extrusion.jpg",
+    bannerCopy: "Una línea pensada para procesos técnicos que exigen control, precisión y estabilidad.",
   },
   {
     nombre: "Línea mecanizado",
     color: "#d61f1f",
     icono: "◇",
+    iconoImagen: "/category-icon-mecanizado.png",
+    bannerImagen: "/category-banner-mecanizado.jpg",
+    bannerCopy: "Herramientas y componentes de mecanizado para procesos continuos y acabados más finos.",
   },
   {
     nombre: "Línea cauchos",
     color: "#3954b8",
     icono: "◓",
+    iconoImagen: "/category-icon-cauchos.png",
+    bannerImagen: "/category-banner-cauchos.jpg",
+    bannerCopy: "Soluciones en cauchos y sellos para reposición, mantenimiento y trabajo industrial.",
   },
   {
     nombre: "Línea eléctrica",
     color: "#45b86a",
     icono: "◈",
+    iconoImagen: "/category-icon-electrica.png",
+    bannerCopy: "Explora piezas y conexiones eléctricas para asegurar energía, control y continuidad.",
   },
 ] as const;
 
@@ -59,6 +85,8 @@ export type Disponibilidad = (typeof disponibilidades)[number];
 export type ProductoCatalogo = {
   slug: string;
   sku?: string;
+  oemReferencia?: string;
+  referenciasAlternas?: string[];
   categoria: Categoria;
   nombre: string;
   marca: string;
@@ -74,6 +102,9 @@ export type ProductoCatalogo = {
   imagenesExtra?: string[];
   disponibilidad: Disponibilidad;
   descripcion?: string;
+  aplicacion?: string;
+  compatibilidad?: string[];
+  garantia?: string;
   destacado?: boolean;
 };
 
