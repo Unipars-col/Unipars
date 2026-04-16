@@ -30,60 +30,59 @@ const testimonios = [
 
 const beneficios = [
   {
-    icono: "▤",
-    titulo: "Entregas a nivel nacional",
-    descripcion: "Hacemos envios seguros a multiples ciudades del pais.",
+    icono: "/beneficios/especializados.png",
+    titulo: "Especializados en Transporte masivo",
+    descripcion:
+      "Contamos con experiencia directa en flotas de alto rendimiento y operaciones propias del transporte publico.",
   },
   {
-    icono: "$",
-    titulo: "Satisfecho o reembolsado",
-    descripcion: "Calidad y garantia para una compra con mas tranquilidad.",
+    icono: "/beneficios/respaldo.png",
+    titulo: "Respaldo tecnico e industrial",
+    descripcion:
+      "Conectamos con el respaldo de una empresa matriz y una red de soluciones en caucho y desarrollo industrial.",
   },
   {
-    icono: "%",
-    titulo: "Excelentes precios y calidad",
-    descripcion: "Productos competitivos y seleccionados para cada necesidad.",
+    icono: "/beneficios/portafolio.png",
+    titulo: "Portafolio especializado y variado",
+    descripcion:
+      "Una oferta precisa para empresas de transporte, talleres especializados y necesidades del sector publico.",
   },
   {
-    icono: "◔",
-    titulo: "Servicio al cliente",
-    descripcion: "Acompanamiento comercial y soporte en horarios de atencion.",
-  },
-  {
-    icono: "◈",
-    titulo: "Pagos seguros",
-    descripcion: "Procesos protegidos y mayor confianza en cada transaccion.",
+    icono: "/beneficios/relacion.png",
+    titulo: "Relacion directa y conocimiento del cliente",
+    descripcion:
+      "Construimos relaciones de largo plazo con cercania tecnica, criterio comercial y experiencia compartida.",
   },
 ];
 
 const soluciones = [
   {
     titulo: "Soluciones para talleres exigentes",
-    descripcion:
-      "Encuentra piezas y categorias listas para mantener tus trabajos en movimiento.",
+    descripcion: "Soluciones para talleres exigentes",
     etiqueta: "Hasta 30% de ahorro",
-    imagen: "/hero-unipars.jpg",
-  },
-  {
-    titulo: "Rincon ideal para motores y ventilacion",
-    descripcion:
-      "Descubre referencias destacadas para proyectos de alto rendimiento y precision.",
-    etiqueta: "Linea destacada",
-    imagen: "/hero-unipars.jpg",
-  },
-  {
-    titulo: "Opciones pensadas para cauchos y mecanizado",
-    descripcion:
-      "Explora productos confiables para procesos continuos y necesidades industriales.",
-    etiqueta: "Compra segura",
-    imagen: "/hero-unipars.jpg",
+    imagen: "/soluciones/talleres.png",
+    href: "/servicio-de-reparacion",
   },
   {
     titulo: "Categorias listas para grandes pedidos",
-    descripcion:
-      "Arma tu carrito con soluciones seleccionadas para abastecimiento y reposicion.",
+    descripcion: "Categorias listas para grandes pedidos",
     etiqueta: "Envio nacional",
-    imagen: "/hero-unipars.jpg",
+    imagen: "/soluciones/grandes-pedidos.png",
+    href: "/categorias",
+  },
+  {
+    titulo: "Opciones pensadas para cauchos y mecanizado",
+    descripcion: "Opciones pensadas para cauchos y mecanizado",
+    etiqueta: "Compra segura",
+    imagen: "/soluciones/mecanizado.png",
+    href: `/categorias?categoria=${slugCategoria("Mecanizado")}`,
+  },
+  {
+    titulo: "Rincon ideal para motores y ventilacion",
+    descripcion: "Rincon ideal para motores y ventilacion",
+    etiqueta: "Linea destacada",
+    imagen: "/soluciones/motores.png",
+    href: `/categorias?categoria=${slugCategoria("Motores y ventiladores")}`,
   },
 ];
 
@@ -265,17 +264,17 @@ export default async function Home() {
                     5.0
                   </p>
                   <div className="pt-2 text-left">
-                    <p className="text-lg font-semibold text-[#111]">
+                    <p className="text-[1.1rem] font-semibold leading-6 text-[#111]">
                       {testimonio.nombre}
                     </p>
-                    <p className="text-sm text-[#8b8d91]">{testimonio.tiempo}</p>
-                    <p className="mt-1 text-base tracking-[0.18em] text-[#f5b321]">
+                    <p className="text-[0.95rem] text-[#8b8d91]">{testimonio.tiempo}</p>
+                    <p className="mt-1 text-[0.95rem] tracking-[0.18em] text-[#f5b321]">
                       ★★★★★
                     </p>
                   </div>
                 </div>
 
-                <p className="mx-auto max-w-md text-xl leading-relaxed tracking-[-0.03em] text-[#1f2328]">
+                <p className="mx-auto max-w-md text-[1.08rem] leading-9 tracking-[-0.02em] text-[#1f2328]">
                   &ldquo;{testimonio.comentario}&rdquo;
                 </p>
               </article>
@@ -285,20 +284,27 @@ export default async function Home() {
       </section>
 
       <section className="border-b border-black/8 bg-[#fcfcfb]">
-        <div className="mx-auto grid max-w-[1440px] gap-6 px-6 py-10 md:grid-cols-2 xl:grid-cols-5">
+        <div className="mx-auto grid max-w-[1440px] gap-5 px-6 py-12 md:grid-cols-2 xl:grid-cols-4">
           {beneficios.map((beneficio) => (
-            <article key={beneficio.titulo} className="flex items-start gap-4">
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-black/8 bg-white text-2xl text-[#4f66ff] shadow-sm">
-                {beneficio.icono}
+            <article
+              key={beneficio.titulo}
+              className="flex min-h-[248px] flex-col items-center rounded-lg border border-black/8 bg-white px-6 py-7 text-center shadow-[0_14px_30px_rgba(15,23,42,0.08)]"
+            >
+              <div className="flex h-20 w-20 items-center justify-center rounded-full bg-[#fff8f1] shadow-[inset_0_0_0_1px_rgba(237,132,53,0.08)]">
+                <Image
+                  src={beneficio.icono}
+                  alt=""
+                  width={46}
+                  height={46}
+                  className="h-[46px] w-[46px] object-contain"
+                />
               </div>
-              <div>
-                <h3 className="text-lg font-semibold tracking-[-0.03em] text-[#111]">
-                  {beneficio.titulo}
-                </h3>
-                <p className="mt-1 text-sm leading-6 text-[#8b8d91]">
-                  {beneficio.descripcion}
-                </p>
-              </div>
+              <h3 className="mt-5 max-w-[18ch] text-[1.32rem] font-semibold leading-8 tracking-[-0.04em] text-[#111]">
+                {beneficio.titulo}
+              </h3>
+              <p className="mt-3 text-[0.98rem] leading-7 text-[#7b7f85]">
+                {beneficio.descripcion}
+              </p>
             </article>
           ))}
         </div>
@@ -319,38 +325,33 @@ export default async function Home() {
           {soluciones.map((solucion) => (
             <article
               key={solucion.titulo}
-              className="group overflow-hidden rounded-[1.9rem] bg-white shadow-[0_22px_50px_rgba(15,23,42,0.08)] transition-transform duration-300 hover:-translate-y-1"
+              className="group overflow-hidden rounded-lg border border-black/10 bg-white shadow-[0_14px_34px_rgba(15,23,42,0.12)] transition-transform duration-300 hover:-translate-y-1"
             >
-              <div className="relative">
+              <div className="relative aspect-[0.67] min-h-[480px]">
                 <Image
                   src={solucion.imagen}
                   alt={solucion.titulo}
                   width={900}
                   height={1100}
-                  className="h-80 w-full object-cover"
+                  className="h-full w-full object-cover object-center"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#1c5fb4] via-[#1c5fb4]/35 to-transparent" />
-                <span className="absolute left-5 top-5 rounded-full bg-white px-4 py-2 text-sm font-semibold uppercase tracking-wide text-[#ed8435] shadow-sm">
-                  {solucion.etiqueta}
-                </span>
-              </div>
-
-              <div className="-mt-20 relative z-10 flex min-h-[230px] flex-col justify-between rounded-t-[2rem] bg-[#1f6bc1] px-5 pb-5 pt-6 text-white">
-                <div>
-                  <h3 className="text-2xl font-semibold leading-tight tracking-[-0.04em]">
+                <div className="absolute inset-x-4 top-4 rounded-[10px] bg-white/94 px-4 py-3 text-center shadow-[0_10px_26px_rgba(15,23,42,0.18)]">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[#ed8435]">
+                    {solucion.etiqueta}
+                  </p>
+                  <p className="mt-1 text-[13px] font-semibold leading-4 text-[#2f3d49]">
                     {solucion.titulo}
-                  </h3>
-                  <p className="mt-3 text-base leading-7 text-white/85">
-                    {solucion.descripcion}
                   </p>
                 </div>
 
-                <Link
-                  href="#"
-                  className="mt-6 inline-flex w-fit rounded-full bg-[#ed3434] px-5 py-3 text-sm font-semibold text-white transition-colors duration-200 hover:bg-[#cf2323]"
-                >
-                  Ver productos
-                </Link>
+                <div className="absolute inset-x-0 bottom-0 flex justify-center p-4">
+                  <Link
+                    href={solucion.href}
+                    className="inline-flex min-w-[104px] items-center justify-center rounded-full bg-[#f59a2e] px-4 py-2 text-[11px] font-semibold text-white transition-colors duration-200 hover:bg-[#df8622]"
+                  >
+                    Ver productos
+                  </Link>
+                </div>
               </div>
             </article>
           ))}

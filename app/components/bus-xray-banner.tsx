@@ -176,20 +176,35 @@ export default function BusXrayBanner() {
 
   return (
     <section className="overflow-hidden rounded-[8px] border border-black/8 bg-white shadow-[0_20px_45px_rgba(15,23,42,0.08)]">
-      <div className="px-6 pb-8 pt-10 md:px-8 lg:px-10">
+      <div className="px-5 pb-8 pt-8 md:px-8 lg:px-10">
         <div className="overflow-hidden rounded-[8px] bg-white">
-          <div className="px-6 pb-0 pt-8 md:px-8 lg:px-10">
-            <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_160px]">
-              <div className="mx-auto max-w-[680px] text-center lg:mx-0 lg:max-w-[760px]">
-                <h2 className="text-3xl font-semibold tracking-[-0.04em] text-[#3e4349] md:text-5xl">
-                  {selectedCategory ? activeCategory : "Habla con Uniparcero y encuentra la línea correcta"}
-                </h2>
-                <p className="mt-3 text-sm leading-7 text-[#5f666d] md:text-base">
-                  {displayReply}
-                </p>
+          <div className="px-4 pb-0 pt-6 md:px-6 lg:px-8">
+            <div className="relative mt-4 min-h-[360px] overflow-hidden rounded-[8px] bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.95),rgba(238,240,243,0.95)_40%,rgba(228,231,235,0.98)_100%)] lg:min-h-[500px]">
+              <div className="absolute inset-y-0 left-0 w-24 bg-[linear-gradient(90deg,rgba(243,244,245,0.95),rgba(243,244,245,0.25),transparent)]" />
+              <div className="absolute inset-y-0 right-0 w-24 bg-[linear-gradient(270deg,rgba(243,244,245,0.95),rgba(243,244,245,0.25),transparent)]" />
+              {heroImage ? (
+                <Image
+                  src={heroImage}
+                  alt={selectedCategory ? activeCategory : "Vista principal del sistema"}
+                  fill
+                  priority
+                  sizes="100vw"
+                  className="object-cover object-center"
+                />
+              ) : null}
+
+              <div className="absolute inset-x-0 top-0 z-10 bg-[linear-gradient(180deg,rgba(255,255,255,0.9)_0%,rgba(255,255,255,0.76)_42%,rgba(255,255,255,0.18)_78%,rgba(255,255,255,0)_100%)] px-5 pb-7 pt-8 text-center md:px-10 lg:px-12 lg:pb-8 lg:pt-10">
+                <div className="mx-auto max-w-[760px]">
+                  <h2 className="text-3xl font-semibold tracking-[-0.04em] text-[#3e4349] md:text-5xl">
+                    {selectedCategory ? activeCategory : "Habla con Uniparcero y encuentra la línea correcta"}
+                  </h2>
+                  <p className="mt-3 text-sm leading-7 text-[#5f666d] md:text-base">
+                    {displayReply}
+                  </p>
+                </div>
               </div>
 
-              <div className="hidden lg:grid lg:grid-cols-2 lg:gap-3">
+              <div className="absolute right-5 top-28 z-10 hidden w-[172px] lg:grid lg:grid-cols-2 lg:gap-2.5">
                 {categoriasData.map((category) => {
                   const isActive = category.nombre === activeCategory;
 
@@ -198,10 +213,10 @@ export default function BusXrayBanner() {
                       key={category.nombre}
                       type="button"
                       onClick={() => setSelectedCategory(category.nombre)}
-                      className={`flex min-h-[56px] flex-col items-center justify-center gap-1 rounded-[6px] border px-2 py-2 text-center transition-all duration-200 ${
+                      className={`flex min-h-[64px] flex-col items-center justify-center gap-1 rounded-[8px] border px-2 py-2 text-center transition-all duration-200 ${
                         isActive
                           ? "border-[#ed8435]/38 bg-white shadow-[0_10px_24px_rgba(237,132,53,0.12)]"
-                          : "border-white/40 bg-white/72 opacity-28 hover:opacity-60"
+                          : "border-black/5 bg-white/72 opacity-42 backdrop-blur-[2px] hover:opacity-72"
                       }`}
                     >
                       <div className="relative flex h-7 w-10 items-center justify-center overflow-hidden">
@@ -224,22 +239,9 @@ export default function BusXrayBanner() {
                 })}
               </div>
             </div>
-
-            <div className="relative mt-8 min-h-[340px] overflow-hidden rounded-[8px] bg-[#f3f4f5] lg:min-h-[420px]">
-              {heroImage ? (
-                <Image
-                  src={heroImage}
-                  alt={selectedCategory ? activeCategory : "Vista principal del sistema"}
-                  fill
-                  priority
-                  sizes="100vw"
-                  className="object-contain object-center"
-                />
-              ) : null}
-            </div>
           </div>
 
-          <div className="border-t border-black/6 bg-white px-6 py-5 md:px-8 lg:px-10">
+          <div className="border-t border-black/6 bg-white px-4 py-5 md:px-6 lg:px-8">
             <div className="rounded-[8px] border border-black/8 bg-white px-5 py-5 shadow-[0_18px_40px_rgba(15,23,42,0.08)]">
               <div className="flex flex-col items-center text-center">
                 <div className="flex items-center gap-3">
@@ -323,7 +325,7 @@ export default function BusXrayBanner() {
           </div>
         </div>
 
-        <div className="bg-white px-6 py-6 md:px-8 lg:px-10">
+        <div className="bg-white px-5 py-6 md:px-8 lg:px-10">
           <h3 className="text-3xl font-semibold tracking-[-0.04em] text-[#3e4349] md:text-4xl">
             {selectedCategory ? activeCategory : "Empieza escribiendo el síntoma"}
           </h3>

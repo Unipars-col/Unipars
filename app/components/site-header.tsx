@@ -181,6 +181,18 @@ export default function SiteHeader({ currentUser }: SiteHeaderProps) {
           >
             Tips y videos
           </Link>
+          <Link
+            href="/servicio-de-reparacion"
+            className="whitespace-nowrap transition-colors duration-200 hover:text-[#ed8435]"
+          >
+            Servicio de reparación
+          </Link>
+          <Link
+            href="/contacto"
+            className="whitespace-nowrap transition-colors duration-200 hover:text-[#ed8435]"
+          >
+            Contacto
+          </Link>
           </nav>
 
           <div className="flex shrink-0 items-center gap-2 xl:gap-3">
