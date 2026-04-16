@@ -2,7 +2,8 @@
 
 import Image from "next/image";
 import { useMemo, useState, type FormEvent } from "react";
-import { categoriasData, type Categoria } from "../data/catalog";
+import { useRouter } from "next/navigation";
+import { categoriasData, slugCategoria, type Categoria } from "../data/catalog";
 
 type DiagnosticRule = {
   keywords: string[];
@@ -136,6 +137,7 @@ function getAssistantState(message: string) {
 }
 
 export default function BusXrayBanner() {
+  const router = useRouter();
   const [draft, setDraft] = useState("");
   const [userMessage, setUserMessage] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<Categoria | null>(null);
@@ -174,12 +176,21 @@ export default function BusXrayBanner() {
     applyDiagnosis(text);
   };
 
+  const handleCategorySelect = (category: Categoria) => {
+    if (category === activeCategory) {
+      router.push(`/categorias?categoria=${slugCategoria(category)}`);
+      return;
+    }
+
+    setSelectedCategory(category);
+  };
+
   return (
     <section className="overflow-hidden rounded-[8px] border border-black/8 bg-white shadow-[0_20px_45px_rgba(15,23,42,0.08)]">
       <div className="px-5 pb-8 pt-8 md:px-8 lg:px-10">
         <div className="overflow-hidden rounded-[8px] bg-white">
           <div className="px-4 pb-0 pt-6 md:px-6 lg:px-8">
-            <div className="relative mt-4 min-h-[360px] overflow-hidden rounded-[8px] bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.95),rgba(238,240,243,0.95)_40%,rgba(228,231,235,0.98)_100%)] lg:min-h-[500px]">
+            <div className="relative mt-4 min-h-[360px] overflow-hidden rounded-[8px] bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.95),rgba(238,240,243,0.95)_40%,rgba(228,231,235,0.98)_100%)] lg:min-h-[540px]">
               <div className="absolute inset-y-0 left-0 w-24 bg-[linear-gradient(90deg,rgba(243,244,245,0.95),rgba(243,244,245,0.25),transparent)]" />
               <div className="absolute inset-y-0 right-0 w-24 bg-[linear-gradient(270deg,rgba(243,244,245,0.95),rgba(243,244,245,0.25),transparent)]" />
               {heroImage ? (
@@ -204,7 +215,7 @@ export default function BusXrayBanner() {
                 </div>
               </div>
 
-              <div className="absolute right-5 top-28 z-10 hidden w-[172px] lg:grid lg:grid-cols-2 lg:gap-2.5">
+              <div className="absolute right-5 top-20 z-10 hidden w-[172px] lg:grid lg:grid-cols-2 lg:gap-2.5">
                 {categoriasData.map((category) => {
                   const isActive = category.nombre === activeCategory;
 
@@ -212,7 +223,7 @@ export default function BusXrayBanner() {
                     <button
                       key={category.nombre}
                       type="button"
-                      onClick={() => setSelectedCategory(category.nombre)}
+                      onClick={() => handleCategorySelect(category.nombre)}
                       className={`flex min-h-[64px] flex-col items-center justify-center gap-1 rounded-[8px] border px-2 py-2 text-center transition-all duration-200 ${
                         isActive
                           ? "border-[#ed8435]/38 bg-white shadow-[0_10px_24px_rgba(237,132,53,0.12)]"
@@ -231,7 +242,7 @@ export default function BusXrayBanner() {
                           />
                         ) : null}
                       </div>
-                      <p className="text-[9px] font-semibold leading-3 text-[#3e4349]">
+                      <p className="text-[8px] font-semibold leading-[1.15] text-[#3e4349]">
                         {category.nombre}
                       </p>
                     </button>
@@ -296,7 +307,7 @@ export default function BusXrayBanner() {
                   <button
                     key={category.nombre}
                     type="button"
-                    onClick={() => setSelectedCategory(category.nombre)}
+                    onClick={() => handleCategorySelect(category.nombre)}
                     className={`flex flex-col items-center justify-center gap-2 rounded-[8px] border px-3 py-3 text-center transition-all duration-200 ${
                       isActive
                         ? "border-[#ed8435]/38 bg-[#fff6ee] opacity-100 shadow-[0_10px_24px_rgba(237,132,53,0.12)]"

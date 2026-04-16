@@ -65,7 +65,7 @@ export default function ServicioDeReparacionPage() {
               Servicio de reparacion
             </h1>
 
-            <div className="mt-12 min-h-[320px] sm:mt-14 lg:min-h-[470px] lg:pt-12">
+            <div className="mt-3 min-h-[320px] sm:mt-5 lg:min-h-[470px] lg:pt-8">
               <h2 className="max-w-[9ch] text-[3.05rem] font-semibold leading-[0.96] tracking-[-0.06em] text-[#38454f] sm:text-5xl sm:leading-[1.02] lg:max-w-[11ch] lg:text-[3.55rem]">
                 Aqui estamos para atender tu necesidad
               </h2>
