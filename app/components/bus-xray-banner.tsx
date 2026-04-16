@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useMemo, useRef, useState, type FormEvent, type MouseEvent } from "react";
+import { useMemo, useRef, useState, type FormEvent, type PointerEvent } from "react";
 import { useRouter } from "next/navigation";
 import { categoriasData, slugCategoria, type Categoria } from "../data/catalog";
 
@@ -190,7 +190,14 @@ export default function BusXrayBanner() {
     setSelectedCategory(category);
   };
 
-  const handleVisualPointerMove = (event: MouseEvent<HTMLDivElement>) => {
+  const handleRestoreInitialVisual = () => {
+    setSelectedCategory(null);
+    setUserMessage("");
+    setDraft("");
+    setIsLensVisible(false);
+  };
+
+  const handleVisualPointerMove = (event: PointerEvent<HTMLDivElement>) => {
     if (!isInitialVisual || !visualRef.current) return;
 
     const bounds = visualRef.current.getBoundingClientRect();
@@ -207,10 +214,12 @@ export default function BusXrayBanner() {
           <div className="px-4 pb-0 pt-6 md:px-6 lg:px-8">
             <div
               ref={visualRef}
-              onMouseEnter={() => isInitialVisual && setIsLensVisible(true)}
-              onMouseLeave={() => setIsLensVisible(false)}
-              onMouseMove={handleVisualPointerMove}
-              className="relative mt-4 min-h-[360px] overflow-hidden rounded-[8px] bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.95),rgba(238,240,243,0.95)_40%,rgba(228,231,235,0.98)_100%)] lg:min-h-[540px]"
+              onPointerEnter={() => isInitialVisual && setIsLensVisible(true)}
+              onPointerLeave={() => setIsLensVisible(false)}
+              onPointerMove={handleVisualPointerMove}
+              className={`relative mt-4 min-h-[360px] overflow-hidden rounded-[8px] bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.95),rgba(238,240,243,0.95)_40%,rgba(228,231,235,0.98)_100%)] lg:min-h-[540px] ${
+                isInitialVisual ? "cursor-crosshair" : ""
+              }`}
             >
               <div className="absolute inset-y-0 left-0 w-24 bg-[linear-gradient(90deg,rgba(243,244,245,0.95),rgba(243,244,245,0.25),transparent)]" />
               <div className="absolute inset-y-0 right-0 w-24 bg-[linear-gradient(270deg,rgba(243,244,245,0.95),rgba(243,244,245,0.25),transparent)]" />
@@ -226,7 +235,7 @@ export default function BusXrayBanner() {
               ) : null}
 
               {isInitialVisual && isLensVisible ? (
-                <div className="pointer-events-none absolute inset-0 z-[5] hidden lg:block">
+                <div className="pointer-events-none absolute inset-0 z-[15]">
                   <div
                     className="absolute h-[136px] w-[136px] -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white/85 shadow-[0_20px_40px_rgba(15,23,42,0.18),inset_0_0_0_1px_rgba(22,56,79,0.12)]"
                     style={{
@@ -265,7 +274,20 @@ export default function BusXrayBanner() {
                 </div>
               ) : null}
 
-              <div className="absolute inset-x-0 top-0 z-10 bg-[linear-gradient(180deg,rgba(255,255,255,0.9)_0%,rgba(255,255,255,0.76)_42%,rgba(255,255,255,0.18)_78%,rgba(255,255,255,0)_100%)] px-5 pb-7 pt-8 text-center md:px-10 lg:px-12 lg:pb-8 lg:pt-10">
+              <button
+                type="button"
+                onClick={handleRestoreInitialVisual}
+                disabled={isInitialVisual}
+                className={`absolute bottom-4 left-4 z-20 inline-flex items-center rounded-full border px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.16em] shadow-[0_10px_22px_rgba(15,23,42,0.12)] backdrop-blur-[4px] transition-all duration-200 ${
+                  isInitialVisual
+                    ? "cursor-default border-white/55 bg-white/60 text-[#16384f]/45"
+                    : "border-white/75 bg-white/92 text-[#16384f] hover:bg-white"
+                }`}
+              >
+                Restore
+              </button>
+
+              <div className="pointer-events-none absolute inset-x-0 top-0 z-10 bg-[linear-gradient(180deg,rgba(255,255,255,0.9)_0%,rgba(255,255,255,0.76)_42%,rgba(255,255,255,0.18)_78%,rgba(255,255,255,0)_100%)] px-5 pb-7 pt-8 text-center md:px-10 lg:px-12 lg:pb-8 lg:pt-10">
                 <div className="mx-auto max-w-[760px]">
                   <h2 className="text-3xl font-semibold tracking-[-0.04em] text-[#3e4349] md:text-5xl">
                     {selectedCategory ? activeCategory : "Habla con Uniparcero y encuentra la línea correcta"}
