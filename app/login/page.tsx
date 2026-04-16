@@ -3,6 +3,7 @@
 import { useEffect, useState, type ChangeEvent, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
+import AccountEntryLoading from "../components/account-entry-loading";
 
 type LoginFormState = {
   email: string;
@@ -69,6 +70,7 @@ export default function LoginPage() {
   const [inlineError, setInlineError] = useState("");
   const [showAdminPinModal, setShowAdminPinModal] = useState(false);
   const [pendingAdminUserId, setPendingAdminUserId] = useState<string | null>(null);
+  const [isEnteringAccount, setIsEnteringAccount] = useState(false);
 
   useEffect(() => {
     if (!toast) return;
@@ -91,6 +93,7 @@ export default function LoginPage() {
     message?: string;
     user?: { id: string; role: "CUSTOMER" | "ADMIN" };
   }) => {
+    setIsEnteringAccount(true);
     setForm(initialState);
     setAdminPin("");
     setShowAdminPinModal(false);
@@ -199,6 +202,13 @@ export default function LoginPage() {
 
   return (
     <main className="flex min-h-[calc(100vh-88px)] items-center justify-center bg-[#f5f5f5] px-6 py-16">
+      {isEnteringAccount && (
+        <AccountEntryLoading
+          message="Entrando a tu cuenta"
+          detail="Estamos validando tu acceso y cargando tu información."
+        />
+      )}
+
       {showAdminPinModal && (
         <div className="fixed inset-0 z-[90] flex items-center justify-center bg-[#0f172a]/45 px-6 backdrop-blur-[2px]">
           <div className="w-full max-w-md rounded-[1.8rem] border border-black/8 bg-white p-7 shadow-[0_30px_80px_rgba(15,23,42,0.28)]">

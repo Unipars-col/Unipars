@@ -1,6 +1,44 @@
 import { deleteProduct, updateProduct } from "@/lib/products";
 import { requireAdminUser } from "@/lib/admin";
 
+function getProductErrorResponse(
+  error: unknown,
+  fallbackMessage: string,
+  databaseMessage: string,
+) {
+  const message =
+    error instanceof Error &&
+    (error.message === "UNAUTHORIZED" || error.message === "FORBIDDEN")
+      ? "No autorizado."
+      : error instanceof Error && error.message === "DATABASE_NOT_CONFIGURED"
+        ? databaseMessage
+        : error instanceof Error && error.message === "PRODUCT_NOT_FOUND"
+          ? "No encontramos el producto que intentas editar."
+          : fallbackMessage;
+
+  const status =
+    error instanceof Error &&
+    (error.message === "UNAUTHORIZED" || error.message === "FORBIDDEN")
+      ? 401
+      : 500;
+
+  const details =
+    error instanceof Error &&
+    ![
+      "UNAUTHORIZED",
+      "FORBIDDEN",
+      "DATABASE_NOT_CONFIGURED",
+      "PRODUCT_NOT_FOUND",
+    ].includes(error.message)
+      ? error.message
+      : undefined;
+
+  return Response.json(
+    details ? { error: message, details } : { error: message },
+    { status },
+  );
+}
+
 export async function PATCH(
   request: Request,
   context: { params: Promise<{ slug: string }> },
@@ -13,23 +51,11 @@ export async function PATCH(
 
     return Response.json({ product });
   } catch (error) {
-    const message =
-      error instanceof Error &&
-      (error.message === "UNAUTHORIZED" || error.message === "FORBIDDEN")
-        ? "No autorizado."
-        : error instanceof Error && error.message === "DATABASE_NOT_CONFIGURED"
-          ? "Configura Supabase antes de editar productos desde el panel."
-          : error instanceof Error && error.message === "PRODUCT_NOT_FOUND"
-            ? "No encontramos el producto que intentas editar."
-            : "No fue posible actualizar el producto.";
-
-    const status =
-      error instanceof Error &&
-      (error.message === "UNAUTHORIZED" || error.message === "FORBIDDEN")
-        ? 401
-        : 500;
-
-    return Response.json({ error: message }, { status });
+    return getProductErrorResponse(
+      error,
+      "No fue posible actualizar el producto.",
+      "Configura Supabase antes de editar productos desde el panel.",
+    );
   }
 }
 

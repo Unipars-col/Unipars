@@ -1,120 +1,145 @@
 import Image from "next/image";
 import Link from "next/link";
 
-const pilares = [
+const beneficios = [
   {
-    titulo: "Compra clara",
-    descripcion:
-      "Te ayudamos a encontrar repuestos y soluciones con informacion simple y directa.",
+    titulo: "Catálogo amplio",
+    descripcion: "Miles de referencias disponibles para tus vehículos",
+    icono: "/icon-catalogo.png",
   },
   {
-    titulo: "Respaldo real",
-    descripcion:
-      "Conectamos categorias, productos y atencion para que compres con mayor confianza.",
+    titulo: "Entrega rápida",
+    descripcion: "Recibe tus repuestos en el menor tiempo posible",
+    icono: "/icon-entrega.png",
   },
   {
-    titulo: "Atencion cercana",
-    descripcion:
-      "Acompanamos a talleres, negocios y clientes finales en cada paso de la compra.",
+    titulo: "Compra segura",
+    descripcion: "Protegemos tu información en cada transacción",
+    icono: "/icon-segura.png",
   },
 ];
 
 export default function QuienesSomosPage() {
   return (
-    <main className="min-h-screen bg-[#f5f5f5] text-[#111]">
-      <section className="bg-[#16384f] text-white">
-        <div className="mx-auto flex max-w-[1440px] flex-col gap-10 px-6 py-16 md:flex-row md:items-center md:justify-between">
-          <div className="max-w-2xl">
-            <Link
-              href="/"
-              className="text-sm font-semibold uppercase tracking-[0.24em] text-[#ed8435] transition-colors duration-200 hover:text-white"
-            >
-              Volver al inicio
-            </Link>
+    <main className="min-h-screen bg-white text-[#1c2c3a]">
+      
+      {/* 1. BANNER PRINCIPAL */}
+      <section className="relative w-full min-h-[550px] md:min-h-[700px] flex items-center bg-[#f2f2f2] overflow-hidden">
+        
+        {/* Capa de Imagen (Robot) */}
+        <div 
+          className="absolute inset-0 z-0"
+          style={{
+            backgroundImage: `url('/robot-unipars.jpg')`,
+            backgroundRepeat: "no-repeat",
+            backgroundPosition: "right center",
+            backgroundSize: "contain", 
+          }}
+        />
 
-            <p className="mt-8 text-sm font-semibold uppercase tracking-[0.3em] text-white/55">
-              Quiénes somos
+        {/* Capa de Degradado */}
+        <div className="absolute inset-0 z-10 bg-gradient-to-r from-[#f2f2f2] via-[#f2f2f2]/90 to-transparent md:via-[#f2f2f2]/30" />
+
+        <div className="relative z-20 mx-auto max-w-[1280px] w-full px-6 md:px-10">
+          <div className="max-w-[700px]">
+            <p className="text-[14px] font-bold uppercase tracking-[0.25em] text-[#ed8435]">
+              ¿QUIÉNES SOMOS?
             </p>
-            <h1 className="mt-4 text-4xl font-semibold tracking-[-0.04em] md:text-6xl">
-              Unipars nace para conectar repuestos, confianza y servicio.
+
+            <h1 className="mt-6 text-[45px] font-black leading-[1.05] tracking-[-0.03em] text-[#2f4f68] md:text-[65px] lg:text-[75px]">
+              Impulsamos <br />
+              <span className="text-[#ed8435]">el movimiento</span> <br />
+              de miles de vehículos
             </h1>
-            <p className="mt-6 max-w-xl text-lg leading-8 text-white/75">
-              Construimos una experiencia de compra mas clara para personas,
-              talleres y negocios que buscan productos confiables, soporte y
-              procesos simples.
-            </p>
-          </div>
 
-          <div className="overflow-hidden rounded-[2rem] bg-white/10 shadow-[0_24px_60px_rgba(0,0,0,0.18)]">
-            <Image
-              src="/hero-unipars.jpg"
-              alt="Equipo y soluciones Unipars"
-              width={720}
-              height={520}
-              className="h-auto w-full max-w-xl object-cover"
-            />
+            <p className="mt-8 max-w-[500px] text-[18px] leading-relaxed text-[#4c6275] md:text-[21px]">
+              En <span className="font-bold text-[#2f4f68]">Unipars</span> conectamos calidad, tecnología y confianza para que encuentres el repuesto exacto en toda Colombia.
+            </p>
+
+            <div className="mt-10">
+              <Link 
+                href="/catalogo" 
+                className="inline-block bg-[#2f4f68] text-white px-8 py-4 rounded-full font-bold hover:bg-[#ed8435] transition-all shadow-lg hover:-translate-y-1"
+              >
+                Explorar Catálogo
+              </Link>
+            </div>
           </div>
         </div>
       </section>
 
-      <section className="mx-auto max-w-[1440px] px-6 py-16">
-        <div className="grid gap-6 md:grid-cols-3">
-          {pilares.map((pilar) => (
+      {/* 2. SECCIÓN DE CONTENIDO */}
+      <section className="mx-auto max-w-[1280px] px-6 py-24 md:px-10">
+        
+        {/* BENEFICIOS */}
+        <div className="grid gap-8 md:grid-cols-3">
+          {beneficios.map((item) => (
             <article
-              key={pilar.titulo}
-              className="rounded-[1.75rem] border border-black/8 bg-white p-8 shadow-[0_18px_40px_rgba(15,23,42,0.05)]"
+              key={item.titulo}
+              className="group flex flex-col items-center rounded-[40px] border border-[#f0f0f0] bg-white p-10 text-center shadow-[0_15px_45px_rgba(0,0,0,0.05)] transition-all hover:border-[#ed8435]/30 hover:shadow-[0_25px_60px_rgba(0,0,0,0.1)]"
             >
-              <p className="text-sm font-semibold uppercase tracking-[0.25em] text-[#ed8435]">
-                Unipars
-              </p>
-              <h2 className="mt-4 text-2xl font-semibold tracking-[-0.03em] text-[#1f2328]">
-                {pilar.titulo}
-              </h2>
-              <p className="mt-4 text-base leading-8 text-[#6e7379]">
-                {pilar.descripcion}
-              </p>
+              <div className="mb-8 flex h-[110px] w-[110px] items-center justify-center rounded-full bg-[#f6f6f6] shadow-inner group-hover:scale-110 transition-transform">
+                <div className="flex h-[85px] w-[85px] items-center justify-center rounded-full bg-white shadow-md border border-[#f0f0f0]">
+                  <Image
+                    src={item.icono}
+                    alt={item.titulo}
+                    width={40}
+                    height={40}
+                    style={{ width: "40px", height: "auto" }} // CORRECCIÓN AQUÍ
+                    className="object-contain"
+                  />
+                </div>
+              </div>
+              <h2 className="text-[24px] font-black tracking-tight text-[#2f4f68]">{item.titulo}</h2>
+              <div className="my-5 h-[4px] w-14 rounded-full bg-[#ed8435]" />
+              <p className="max-w-[220px] text-[16px] leading-relaxed text-[#5c7285]">{item.descripcion}</p>
             </article>
           ))}
         </div>
-      </section>
 
-      <section className="mx-auto max-w-[1440px] px-6 pb-20">
-        <div className="rounded-[2rem] bg-white p-8 shadow-[0_18px_40px_rgba(15,23,42,0.05)] md:p-12">
-          <div className="grid gap-10 md:grid-cols-[1.2fr_1fr] md:items-center">
+        {/* MISIÓN Y VISIÓN */}
+        <div className="mt-32 flex flex-col gap-12">
+          
+          {/* MISIÓN */}
+          <div className="flex flex-col md:flex-row items-center rounded-[40px] bg-white px-8 py-12 md:px-16 border-l-[12px] border-[#ed8435] shadow-[0_10px_30px_rgba(0,0,0,0.03)] transition-all hover:shadow-xl">
+            <div className="mb-8 md:mb-0 md:mr-16 flex h-[120px] w-[120px] shrink-0 items-center justify-center rounded-3xl bg-[#ed8435]/10">
+              <Image 
+                src="/icon-mision.png" 
+                alt="Misión" 
+                width={60} 
+                height={60} 
+                style={{ width: "60px", height: "auto" }} // CORRECCIÓN AQUÍ
+              />
+            </div>
             <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.25em] text-[#ed8435]">
-                Nuestra visión
-              </p>
-              <h2 className="mt-4 text-3xl font-semibold tracking-[-0.04em] text-[#16384f] md:text-5xl">
-                Ser una marca cercana, util y confiable para cada compra.
-              </h2>
-              <p className="mt-6 max-w-2xl text-lg leading-8 text-[#6e7379]">
-                Queremos que encontrar un repuesto o una categoria no sea una
-                tarea complicada, sino una experiencia agil, clara y respaldada
-                por un servicio humano.
+              <h3 className="text-[32px] font-black text-[#2f4f68] tracking-tighter mb-3 uppercase">Nuestra Misión</h3>
+              <p className="max-w-[800px] text-[19px] leading-relaxed text-[#4c6275]">
+                Ser líderes en repuestos automotrices con calidad y precio, brindando soluciones reales a clientes y talleres con excelencia e innovación.
               </p>
             </div>
-
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="rounded-[1.5rem] bg-[#f8f8f7] p-6">
-                <p className="text-4xl font-semibold tracking-[-0.05em] text-[#16384f]">
-                  +1.000
-                </p>
-                <p className="mt-2 text-sm leading-7 text-[#6e7379]">
-                  Productos y soluciones listas para crecer contigo.
-                </p>
-              </div>
-              <div className="rounded-[1.5rem] bg-[#f8f8f7] p-6">
-                <p className="text-4xl font-semibold tracking-[-0.05em] text-[#16384f]">
-                  100%
-                </p>
-                <p className="mt-2 text-sm leading-7 text-[#6e7379]">
-                  Enfoque en una experiencia clara y servicio con respaldo.
-                </p>
-              </div>
+          </div>
+          
+          {/* VISIÓN */}
+          <div className="flex flex-col md:flex-row items-center rounded-[40px] bg-[#2f4f68] px-8 py-12 md:px-16 border-l-[12px] border-[#ed8435] shadow-2xl transition-all hover:scale-[1.01]">
+            <div className="mb-8 md:mb-0 md:mr-16 flex h-[120px] w-[120px] shrink-0 items-center justify-center rounded-3xl bg-white/10">
+              <Image 
+                src="/icon-vision.png" 
+                alt="Visión" 
+                width={60} 
+                height={60} 
+                className="brightness-200"
+                style={{ width: "60px", height: "auto" }} // CORRECCIÓN AQUÍ
+              />
+            </div>
+            <div>
+              <h3 className="text-[32px] font-black text-white tracking-tighter mb-3 uppercase">Nuestra Visión</h3>
+              <p className="max-w-[800px] text-[19px] leading-relaxed text-blue-50/80">
+                Ser la empresa más confiable del sector, expandiéndonos a nivel nacional e internacional como referentes en calidad y servicio.
+              </p>
             </div>
           </div>
         </div>
+
       </section>
     </main>
   );

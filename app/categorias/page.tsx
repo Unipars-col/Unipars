@@ -104,9 +104,9 @@ export default function CategoriasPage() {
 
   return (
     <main className="min-h-screen bg-[#f5f5f5] text-[#111]">
-      <section className="px-6 pb-8 pt-6 text-white">
+      <section className="px-6 pb-10 pt-6 text-white">
         <div className="overflow-hidden rounded-[1.9rem] border border-black/8 bg-[#070b14] shadow-[0_26px_70px_rgba(0,0,0,0.16)]">
-          <div className="relative aspect-[1920/500] min-h-[240px] overflow-hidden">
+          <div className="relative aspect-[1920/500] min-h-[252px] overflow-hidden">
             {categoriaVisual.bannerImagen ? (
               <Image
                 src={categoriaVisual.bannerImagen}
@@ -119,8 +119,8 @@ export default function CategoriasPage() {
             ) : null}
             <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(2,5,11,0.86)_0%,rgba(2,5,11,0.74)_20%,rgba(2,5,11,0.28)_38%,rgba(2,5,11,0.06)_58%,rgba(2,5,11,0)_100%)]" />
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_82%_54%,rgba(255,140,64,0.1),transparent_16%),radial-gradient(circle_at_76%_48%,rgba(255,255,255,0.05),transparent_22%)]" />
-            <div className="relative z-10 mx-auto flex h-full max-w-[1440px] items-center">
-              <div className="px-6 py-8 md:px-8 lg:px-10">
+            <div className="relative z-10 mx-auto flex h-full max-w-[1680px] items-center">
+              <div className="px-6 py-8 pb-20 md:px-8 lg:px-10">
                 <div className="max-w-[560px]">
                   <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-[#ffb46c]/72">
                     Catálogo Unipars
@@ -140,11 +140,32 @@ export default function CategoriasPage() {
                 </div>
               </div>
             </div>
+
+            <div className="absolute bottom-4 left-0 right-0 z-20">
+              <div className="mx-auto max-w-[1760px] px-2 sm:px-4 lg:px-6">
+                <div className="scrollbar-hidden flex gap-2 overflow-x-auto px-1">
+                  {categorias.map((categoria) => (
+                    <button
+                      key={categoria}
+                      type="button"
+                      onClick={() => cambiarCategoria(categoria)}
+                      className={`shrink-0 rounded-full border px-4 py-2 text-sm font-medium backdrop-blur-sm transition-all duration-200 ${
+                        categoriaActiva === categoria
+                          ? "border-[#ed8435] bg-[#ed8435] text-white shadow-[0_10px_24px_rgba(237,132,53,0.18)]"
+                          : "border-white/12 bg-[#141b24]/72 text-white/82 hover:border-white/24 hover:bg-[#1a2330]/78 hover:text-white"
+                      }`}
+                    >
+                      {categoria}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      <section className="mx-auto max-w-[1440px] px-6 py-14">
+      <section className="mx-auto max-w-[1680px] px-6 py-16">
         <div className="grid gap-8 xl:grid-cols-[300px_minmax(0,1fr)]">
           <aside className="space-y-5">
             <div className="rounded-[1.75rem] border border-black/8 bg-white p-6 shadow-[0_14px_28px_rgba(15,23,42,0.05)]">
@@ -159,28 +180,6 @@ export default function CategoriasPage() {
                   ? "Estás viendo los productos filtrados de esta categoría."
                   : "Estás viendo el catálogo completo y puedes filtrar por palabra o categoría."}
               </p>
-            </div>
-
-            <div className="rounded-[1.75rem] border border-black/8 bg-white p-6 shadow-[0_14px_28px_rgba(15,23,42,0.05)]">
-              <h3 className="text-sm font-semibold uppercase tracking-[0.24em] text-[#16384f]">
-                Categorías
-              </h3>
-              <div className="mt-4 space-y-2">
-                {categorias.map((categoria) => (
-                  <button
-                    key={categoria}
-                    type="button"
-                    onClick={() => cambiarCategoria(categoria)}
-                    className={`block w-full rounded-xl px-4 py-3 text-left text-sm font-medium transition-colors duration-200 ${
-                      categoriaActiva === categoria
-                        ? "bg-[#16384f] text-white shadow-[0_12px_24px_rgba(22,56,79,0.18)]"
-                        : "bg-[#f8f8f7] text-[#5d6167] hover:bg-[#ececea]"
-                    }`}
-                  >
-                    {categoria}
-                  </button>
-                ))}
-              </div>
             </div>
 
             <div className="rounded-[1.75rem] border border-black/8 bg-white p-6 shadow-[0_14px_28px_rgba(15,23,42,0.05)]">
@@ -298,7 +297,7 @@ export default function CategoriasPage() {
               </div>
             </div>
 
-            <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+            <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
               {productosFiltrados.map((producto) => (
                 <article
                   key={producto.nombre}
@@ -313,7 +312,7 @@ export default function CategoriasPage() {
                       alt={producto.nombre}
                       width={900}
                       height={700}
-                      className="h-56 w-full object-cover"
+                      className="h-48 w-full object-cover"
                     />
                     <HoverCartControl
                       id={producto.slug}
@@ -324,12 +323,12 @@ export default function CategoriasPage() {
                     />
                   </div>
 
-                  <div className="space-y-4 p-5">
+                  <div className="space-y-3 p-4">
                     <div>
-                      <p className="mb-2 text-xs font-medium uppercase tracking-[0.24em] text-[#8b8d91]">
+                      <p className="mb-2 text-[11px] font-medium uppercase tracking-[0.22em] text-[#8b8d91]">
                         {producto.categoria} · {producto.marca}
                       </p>
-                      <h3 className="text-xl font-semibold leading-tight tracking-[-0.03em] text-[#1f2328]">
+                      <h3 className="text-lg font-semibold leading-tight tracking-[-0.03em] text-[#1f2328]">
                         {producto.nombre}
                       </h3>
                     </div>
@@ -342,11 +341,11 @@ export default function CategoriasPage() {
                       Stock: {producto.stock ?? 0}
                     </p>
 
-                    <div className="border-t border-black/6 pt-4">
+                    <div className="border-t border-black/6 pt-3">
                       <p className="text-sm text-[#a0a3a8] line-through">
                         {producto.precioAnterior}
                       </p>
-                      <p className="text-3xl font-semibold tracking-[-0.03em] text-[#ed8435]">
+                      <p className="text-[2rem] font-semibold tracking-[-0.03em] text-[#ed8435]">
                         {producto.precio}
                       </p>
                     </div>

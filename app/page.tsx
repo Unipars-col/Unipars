@@ -113,22 +113,28 @@ export default async function Home() {
             <Link
               key={categoria.nombre}
               href={`/categorias?categoria=${slugCategoria(categoria.nombre)}`}
-              className="group flex min-h-[220px] flex-col items-center justify-between rounded-[1rem] border border-black/8 bg-white px-5 pb-6 pt-5 text-center transition-all duration-300 hover:-translate-y-1 hover:border-[var(--hover-color)] hover:shadow-[0_0_0_1px_var(--hover-color),0_14px_26px_color-mix(in_srgb,var(--hover-color)_14%,transparent)] focus-visible:border-[var(--hover-color)] focus-visible:shadow-[0_0_0_1px_var(--hover-color),0_14px_26px_color-mix(in_srgb,var(--hover-color)_14%,transparent)]"
+              className="group flex min-h-[236px] flex-col items-center justify-between rounded-[1rem] border border-black/8 bg-white px-5 pb-6 pt-5 text-center transition-all duration-500 hover:-translate-y-2 hover:border-[var(--hover-color)] hover:shadow-[0_0_0_1px_var(--hover-color),0_20px_34px_color-mix(in_srgb,var(--hover-color)_18%,transparent)] focus-visible:border-[var(--hover-color)] focus-visible:shadow-[0_0_0_1px_var(--hover-color),0_20px_34px_color-mix(in_srgb,var(--hover-color)_18%,transparent)]"
               style={
                 {
                   "--hover-color": categoria.color,
                 } as CSSProperties
               }
             >
-              <div className="flex h-[124px] w-full items-center justify-center transition-all duration-300 md:h-[132px]">
+              <div className="relative flex h-[144px] w-full items-center justify-center overflow-visible transition-all duration-500 md:h-[156px]">
                 {categoria.iconoImagen ? (
-                  <div className="transition-all duration-500 group-hover:scale-[1.04]">
+                  <div className="relative transition-all duration-500 group-hover:-translate-y-2 group-hover:scale-[1.12]">
+                    <div
+                      className="absolute left-1/2 top-1/2 h-[96px] w-[96px] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-0 blur-2xl transition-all duration-500 group-hover:opacity-100 md:h-[112px] md:w-[112px]"
+                      style={{
+                        backgroundColor: "color-mix(in srgb, var(--hover-color) 28%, transparent)",
+                      }}
+                    />
                     <Image
                       src={categoria.iconoImagen}
                       alt={categoria.nombre}
                       width={140}
                       height={96}
-                      className="h-[104px] w-[148px] object-contain drop-shadow-[0_10px_18px_rgba(15,23,42,0.12)] md:h-[110px] md:w-[156px]"
+                      className="relative h-[122px] w-[174px] object-contain drop-shadow-[0_12px_22px_rgba(15,23,42,0.12)] transition-all duration-500 group-hover:drop-shadow-[0_18px_28px_rgba(15,23,42,0.18)] md:h-[132px] md:w-[188px]"
                     />
                   </div>
                 ) : (

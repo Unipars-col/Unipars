@@ -8,6 +8,7 @@ import {
   slugify,
   type Categoria,
   type Disponibilidad,
+  type ProductoEspecificacion,
   type ProductoCatalogo,
 } from "@/app/data/catalog";
 import { prisma } from "@/lib/prisma";
@@ -32,6 +33,7 @@ type ProductRecord = {
   application?: string | null;
   compatibility?: string[] | null;
   warranty?: string | null;
+  technicalSpecs?: unknown;
   featured: boolean;
 };
 
@@ -70,6 +72,7 @@ export type ProductMutationInput = {
   aplicacion?: string;
   compatibilidad?: string[];
   garantia?: string;
+  especificacionesTecnicas?: ProductoEspecificacion[];
 };
 
 function createSkuFromName(name: string) {
@@ -130,6 +133,62 @@ function normalizeTextList(values: Array<string | null | undefined>) {
     .filter(Boolean);
 }
 
+function normalizeTechnicalSpecs(
+  specs: unknown,
+  fallback?: {
+    categoria?: string;
+    marca?: string;
+    disponibilidad?: string;
+    garantia?: string | null;
+    aplicacion?: string | null;
+  },
+): ProductoEspecificacion[] {
+  const normalized = Array.isArray(specs)
+    ? specs
+        .map((item) => {
+          if (!item || typeof item !== "object") return null;
+
+          const etiqueta =
+            "etiqueta" in item && typeof item.etiqueta === "string"
+              ? item.etiqueta.trim()
+              : "";
+          const valor =
+            "valor" in item && typeof item.valor === "string"
+              ? item.valor.trim()
+              : "";
+
+          if (!etiqueta || !valor) return null;
+          return { etiqueta, valor };
+        })
+        .filter((item): item is ProductoEspecificacion => Boolean(item))
+    : [];
+
+  if (normalized.length > 0) {
+    return normalized;
+  }
+
+  return [
+    {
+      etiqueta: "Observaciones",
+      valor:
+        "La imagen de este producto es de referencia visual y puede variar levemente frente a la versión final entregada.",
+    },
+    ...(fallback?.categoria
+      ? [{ etiqueta: "Categoría", valor: fallback.categoria }]
+      : []),
+    ...(fallback?.marca ? [{ etiqueta: "Marca", valor: fallback.marca }] : []),
+    ...(fallback?.disponibilidad
+      ? [{ etiqueta: "Disponibilidad", valor: fallback.disponibilidad }]
+      : []),
+    ...(fallback?.garantia
+      ? [{ etiqueta: "Garantía", valor: fallback.garantia }]
+      : []),
+    ...(fallback?.aplicacion
+      ? [{ etiqueta: "Aplicación", valor: fallback.aplicacion }]
+      : []),
+  ];
+}
+
 function normalizeCategoria(value: string): Categoria {
   return categorias.includes(value as Categoria)
     ? (value as Categoria)
@@ -182,6 +241,15 @@ function toStoreProduct(product: ProductRecord): StoreProduct {
       `Aplicación recomendada para la línea ${categoria}.`,
     compatibilidad: normalizeTextList(product.compatibility || []),
     garantia: product.warranty?.trim() || "1 año de garantía del fabricante",
+    especificacionesTecnicas: normalizeTechnicalSpecs(product.technicalSpecs, {
+      categoria,
+      marca: product.brand,
+      disponibilidad,
+      garantia: product.warranty?.trim() || "1 año de garantía del fabricante",
+      aplicacion:
+        product.application?.trim() ||
+        `Aplicación recomendada para la línea ${categoria}.`,
+    }),
     destacado: product.featured,
   };
 }
@@ -216,6 +284,18 @@ function getFallbackProducts(): StoreProduct[] {
     compatibilidad:
       producto.compatibilidad || [producto.marca, producto.categoria],
     garantia: producto.garantia || "1 año de garantía del fabricante",
+    especificacionesTecnicas: normalizeTechnicalSpecs(
+      producto.especificacionesTecnicas,
+      {
+        categoria: producto.categoria,
+        marca: producto.marca,
+        disponibilidad: producto.disponibilidad,
+        garantia: producto.garantia || "1 año de garantía del fabricante",
+        aplicacion:
+          producto.aplicacion ||
+          `Aplicación comercial para ${producto.categoria.toLowerCase()}.`,
+      },
+    ),
     destacado: producto.destacado ?? index < 4,
   }));
 }
@@ -312,6 +392,7 @@ export async function createProduct(input: ProductMutationInput) {
         set: normalizeTextList(input.compatibilidad || []),
       },
       warranty: input.garantia?.trim() || "1 año de garantía del fabricante",
+      technicalSpecs: normalizeTechnicalSpecs(input.especificacionesTecnicas),
       featured: false,
       active: true,
       inventoryMovements: {
@@ -427,6 +508,7 @@ export async function updateProduct(slug: string, input: ProductMutationInput) {
         set: normalizeTextList(input.compatibilidad || []),
       },
       warranty: input.garantia?.trim() || "1 año de garantía del fabricante",
+      technicalSpecs: normalizeTechnicalSpecs(input.especificacionesTecnicas),
       inventoryMovements:
         stockDelta !== 0
           ? {

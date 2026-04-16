@@ -58,3 +58,12 @@ body {
 .admin-card-drift {
   animation: adminCardDrift 5.5s ease-in-out infinite;
 }
+
+.scrollbar-hidden {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hidden::-webkit-scrollbar {
+  display: none;
+}

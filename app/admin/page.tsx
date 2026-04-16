@@ -13,6 +13,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useProducts } from "../components/products-provider";
 import { categorias, type Categoria, type ProductoCatalogo } from "../data/catalog";
+import type { ProductoEspecificacion } from "../data/catalog";
 import type { InventoryMovementSummary } from "@/lib/products";
 import type { ShippingStatus } from "@/lib/orders";
 
@@ -34,9 +35,16 @@ type FormState = {
   stock: string;
   stockMinimo: string;
   disponibilidad: ProductoCatalogo["disponibilidad"];
+  descripcion: string;
   aplicacion: string;
   compatibilidad: string;
   garantia: string;
+};
+
+type TechnicalSpecFormItem = {
+  id: string;
+  etiqueta: string;
+  valor: string;
 };
 
 const initialState: FormState = {
@@ -51,6 +59,7 @@ const initialState: FormState = {
   stock: "0",
   stockMinimo: "0",
   disponibilidad: "Entrega inmediata",
+  descripcion: "",
   aplicacion: "",
   compatibilidad: "",
   garantia: "1 año de garantía del fabricante",
@@ -71,6 +80,27 @@ const paymentStatuses: Array<"PENDING" | "PAID" | "FAILED"> = [
   "PAID",
   "FAILED",
 ];
+
+function createTechnicalSpecItem(
+  spec?: Partial<ProductoEspecificacion>,
+): TechnicalSpecFormItem {
+  return {
+    id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+    etiqueta: spec?.etiqueta || "",
+    valor: spec?.valor || "",
+  };
+}
+
+function normalizeTechnicalSpecFormItems(
+  items: TechnicalSpecFormItem[],
+): ProductoEspecificacion[] {
+  return items
+    .map((item) => ({
+      etiqueta: item.etiqueta.trim(),
+      valor: item.valor.trim(),
+    }))
+    .filter((item) => item.etiqueta && item.valor);
+}
 
 type ToastState = {
   tone: "success" | "error";
@@ -446,6 +476,103 @@ function ProductImageSelector({
   );
 }
 
+function TechnicalSpecsEditor({
+  items,
+  onChange,
+}: {
+  items: TechnicalSpecFormItem[];
+  onChange: (items: TechnicalSpecFormItem[]) => void;
+}) {
+  const updateItem = (
+    id: string,
+    field: "etiqueta" | "valor",
+    value: string,
+  ) => {
+    onChange(
+      items.map((item) => (item.id === id ? { ...item, [field]: value } : item)),
+    );
+  };
+
+  const removeItem = (id: string) => {
+    onChange(items.filter((item) => item.id !== id));
+  };
+
+  const addItem = () => {
+    onChange([...items, createTechnicalSpecItem()]);
+  };
+
+  return (
+    <div className="md:col-span-2 rounded-[1.5rem] border border-black/8 bg-[#fafaf9] p-5">
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <p className="text-sm font-medium text-[#4f545a]">
+            Ficha técnica del producto
+          </p>
+          <p className="mt-2 text-xs leading-6 text-[#6e7379]">
+            Agrega solo las especificaciones que apliquen para este producto. Puedes dejar pocas o muchas.
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={addItem}
+          className="inline-flex rounded-full border border-black/10 bg-white px-4 py-2 text-sm font-semibold text-[#16384f] transition-colors duration-200 hover:bg-[#16384f] hover:text-white"
+        >
+          Agregar especificación
+        </button>
+      </div>
+
+      <div className="mt-5 space-y-3">
+        {items.length === 0 && (
+          <div className="rounded-[1.2rem] border border-dashed border-black/12 bg-white px-4 py-5 text-sm text-[#6e7379]">
+            Aún no hay especificaciones. Agrega las filas que necesites para esta categoría.
+          </div>
+        )}
+
+        {items.map((item, index) => (
+          <div
+            key={item.id}
+            className="grid gap-3 rounded-[1.2rem] border border-black/8 bg-white p-4 md:grid-cols-[220px_minmax(0,1fr)_auto]"
+          >
+            <label className="space-y-2">
+              <span className="text-xs font-semibold uppercase tracking-[0.14em] text-[#8b8d91]">
+                Etiqueta
+              </span>
+              <input
+                value={item.etiqueta}
+                onChange={(event) => updateItem(item.id, "etiqueta", event.target.value)}
+                placeholder={index === 0 ? "Ej. Material" : "Nombre del dato"}
+                className="w-full rounded-xl border border-black/10 bg-[#fafaf9] px-4 py-3 text-sm text-[#1f2328] outline-none transition-colors duration-200 focus:border-[#ed8435]"
+              />
+            </label>
+
+            <label className="space-y-2">
+              <span className="text-xs font-semibold uppercase tracking-[0.14em] text-[#8b8d91]">
+                Valor
+              </span>
+              <input
+                value={item.valor}
+                onChange={(event) => updateItem(item.id, "valor", event.target.value)}
+                placeholder="Escribe la especificación"
+                className="w-full rounded-xl border border-black/10 bg-[#fafaf9] px-4 py-3 text-sm text-[#1f2328] outline-none transition-colors duration-200 focus:border-[#ed8435]"
+              />
+            </label>
+
+            <div className="flex items-end">
+              <button
+                type="button"
+                onClick={() => removeItem(item.id)}
+                className="inline-flex rounded-full border border-black/10 px-4 py-3 text-sm font-semibold text-[#16384f] transition-colors duration-200 hover:bg-[#16384f] hover:text-white"
+              >
+                Quitar
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function splitCommaSeparatedValues(value: string) {
   return value
     .split(",")
@@ -476,6 +603,9 @@ export default function AdminPage() {
   >("all");
   const [form, setForm] = useState<FormState>(initialState);
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [technicalSpecs, setTechnicalSpecs] = useState<TechnicalSpecFormItem[]>([
+    createTechnicalSpecItem({ etiqueta: "Observaciones" }),
+  ]);
   const [selectedExtraImages, setSelectedExtraImages] = useState<Array<File | null>>(
     () => Array.from({ length: EXTRA_IMAGE_SLOTS }, () => null),
   );
@@ -668,7 +798,7 @@ export default function AdminPage() {
   }, [isAuthenticated, isCheckingSession, router]);
 
   const handleChange = (
-    event: ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+    event: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>,
   ) => {
     const { name, value } = event.target;
     setForm((current) => ({ ...current, [name]: value }));
@@ -804,6 +934,13 @@ export default function AdminPage() {
         imagen: nextPrimaryImage,
         imagenesExtra: reorderedExtraImages.slice(0, EXTRA_IMAGE_SLOTS),
         disponibilidad: form.disponibilidad,
+        descripcion: form.descripcion,
+        oemReferencia: form.oemReferencia,
+        referenciasAlternas: splitCommaSeparatedValues(form.referenciasAlternas),
+        aplicacion: form.aplicacion,
+        compatibilidad: splitCommaSeparatedValues(form.compatibilidad),
+        garantia: form.garantia,
+        especificacionesTecnicas: normalizeTechnicalSpecFormItems(technicalSpecs),
       };
       const result = editingSlug
         ? await updateProduct(editingSlug, payload)
@@ -822,6 +959,7 @@ export default function AdminPage() {
 
       setForm(initialState);
       setSelectedImage(null);
+      setTechnicalSpecs([createTechnicalSpecItem({ etiqueta: "Observaciones" })]);
       setSelectedExtraImages(Array.from({ length: EXTRA_IMAGE_SLOTS }, () => null));
       setPrimaryImageIndex(0);
       setFileInputKey((current) => current + 1);
@@ -870,7 +1008,15 @@ export default function AdminPage() {
       aplicacion: product.aplicacion || "",
       compatibilidad: product.compatibilidad?.join(", ") || "",
       garantia: product.garantia || initialState.garantia,
+      descripcion: product.descripcion || "",
     });
+    setTechnicalSpecs(
+      (product.especificacionesTecnicas || []).length > 0
+        ? (product.especificacionesTecnicas || []).map((item) =>
+            createTechnicalSpecItem(item),
+          )
+        : [createTechnicalSpecItem({ etiqueta: "Observaciones" })],
+    );
     setEditingSlug(product.slug);
     setActiveTab("edit");
     setSelectedImage(null);
@@ -883,6 +1029,7 @@ export default function AdminPage() {
   const handleResetForm = () => {
     setForm(initialState);
     setSelectedImage(null);
+    setTechnicalSpecs([createTechnicalSpecItem({ etiqueta: "Observaciones" })]);
     setSelectedExtraImages(Array.from({ length: EXTRA_IMAGE_SLOTS }, () => null));
     setPrimaryImageIndex(0);
     setEditingSlug(null);
@@ -1479,6 +1626,28 @@ export default function AdminPage() {
                 </label>
 
                 <label className="space-y-2">
+                  <span className="text-sm font-medium text-[#4f545a]">Referencia OEM</span>
+                  <input
+                    name="oemReferencia"
+                    value={form.oemReferencia}
+                    onChange={handleChange}
+                    placeholder="Ej. OEM-45892"
+                    className="w-full rounded-2xl border border-black/10 bg-[#fafaf9] px-4 py-3 text-sm text-[#1f2328] outline-none transition-colors duration-200 focus:border-[#ed8435]"
+                  />
+                </label>
+
+                <label className="space-y-2">
+                  <span className="text-sm font-medium text-[#4f545a]">Referencias alternas</span>
+                  <input
+                    name="referenciasAlternas"
+                    value={form.referenciasAlternas}
+                    onChange={handleChange}
+                    placeholder="Separadas por coma"
+                    className="w-full rounded-2xl border border-black/10 bg-[#fafaf9] px-4 py-3 text-sm text-[#1f2328] outline-none transition-colors duration-200 focus:border-[#ed8435]"
+                  />
+                </label>
+
+                <label className="space-y-2">
                   <span className="text-sm font-medium text-[#4f545a]">Precio actual</span>
                   <input
                     name="precioValor"
@@ -1617,6 +1786,23 @@ export default function AdminPage() {
                   onSelect={setPrimaryImageIndex}
                   description="Puedes escoger cuál de las imágenes será la principal del producto."
                 />
+
+                <TechnicalSpecsEditor
+                  items={technicalSpecs}
+                  onChange={setTechnicalSpecs}
+                />
+
+                <label className="space-y-2 md:col-span-2">
+                  <span className="text-sm font-medium text-[#4f545a]">Descripción comercial</span>
+                  <textarea
+                    name="descripcion"
+                    value={form.descripcion}
+                    onChange={handleChange}
+                    rows={4}
+                    placeholder="Describe el producto, su uso principal y el beneficio para el cliente."
+                    className="w-full rounded-2xl border border-black/10 bg-[#fafaf9] px-4 py-3 text-sm leading-7 text-[#1f2328] outline-none transition-colors duration-200 focus:border-[#ed8435]"
+                  />
+                </label>
 
                 <label className="space-y-2 md:col-span-2">
                   <span className="text-sm font-medium text-[#4f545a]">Disponibilidad</span>
@@ -1916,6 +2102,28 @@ export default function AdminPage() {
                     </label>
 
                     <label className="space-y-2">
+                      <span className="text-sm font-medium text-[#4f545a]">Referencia OEM</span>
+                      <input
+                        name="oemReferencia"
+                        value={form.oemReferencia}
+                        onChange={handleChange}
+                        placeholder="Ej. OEM-45892"
+                        className="w-full rounded-2xl border border-black/10 bg-[#fafaf9] px-4 py-3 text-sm text-[#1f2328] outline-none transition-colors duration-200 focus:border-[#ed8435]"
+                      />
+                    </label>
+
+                    <label className="space-y-2">
+                      <span className="text-sm font-medium text-[#4f545a]">Referencias alternas</span>
+                      <input
+                        name="referenciasAlternas"
+                        value={form.referenciasAlternas}
+                        onChange={handleChange}
+                        placeholder="Separadas por coma"
+                        className="w-full rounded-2xl border border-black/10 bg-[#fafaf9] px-4 py-3 text-sm text-[#1f2328] outline-none transition-colors duration-200 focus:border-[#ed8435]"
+                      />
+                    </label>
+
+                    <label className="space-y-2">
                       <span className="text-sm font-medium text-[#4f545a]">Precio actual</span>
                       <input
                         name="precioValor"
@@ -2050,6 +2258,23 @@ export default function AdminPage() {
                       onSelect={setPrimaryImageIndex}
                       description="La imagen marcada como principal será la que verá primero el cliente."
                     />
+
+                    <TechnicalSpecsEditor
+                      items={technicalSpecs}
+                      onChange={setTechnicalSpecs}
+                    />
+
+                    <label className="space-y-2 md:col-span-2">
+                      <span className="text-sm font-medium text-[#4f545a]">Descripción comercial</span>
+                      <textarea
+                        name="descripcion"
+                        value={form.descripcion}
+                        onChange={handleChange}
+                        rows={4}
+                        placeholder="Describe el producto, su uso principal y el beneficio para el cliente."
+                        className="w-full rounded-2xl border border-black/10 bg-[#fafaf9] px-4 py-3 text-sm leading-7 text-[#1f2328] outline-none transition-colors duration-200 focus:border-[#ed8435]"
+                      />
+                    </label>
 
                     <label className="space-y-2 md:col-span-2">
                       <span className="text-sm font-medium text-[#4f545a]">Disponibilidad</span>

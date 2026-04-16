@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useEffectEvent, useState } from "react";
+import Image from "next/image";
 const slides = [
   {
     id: 1,
@@ -16,7 +17,7 @@ const slides = [
     title: "Compra repuestos con apoyo experto y entrega segura",
     description:
       "Explora productos destacados y encuentra aliados cerca de ti para resolverlo rapido.",
-    image: "/hero-unipars.jpg",
+    image: "/hero-banner-2.jpg",
   },
   {
     id: 3,
@@ -24,7 +25,7 @@ const slides = [
     title: "Descubre ofertas, categorias y soluciones para tu vehiculo",
     description:
       "Deja estos slides listos para reemplazar luego con tus banners finales.",
-    image: "/hero-unipars.jpg",
+    image: "/hero-banner-3.jpg",
   },
 ];
 
@@ -66,15 +67,21 @@ export default function HeroCarousel() {
         {slides.map((slide) => (
           <article
             key={slide.id}
-            className="relative min-h-[520px] w-full shrink-0"
+            className="relative aspect-[16/10] w-full shrink-0 bg-[#05070a] sm:aspect-[16/9] md:aspect-[21/8] lg:aspect-[2560/720]"
           >
-            <div
-              className="absolute inset-0 bg-cover bg-center"
-              style={{ backgroundImage: `url('${slide.image}')` }}
-            />
-            <div className="absolute inset-0 bg-gradient-to-r from-black/72 via-black/42 to-black/18" />
+            <div className="absolute inset-0">
+              <Image
+                src={slide.image}
+                alt={slide.title}
+                fill
+                priority={slide.id === 1}
+                sizes="100vw"
+                className="object-cover object-center"
+              />
+            </div>
+            <div className="absolute inset-0 bg-gradient-to-r from-black/86 via-black/42 to-black/8" />
 
-            <div className="relative mx-auto flex min-h-[520px] max-w-[1440px] items-center px-6 py-24">
+            <div className="relative mx-auto flex h-full max-w-[1440px] items-center px-6 py-12 sm:py-16 md:py-20">
               <div className="max-w-2xl">
                 <p className="mb-4 text-sm font-semibold uppercase tracking-[0.35em] text-[#ed8435]">
                   {slide.eyebrow}

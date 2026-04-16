@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import AddToCartButton from "../../components/add-to-cart-button";
 import { useProducts } from "../../components/products-provider";
+import type { ProductoEspecificacion } from "../../data/catalog";
 
 function ProductImageGallery({
   nombre,
@@ -167,6 +168,7 @@ export default function ProductoDetallePage() {
   const params = useParams<{ slug: string }>();
   const { products } = useProducts();
   const [cantidad, setCantidad] = useState(1);
+  const [fichaAbierta, setFichaAbierta] = useState(true);
   const slug = params.slug;
   const producto = products.find((item) => item.slug === slug);
   const galleryImages = useMemo(
@@ -217,41 +219,39 @@ export default function ProductoDetallePage() {
         item.categoria === producto.categoria && item.slug !== producto.slug,
     )
     .slice(0, 3);
-  const fichaTecnica = [
-    {
-      etiqueta: "Observaciones",
-      valor:
-        "La imagen de este producto es de referencia visual y puede variar levemente frente a la versión final entregada.",
-    },
-    {
-      etiqueta: "Material",
-      valor: "Aleación técnica de alta resistencia",
-    },
-    {
-      etiqueta: "Categoría",
-      valor: producto.categoria,
-    },
-    {
-      etiqueta: "Marca",
-      valor: producto.marca,
-    },
-    {
-      etiqueta: "Disponibilidad",
-      valor: producto.disponibilidad,
-    },
-    {
-      etiqueta: "Garantía",
-      valor: "1 año de garantía del fabricante",
-    },
-    {
-      etiqueta: "Aplicación",
-      valor: "Uso técnico, industrial y de reposición especializada",
-    },
-    {
-      etiqueta: "Origen",
-      valor: "Importado",
-    },
-  ];
+  const fichaTecnica: ProductoEspecificacion[] =
+    producto.especificacionesTecnicas && producto.especificacionesTecnicas.length > 0
+      ? producto.especificacionesTecnicas
+      : [
+          {
+            etiqueta: "Observaciones",
+            valor:
+              "La imagen de este producto es de referencia visual y puede variar levemente frente a la versión final entregada.",
+          },
+          {
+            etiqueta: "Categoría",
+            valor: producto.categoria,
+          },
+          {
+            etiqueta: "Marca",
+            valor: producto.marca,
+          },
+          {
+            etiqueta: "Disponibilidad",
+            valor: producto.disponibilidad,
+          },
+          {
+            etiqueta: "Garantía",
+            valor: producto.garantia || "1 año de garantía del fabricante",
+          },
+          {
+            etiqueta: "Aplicación",
+            valor: producto.aplicacion || "Uso técnico, industrial y de reposición especializada",
+          },
+        ];
+  const resumenGeneral =
+    producto.descripcion ||
+    `Producto de la línea ${producto.categoria} con disponibilidad ${producto.disponibilidad.toLowerCase()} y respaldo comercial de ${producto.marca}.`;
 
   return (
     <main className="min-h-screen bg-[#f5f5f5] text-[#111]">
@@ -284,41 +284,61 @@ export default function ProductoDetallePage() {
               images={galleryImages}
             />
 
-            <div className="mt-6 overflow-hidden rounded-[1.6rem] border border-black/8">
-              <div className="flex items-center justify-between border-b border-black/8 bg-[#f8f8f7] px-6 py-4">
-                <h2 className="text-2xl font-semibold tracking-[-0.03em] text-[#33373d]">
-                  Ficha técnica
-                </h2>
-                <span className="text-xl text-[#4f545a]">⌃</span>
-              </div>
-
-              <div className="bg-white">
-                <div className="border-b border-black/8 px-6 py-4">
-                  <h3 className="text-xl font-semibold text-[#33373d]">
-                    Especificaciones
-                  </h3>
-                </div>
-
+            <div
+              id="ficha-tecnica"
+              className="mt-6 overflow-hidden rounded-[1.6rem] border border-black/8"
+            >
+              <button
+                type="button"
+                onClick={() => setFichaAbierta((actual) => !actual)}
+                className="flex w-full items-center justify-between bg-[linear-gradient(180deg,#fbfbfa_0%,#f3f3f2_100%)] px-6 py-5 text-left transition-colors duration-200 hover:bg-[#f4f4f2]"
+                aria-expanded={fichaAbierta}
+              >
                 <div>
-                  {fichaTecnica.map((item, index) => (
-                    <div
-                      key={item.etiqueta}
-                      className={`grid md:grid-cols-[260px_minmax(0,1fr)] ${
-                        index < fichaTecnica.length - 1
-                          ? "border-b border-black/8"
-                          : ""
-                      }`}
-                    >
-                      <div className="bg-[#f3f3f2] px-6 py-5 text-lg text-[#33373d]">
-                        {item.etiqueta}
-                      </div>
-                      <div className="px-6 py-5 text-lg font-medium leading-8 text-[#22262b]">
-                        {item.valor}
-                      </div>
-                    </div>
-                  ))}
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-[#ed8435]">
+                    Información técnica
+                  </p>
+                  <h2 className="mt-2 text-[28px] font-semibold tracking-[-0.03em] text-[#33373d]">
+                    Ficha técnica
+                  </h2>
+                  <p className="mt-2 text-sm leading-6 text-[#6e7379]">
+                    Datos clave para validar compatibilidad, uso y respaldo del producto.
+                  </p>
                 </div>
-              </div>
+                <span
+                  className={`inline-flex h-11 w-11 items-center justify-center rounded-full border border-black/8 bg-white text-xl text-[#4f545a] transition-transform duration-300 ${
+                    fichaAbierta ? "rotate-0" : "-rotate-180"
+                  }`}
+                >
+                  ⌃
+                </span>
+              </button>
+
+              {fichaAbierta && (
+                <div className="bg-white p-4 md:p-5">
+                  <div className="rounded-[1.4rem] border border-black/8 overflow-hidden">
+                    <div className="grid gap-px bg-black/6 md:grid-cols-[220px_minmax(0,1fr)]">
+                      {fichaTecnica.map((item) => (
+                        <div
+                          key={item.etiqueta}
+                          className="contents"
+                        >
+                          <div
+                            className="bg-[#f6f6f4] px-5 py-4 text-sm font-semibold uppercase tracking-[0.08em] text-[#5d6670]"
+                          >
+                            {item.etiqueta}
+                          </div>
+                          <div
+                            className="bg-white px-5 py-4 text-base font-medium leading-7 text-[#22262b]"
+                          >
+                            {item.valor}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
@@ -387,19 +407,24 @@ export default function ProductoDetallePage() {
               />
             </div>
 
-            <div className="rounded-[1.4rem] bg-[#f6f7f8] p-6">
-              <h2 className="text-2xl font-semibold text-[#33373d]">
-                Especificaciones principales
+            <div className="rounded-[1.4rem] border border-black/6 bg-[linear-gradient(180deg,#f8f9fb_0%,#f2f4f7_100%)] p-6">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-[#ed8435]">
+                Resumen rápido
+              </p>
+              <h2 className="mt-2 text-2xl font-semibold text-[#33373d]">
+                Especificaciones generales
               </h2>
-              <ul className="mt-4 space-y-3 text-base leading-7 text-[#4f545a]">
-                <li>Compatibilidad directa con la línea {producto.categoria}.</li>
-                <li>Producto con respaldo comercial y disponibilidad {producto.disponibilidad.toLowerCase()}.</li>
-                <li>Inventario actual: {producto.stock ?? 0} unidad{(producto.stock ?? 0) === 1 ? "" : "es"}.</li>
-                <li>Componente pensado para rendimiento estable y mantenimiento ágil.</li>
-              </ul>
-              <button className="mt-5 text-sm font-medium text-[#2d7af0] transition-colors duration-200 hover:text-[#16384f]">
+              <div className="mt-5 rounded-xl bg-white/78 px-5 py-5 shadow-[0_10px_22px_rgba(15,23,42,0.04)]">
+                <p className="text-[15px] leading-7 text-[#4f545a]">
+                  {resumenGeneral}
+                </p>
+              </div>
+              <a
+                href="#ficha-tecnica"
+                className="mt-5 inline-flex text-sm font-medium text-[#2d7af0] transition-colors duration-200 hover:text-[#16384f]"
+              >
                 Ver más especificaciones
-              </button>
+              </a>
             </div>
           </div>
         </div>

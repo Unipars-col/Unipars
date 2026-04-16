@@ -1,100 +1,337 @@
 "use client";
 
 import Image from "next/image";
-import { useMemo, useState, type PointerEvent } from "react";
+import { useMemo, useState, type FormEvent } from "react";
+import { categoriasData, type Categoria } from "../data/catalog";
 
-const DEFAULT_POSITION = { x: 50, y: 50 };
-const LENS_SIZE = 220;
+type DiagnosticRule = {
+  keywords: string[];
+  category: Categoria;
+  title: string;
+  reply: string;
+  suggestions: string[];
+};
 
-export default function BusXrayBanner() {
-  const [position, setPosition] = useState(DEFAULT_POSITION);
-  const [isActive, setIsActive] = useState(false);
+const diagnosticRules: DiagnosticRule[] = [
+  {
+    keywords: ["frena", "freno", "aire", "compresor", "valvula", "presion"],
+    category: "Línea neumática",
+    title: "Revisa primero la línea neumática",
+    reply:
+      "Si tu bus casi no frena, demora la respuesta o pierde presión, lo más probable es revisar componentes de la línea neumática. Ahí suelen estar las piezas clave para recuperar presión, respuesta y seguridad.",
+    suggestions: ["Válvulas", "Mangueras", "Conexiones"],
+  },
+  {
+    keywords: ["luz", "farola", "direccional", "stop", "bombillo", "iluminacion"],
+    category: "Luces y direccionales",
+    title: "La señal apunta a luces y direccionales",
+    reply:
+      "Cuando el problema está en iluminación, stop o direccionales, la línea más útil para empezar a buscar es Luces y direccionales. Desde ahí encuentras farolas, módulos y piezas de visibilidad.",
+    suggestions: ["Farolas", "Direccionales", "Módulos traseros"],
+  },
+  {
+    keywords: ["espejo", "retrovisor", "soporte", "vibracion lateral"],
+    category: "Espejos retrovisores y soportes",
+    title: "Puede venir de espejos y soportes",
+    reply:
+      "Si el retrovisor está flojo, vibra o necesitas cambiar el soporte, la línea correcta es Espejos retrovisores y soportes. Es el punto más directo para ubicar el repuesto exacto.",
+    suggestions: ["Espejos", "Soportes", "Bases"],
+  },
+  {
+    keywords: ["limpia", "parabrisas", "escobilla", "brazo", "agua vidrio"],
+    category: "Sistemas limpiaparabrisas",
+    title: "Empieza por limpiaparabrisas",
+    reply:
+      "Si las escobillas no barren bien, el brazo falló o el sistema quedó sin fuerza, te conviene entrar por Sistemas limpiaparabrisas. Ahí vas a encontrar los componentes de barrido y soporte.",
+    suggestions: ["Escobillas", "Brazos", "Mecanismos"],
+  },
+  {
+    keywords: ["motor", "calienta", "ventilador", "recalienta", "enfria", "arranque"],
+    category: "Motores y ventiladores",
+    title: "Hay señales de motor o ventilación",
+    reply:
+      "Si notas recalentamiento, bajo rendimiento o fallas en el ventilador, la categoría más cercana es Motores y ventiladores. Desde ahí puedes afinar la búsqueda según el sistema afectado.",
+    suggestions: ["Ventiladores", "Motores", "Rotores"],
+  },
+  {
+    keywords: ["caucho", "goma", "sello", "empaque", "vibracion", "ruido goma"],
+    category: "Línea cauchos",
+    title: "Suena a línea cauchos",
+    reply:
+      "Cuando hay desgaste de goma, sellos vencidos o vibraciones por piezas flexibles, lo más útil es revisar la línea cauchos. Allí encuentras referencias de reposición y sellado.",
+    suggestions: ["Sellos", "Empaques", "Cauchos técnicos"],
+  },
+  {
+    keywords: ["cable", "electrico", "electrico", "corriente", "sensor", "conector"],
+    category: "Línea eléctrica",
+    title: "La búsqueda va por línea eléctrica",
+    reply:
+      "Si el síntoma es de corriente, conectores, sensores o cableado, la categoría más precisa para empezar es Línea eléctrica. Ahí es donde conviene filtrar primero.",
+    suggestions: ["Conectores", "Cableado", "Sensores"],
+  },
+  {
+    keywords: ["inyeccion", "extrusion", "plastico", "boquilla", "moldeo"],
+    category: "Línea inyección y extrusión",
+    title: "Esto encaja mejor en inyección y extrusión",
+    reply:
+      "Cuando el problema está relacionado con procesos de inyección, extrusión o piezas técnicas de ese frente, la línea correcta para entrar es Inyección y extrusión.",
+    suggestions: ["Boquillas", "Piezas técnicas", "Accesorios"],
+  },
+  {
+    keywords: ["mecanizado", "torno", "corte", "fresa", "ajuste metalico"],
+    category: "Línea mecanizado",
+    title: "Puede resolverse desde línea mecanizado",
+    reply:
+      "Si el caso tiene que ver con mecanizado, ajuste fino o piezas de trabajo industrial, te conviene entrar por Línea mecanizado para revisar herramientas y componentes.",
+    suggestions: ["Herramientas", "Bujes", "Piezas de ajuste"],
+  },
+];
 
-  const clipPath = useMemo(
-    () => `circle(${LENS_SIZE / 2}px at ${position.x}% ${position.y}%)`,
-    [position.x, position.y],
+const quickPrompts = [
+  "Mi bus casi no frena",
+  "No me prenden las luces",
+  "El retrovisor está flojo",
+  "El limpiaparabrisas no barre bien",
+];
+
+const defaultCategory = "Línea neumática" as Categoria;
+const defaultHeroImage = "/category-xray-vista-principal.jpg";
+
+const categoryXrayImages: Record<Categoria, string> = {
+  "Espejos retrovisores y soportes": "/category-xray-retrovisores.jpg",
+  "Motores y ventiladores": "/category-xray-motor.jpg",
+  "Luces y direccionales": "/category-xray-luces.jpg",
+  "Sistemas limpiaparabrisas": "/category-xray-parabrisas.jpg",
+  "Línea neumática": "/category-xray-neumatica.jpg",
+  "Línea inyección y extrusión": "/category-xray-inyeccion.jpg",
+  "Línea mecanizado": "/category-xray-mecanizado.jpg",
+  "Línea cauchos": "/category-xray-cauchos.jpg",
+  "Línea eléctrica": "/category-xray-electrico.jpg",
+};
+
+const normalize = (value: string) =>
+  value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim();
+
+function getAssistantState(message: string) {
+  const normalized = normalize(message);
+  const match = diagnosticRules.find((rule) =>
+    rule.keywords.some((keyword) => normalized.includes(keyword)),
   );
 
-  const updatePosition = (event: PointerEvent<HTMLDivElement>) => {
-    const bounds = event.currentTarget.getBoundingClientRect();
-    const nextX = ((event.clientX - bounds.left) / bounds.width) * 100;
-    const nextY = ((event.clientY - bounds.top) / bounds.height) * 100;
+  if (!match) {
+    return {
+      category: defaultCategory,
+      title: "Te oriento a la línea más probable",
+      reply:
+        "Cuéntame el síntoma principal del vehículo y te sugiero la categoría donde vale la pena empezar a buscar. Puedes escribir algo como “casi no frena”, “no prenden las luces” o “el limpiaparabrisas no funciona”.",
+      suggestions: ["Frenos", "Luces", "Retrovisores"],
+    };
+  }
 
-    setPosition({
-      x: Math.min(100, Math.max(0, nextX)),
-      y: Math.min(100, Math.max(0, nextY)),
-    });
+  return match;
+}
+
+export default function BusXrayBanner() {
+  const [draft, setDraft] = useState("");
+  const [userMessage, setUserMessage] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState<Categoria | null>(null);
+
+  const assistantState = useMemo(
+    () => getAssistantState(userMessage),
+    [userMessage],
+  );
+
+  const activeCategory = selectedCategory ?? assistantState.category;
+  const activeVisual =
+    categoriasData.find((category) => category.nombre === activeCategory) ??
+    categoriasData[0];
+  const heroImage = selectedCategory
+    ? categoryXrayImages[activeCategory]
+    : defaultHeroImage;
+  const displayReply = !userMessage
+    ? "Describe el síntoma principal de tu vehículo y el asistente te va a orientar hacia la categoría más útil, cambiando también la imagen central según la línea recomendada."
+    : assistantState.category === activeCategory
+    ? assistantState.reply
+    : activeVisual.bannerCopy ||
+      "Entra por esta línea para revisar los repuestos y referencias relacionadas con esa necesidad.";
+
+  const applyDiagnosis = (message: string) => {
+    const diagnosis = getAssistantState(message);
+    setUserMessage(message);
+    setSelectedCategory(diagnosis.category);
+    setDraft("");
+  };
+
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const text = draft.trim();
+
+    if (!text) return;
+    applyDiagnosis(text);
   };
 
   return (
-    <div className="overflow-hidden rounded-[2rem] border border-black/8 bg-white shadow-[0_20px_45px_rgba(15,23,42,0.08)]">
-      <div className="border-b border-black/6 bg-[#fbfbfa] px-6 py-4">
-        <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#8b8d91]">
-          Explora el sistema
-        </p>
-        <h2 className="mt-2 text-2xl font-semibold tracking-[-0.03em] text-[#16384f] md:text-3xl">
-          Pasa el cursor y mira el interior en modo radiografía
-        </h2>
+    <section className="overflow-hidden rounded-[8px] border border-black/8 bg-white shadow-[0_20px_45px_rgba(15,23,42,0.08)]">
+      <div className="px-6 pb-8 pt-10 md:px-8 lg:px-10">
+        <div className="overflow-hidden rounded-[8px] bg-white">
+          <div className="px-6 pb-0 pt-8 md:px-8 lg:px-10">
+            <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_160px]">
+              <div className="mx-auto max-w-[680px] text-center lg:mx-0 lg:max-w-[760px]">
+                <h2 className="text-3xl font-semibold tracking-[-0.04em] text-[#3e4349] md:text-5xl">
+                  {selectedCategory ? activeCategory : "Habla con Uniparcero y encuentra la línea correcta"}
+                </h2>
+                <p className="mt-3 text-sm leading-7 text-[#5f666d] md:text-base">
+                  {displayReply}
+                </p>
+              </div>
+
+              <div className="hidden lg:grid lg:grid-cols-2 lg:gap-3">
+                {categoriasData.map((category) => {
+                  const isActive = category.nombre === activeCategory;
+
+                  return (
+                    <button
+                      key={category.nombre}
+                      type="button"
+                      onClick={() => setSelectedCategory(category.nombre)}
+                      className={`flex min-h-[56px] flex-col items-center justify-center gap-1 rounded-[6px] border px-2 py-2 text-center transition-all duration-200 ${
+                        isActive
+                          ? "border-[#ed8435]/38 bg-white shadow-[0_10px_24px_rgba(237,132,53,0.12)]"
+                          : "border-white/40 bg-white/72 opacity-28 hover:opacity-60"
+                      }`}
+                    >
+                      <div className="relative flex h-7 w-10 items-center justify-center overflow-hidden">
+                        {category.iconoImagen ? (
+                          <Image
+                            src={category.iconoImagen}
+                            alt={category.nombre}
+                            width={40}
+                            height={24}
+                            sizes="40px"
+                            className="h-6 w-10 object-contain"
+                          />
+                        ) : null}
+                      </div>
+                      <p className="text-[9px] font-semibold leading-3 text-[#3e4349]">
+                        {category.nombre}
+                      </p>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="relative mt-8 min-h-[340px] overflow-hidden rounded-[8px] bg-[#f3f4f5] lg:min-h-[420px]">
+              {heroImage ? (
+                <Image
+                  src={heroImage}
+                  alt={selectedCategory ? activeCategory : "Vista principal del sistema"}
+                  fill
+                  priority
+                  sizes="100vw"
+                  className="object-contain object-center"
+                />
+              ) : null}
+            </div>
+          </div>
+
+          <div className="border-t border-black/6 bg-white px-6 py-5 md:px-8 lg:px-10">
+            <div className="rounded-[8px] border border-black/8 bg-white px-5 py-5 shadow-[0_18px_40px_rgba(15,23,42,0.08)]">
+              <div className="flex flex-col items-center text-center">
+                <div className="flex items-center gap-3">
+                  <div className="relative h-14 w-12 shrink-0">
+                    <Image
+                      src="/chatbot/uniparcero-bot.png"
+                      alt="Uniparcero"
+                      fill
+                      sizes="48px"
+                      className="object-contain object-bottom"
+                    />
+                  </div>
+                  <div>
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[#7f8790]">
+                      Asistente Unipars
+                    </p>
+                    <h3 className="mt-1 text-[1.5rem] font-semibold leading-[0.96] tracking-[-0.05em] text-[#16384f]">
+                      Habla con Uniparcero
+                    </h3>
+                  </div>
+                </div>
+                <div className="mt-4 h-[3px] w-full max-w-[320px] rounded-full bg-[#fff1e3]">
+                  <div className="h-full w-24 rounded-full bg-[#ed8435]" />
+                </div>
+              </div>
+
+              <form
+                onSubmit={handleSubmit}
+                className="mt-5 grid gap-3 lg:grid-cols-[minmax(0,1fr)_160px]"
+              >
+                <textarea
+                  value={draft}
+                  onChange={(event) => setDraft(event.target.value)}
+                  rows={2}
+                  placeholder="Ej. el bus se apaga, casi no frena o no prenden las luces"
+                  className="min-h-[64px] w-full resize-none rounded-[8px] border border-black/10 bg-[#fafaf9] px-4 py-3 text-sm text-[#1f2328] outline-none transition-colors duration-200 focus:border-[#ed8435]"
+                />
+                <button
+                  type="submit"
+                  className="rounded-[8px] bg-[#ed8435] px-4 py-3 text-sm font-semibold text-white transition-colors duration-200 hover:bg-[#d67024]"
+                >
+                  Enviar
+                </button>
+              </form>
+            </div>
+
+            <div className="mt-4 grid gap-3 sm:grid-cols-3 lg:hidden">
+              {categoriasData.map((category) => {
+                const isActive = category.nombre === activeCategory;
+
+                return (
+                  <button
+                    key={category.nombre}
+                    type="button"
+                    onClick={() => setSelectedCategory(category.nombre)}
+                    className={`flex flex-col items-center justify-center gap-2 rounded-[8px] border px-3 py-3 text-center transition-all duration-200 ${
+                      isActive
+                        ? "border-[#ed8435]/38 bg-[#fff6ee] opacity-100 shadow-[0_10px_24px_rgba(237,132,53,0.12)]"
+                        : "border-black/6 bg-[#fbfbfa] opacity-35 hover:opacity-70"
+                    }`}
+                  >
+                    <div className="relative flex h-12 w-16 shrink-0 items-center justify-center overflow-hidden rounded-[6px] bg-[#eef1f3]">
+                      {category.iconoImagen ? (
+                        <Image
+                          src={category.iconoImagen}
+                          alt={category.nombre}
+                          width={54}
+                          height={36}
+                          sizes="64px"
+                          className="h-9 w-12 object-contain"
+                        />
+                      ) : null}
+                    </div>
+                    <p className="text-xs font-semibold leading-4 text-[#3e4349]">
+                      {category.nombre}
+                    </p>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white px-6 py-6 md:px-8 lg:px-10">
+          <h3 className="text-3xl font-semibold tracking-[-0.04em] text-[#3e4349] md:text-4xl">
+            {selectedCategory ? activeCategory : "Empieza escribiendo el síntoma"}
+          </h3>
+          <p className="mt-3 max-w-[52rem] text-sm leading-7 text-[#5f666d] md:text-base">
+            {displayReply}
+          </p>
+        </div>
       </div>
-
-      <div
-        className="group relative aspect-[16/9] cursor-none overflow-hidden bg-[#f4f4f2]"
-        onPointerEnter={(event) => {
-          setIsActive(true);
-          updatePosition(event);
-        }}
-        onPointerMove={updatePosition}
-        onPointerLeave={() => {
-          setIsActive(false);
-          setPosition(DEFAULT_POSITION);
-        }}
-      >
-        <Image
-          src="/bus-sketch-unipars.jpeg"
-          alt="Bus en trazo técnico"
-          fill
-          priority
-          sizes="(min-width: 1440px) 1408px, (min-width: 768px) calc(100vw - 48px), 100vw"
-          className="object-cover"
-        />
-
-        <div
-          className="pointer-events-none absolute inset-0 transition-[clip-path,opacity] duration-150 ease-out"
-          style={{
-            clipPath,
-            opacity: isActive ? 1 : 0,
-          }}
-        >
-          <Image
-            src="/bus-xray-unipars.jpeg"
-            alt="Bus en vista radiografía"
-            fill
-            sizes="(min-width: 1440px) 1408px, (min-width: 768px) calc(100vw - 48px), 100vw"
-            className="object-cover"
-          />
-        </div>
-
-        <div
-          className="pointer-events-none absolute inset-0 transition-opacity duration-150"
-          style={{ opacity: isActive ? 1 : 0 }}
-        >
-          <div
-            className="absolute -translate-x-1/2 -translate-y-1/2 rounded-full border-4 border-white/92 shadow-[0_0_0_1px_rgba(22,56,79,0.08),0_18px_40px_rgba(15,23,42,0.2)]"
-            style={{
-              left: `${position.x}%`,
-              top: `${position.y}%`,
-              width: `${LENS_SIZE}px`,
-              height: `${LENS_SIZE}px`,
-              background:
-                "radial-gradient(circle, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 48%, rgba(255,255,255,0) 72%)",
-            }}
-          />
-        </div>
-
-        <div className="pointer-events-none absolute bottom-5 left-5 rounded-full bg-white/92 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-[#16384f] shadow-[0_10px_25px_rgba(15,23,42,0.12)]">
-          {isActive ? "Vista radiografía activa" : "Mueve el cursor sobre el bus"}
-        </div>
-      </div>
-    </div>
+    </section>
   );
 }

@@ -77,6 +77,7 @@ export const categoriasData: readonly CategoriaMeta[] = [
     color: "#45b86a",
     icono: "◈",
     iconoImagen: "/category-icon-electrica.png",
+    bannerImagen: "/category-banner-electrica.jpg",
     bannerCopy: "Explora piezas y conexiones eléctricas para asegurar energía, control y continuidad.",
   },
 ] as const;
@@ -90,6 +91,11 @@ export const disponibilidades = [
   "Agotado",
 ] as const;
 export type Disponibilidad = (typeof disponibilidades)[number];
+
+export type ProductoEspecificacion = {
+  etiqueta: string;
+  valor: string;
+};
 
 export type ProductoCatalogo = {
   slug: string;
@@ -114,6 +120,7 @@ export type ProductoCatalogo = {
   aplicacion?: string;
   compatibilidad?: string[];
   garantia?: string;
+  especificacionesTecnicas?: ProductoEspecificacion[];
   destacado?: boolean;
 };
 

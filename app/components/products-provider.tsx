@@ -9,6 +9,7 @@ import {
 import {
   type Categoria,
   type Disponibilidad,
+  type ProductoEspecificacion,
 } from "../data/catalog";
 import type { StoreProduct } from "@/lib/products";
 
@@ -30,6 +31,7 @@ export type AdminProductInput = {
   aplicacion?: string;
   compatibilidad?: string[];
   garantia?: string;
+  especificacionesTecnicas?: ProductoEspecificacion[];
 };
 
 type ProductsContextValue = {
@@ -76,13 +78,17 @@ export function ProductsProvider({
 
       const payload = (await response.json()) as {
         error?: string;
+        details?: string;
         product?: StoreProduct;
       };
 
       if (!response.ok || !payload.product) {
         return {
           ok: false,
-          message: payload.error || "No fue posible guardar el producto.",
+          message:
+            payload.details && payload.error
+              ? `${payload.error} ${payload.details}`
+              : payload.error || "No fue posible guardar el producto.",
         };
       }
 
@@ -101,13 +107,17 @@ export function ProductsProvider({
 
       const payload = (await response.json()) as {
         error?: string;
+        details?: string;
         product?: StoreProduct;
       };
 
       if (!response.ok || !payload.product) {
         return {
           ok: false,
-          message: payload.error || "No fue posible actualizar el producto.",
+          message:
+            payload.details && payload.error
+              ? `${payload.error} ${payload.details}`
+              : payload.error || "No fue posible actualizar el producto.",
         };
       }
 
