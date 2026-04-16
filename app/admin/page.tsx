@@ -1350,12 +1350,12 @@ export default function AdminPage() {
                   {productCountLabel}. Mantuvimos el panel por módulos para que crear, editar, inventario y envíos se sientan más claros.
                 </p>
 
-                <div className="mt-8 w-full max-w-4xl">
-                  <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+                <div className="mt-6 w-full max-w-4xl">
+                  <div className="grid gap-2.5 md:grid-cols-2 xl:grid-cols-4">
                     <button
                       type="button"
                       onClick={openCreateView}
-                      className={`group rounded-[1rem] border px-4 py-4 text-left transition-all duration-200 ${
+                      className={`group rounded-[0.95rem] border px-4 py-3.5 text-left transition-all duration-200 ${
                         activeTab === "create"
                           ? "border-[#16384f] bg-[#16384f] text-white shadow-[0_14px_28px_rgba(22,56,79,0.18)]"
                           : "border-black/8 bg-[#fbfbfa] text-[#1f2328] hover:border-[#16384f]/18 hover:bg-white"
@@ -1375,12 +1375,12 @@ export default function AdminPage() {
                           +
                         </span>
                       </div>
-                      <p className={`mt-4 text-[1.4rem] font-semibold tracking-[-0.04em] ${
+                      <p className={`mt-3 text-[1.28rem] font-semibold tracking-[-0.04em] ${
                         activeTab === "create" ? "text-white" : "text-[#16384f]"
                       }`}>
                         Crear producto
                       </p>
-                      <p className={`mt-2 text-sm leading-6 ${
+                      <p className={`mt-1.5 text-[13px] leading-6 ${
                         activeTab === "create" ? "text-white/76" : "text-[#6e7379]"
                       }`}>
                         Carga uno nuevo con fotos, stock y precios.
@@ -1390,7 +1390,7 @@ export default function AdminPage() {
                     <button
                       type="button"
                       onClick={openEditView}
-                      className={`group rounded-[1rem] border px-4 py-4 text-left transition-all duration-200 ${
+                      className={`group rounded-[0.95rem] border px-4 py-3.5 text-left transition-all duration-200 ${
                         activeTab === "edit"
                           ? "border-[#16384f] bg-[#16384f] text-white shadow-[0_14px_28px_rgba(22,56,79,0.18)]"
                           : "border-black/8 bg-[#fbfbfa] text-[#1f2328] hover:border-[#16384f]/18 hover:bg-white"
@@ -1422,12 +1422,12 @@ export default function AdminPage() {
                           </svg>
                         </span>
                       </div>
-                      <p className={`mt-4 text-[1.4rem] font-semibold tracking-[-0.04em] ${
+                      <p className={`mt-3 text-[1.28rem] font-semibold tracking-[-0.04em] ${
                         activeTab === "edit" ? "text-white" : "text-[#16384f]"
                       }`}>
                         Editar productos
                       </p>
-                      <p className={`mt-2 text-sm leading-6 ${
+                      <p className={`mt-1.5 text-[13px] leading-6 ${
                         activeTab === "edit" ? "text-white/76" : "text-[#6e7379]"
                       }`}>
                         Encuentra rápido el producto que vas a modificar.
@@ -1437,7 +1437,7 @@ export default function AdminPage() {
                     <button
                       type="button"
                       onClick={openInventoryView}
-                      className={`group rounded-[1rem] border px-4 py-4 text-left transition-all duration-200 ${
+                      className={`group rounded-[0.95rem] border px-4 py-3.5 text-left transition-all duration-200 ${
                         activeTab === "inventory"
                           ? "border-[#16384f] bg-[#16384f] text-white shadow-[0_14px_28px_rgba(22,56,79,0.18)]"
                           : "border-black/8 bg-[#fbfbfa] text-[#1f2328] hover:border-[#16384f]/18 hover:bg-white"
@@ -1457,12 +1457,12 @@ export default function AdminPage() {
                           ≡
                         </span>
                       </div>
-                      <p className={`mt-4 text-[1.4rem] font-semibold tracking-[-0.04em] ${
+                      <p className={`mt-3 text-[1.28rem] font-semibold tracking-[-0.04em] ${
                         activeTab === "inventory" ? "text-white" : "text-[#16384f]"
                       }`}>
                         Inventario
                       </p>
-                      <p className={`mt-2 text-sm leading-6 ${
+                      <p className={`mt-1.5 text-[13px] leading-6 ${
                         activeTab === "inventory" ? "text-white/76" : "text-[#6e7379]"
                       }`}>
                         Ajusta stock, alertas y movimientos recientes.
@@ -1472,7 +1472,7 @@ export default function AdminPage() {
                     <button
                       type="button"
                       onClick={openOrdersView}
-                      className={`group rounded-[1rem] border px-4 py-4 text-left transition-all duration-200 ${
+                      className={`group rounded-[0.95rem] border px-4 py-3.5 text-left transition-all duration-200 ${
                         activeTab === "orders"
                           ? "border-[#16384f] bg-[#16384f] text-white shadow-[0_14px_28px_rgba(22,56,79,0.18)]"
                           : "border-black/8 bg-[#fbfbfa] text-[#1f2328] hover:border-[#16384f]/18 hover:bg-white"
@@ -1492,12 +1492,12 @@ export default function AdminPage() {
                           ↗
                         </span>
                       </div>
-                      <p className={`mt-4 text-[1.4rem] font-semibold tracking-[-0.04em] ${
+                      <p className={`mt-3 text-[1.28rem] font-semibold tracking-[-0.04em] ${
                         activeTab === "orders" ? "text-white" : "text-[#16384f]"
                       }`}>
                         Pedidos y envíos
                       </p>
-                      <p className={`mt-2 text-sm leading-6 ${
+                      <p className={`mt-1.5 text-[13px] leading-6 ${
                         activeTab === "orders" ? "text-white/76" : "text-[#6e7379]"
                       }`}>
                         Da seguimiento a estados, guía y transporte.
@@ -1510,7 +1510,7 @@ export default function AdminPage() {
                   <button
                     type="button"
                     onClick={handleResetForm}
-                    className="mt-6 inline-flex rounded-full border border-black/10 px-5 py-2.5 text-sm font-semibold text-[#5d6167] transition-colors duration-200 hover:border-[#16384f]/18 hover:bg-[#16384f] hover:text-white"
+                    className="mt-5 inline-flex rounded-full border border-black/10 px-4 py-2 text-sm font-semibold text-[#5d6167] transition-colors duration-200 hover:border-[#16384f]/18 hover:bg-[#16384f] hover:text-white"
                   >
                     Volver a vista limpia
                   </button>

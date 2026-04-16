@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useMemo, useState, type FormEvent } from "react";
+import { useMemo, useRef, useState, type FormEvent, type MouseEvent } from "react";
 import { useRouter } from "next/navigation";
 import { categoriasData, slugCategoria, type Categoria } from "../data/catalog";
 
@@ -97,6 +97,7 @@ const quickPrompts = [
 
 const defaultCategory = "Línea neumática" as Categoria;
 const defaultHeroImage = "/category-xray-vista-principal.jpg";
+const defaultXrayImage = "/category-xray-total.jpg";
 
 const categoryXrayImages: Record<Categoria, string> = {
   "Espejos retrovisores y soportes": "/category-xray-retrovisores.jpg",
@@ -138,9 +139,12 @@ function getAssistantState(message: string) {
 
 export default function BusXrayBanner() {
   const router = useRouter();
+  const visualRef = useRef<HTMLDivElement | null>(null);
   const [draft, setDraft] = useState("");
   const [userMessage, setUserMessage] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<Categoria | null>(null);
+  const [isLensVisible, setIsLensVisible] = useState(false);
+  const [lensPosition, setLensPosition] = useState({ x: 0, y: 0 });
 
   const assistantState = useMemo(
     () => getAssistantState(userMessage),
@@ -151,6 +155,7 @@ export default function BusXrayBanner() {
   const activeVisual =
     categoriasData.find((category) => category.nombre === activeCategory) ??
     categoriasData[0];
+  const isInitialVisual = !selectedCategory && !userMessage;
   const heroImage = selectedCategory
     ? categoryXrayImages[activeCategory]
     : defaultHeroImage;
@@ -185,12 +190,28 @@ export default function BusXrayBanner() {
     setSelectedCategory(category);
   };
 
+  const handleVisualPointerMove = (event: MouseEvent<HTMLDivElement>) => {
+    if (!isInitialVisual || !visualRef.current) return;
+
+    const bounds = visualRef.current.getBoundingClientRect();
+    setLensPosition({
+      x: event.clientX - bounds.left,
+      y: event.clientY - bounds.top,
+    });
+  };
+
   return (
     <section className="overflow-hidden rounded-[8px] border border-black/8 bg-white shadow-[0_20px_45px_rgba(15,23,42,0.08)]">
       <div className="px-5 pb-8 pt-8 md:px-8 lg:px-10">
         <div className="overflow-hidden rounded-[8px] bg-white">
           <div className="px-4 pb-0 pt-6 md:px-6 lg:px-8">
-            <div className="relative mt-4 min-h-[360px] overflow-hidden rounded-[8px] bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.95),rgba(238,240,243,0.95)_40%,rgba(228,231,235,0.98)_100%)] lg:min-h-[540px]">
+            <div
+              ref={visualRef}
+              onMouseEnter={() => isInitialVisual && setIsLensVisible(true)}
+              onMouseLeave={() => setIsLensVisible(false)}
+              onMouseMove={handleVisualPointerMove}
+              className="relative mt-4 min-h-[360px] overflow-hidden rounded-[8px] bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.95),rgba(238,240,243,0.95)_40%,rgba(228,231,235,0.98)_100%)] lg:min-h-[540px]"
+            >
               <div className="absolute inset-y-0 left-0 w-24 bg-[linear-gradient(90deg,rgba(243,244,245,0.95),rgba(243,244,245,0.25),transparent)]" />
               <div className="absolute inset-y-0 right-0 w-24 bg-[linear-gradient(270deg,rgba(243,244,245,0.95),rgba(243,244,245,0.25),transparent)]" />
               {heroImage ? (
@@ -202,6 +223,46 @@ export default function BusXrayBanner() {
                   sizes="100vw"
                   className="object-cover object-center"
                 />
+              ) : null}
+
+              {isInitialVisual && isLensVisible ? (
+                <div className="pointer-events-none absolute inset-0 z-[5] hidden lg:block">
+                  <div
+                    className="absolute h-[136px] w-[136px] -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white/85 shadow-[0_20px_40px_rgba(15,23,42,0.18),inset_0_0_0_1px_rgba(22,56,79,0.12)]"
+                    style={{
+                      left: `${lensPosition.x}px`,
+                      top: `${lensPosition.y}px`,
+                      backgroundImage: `url(${defaultXrayImage})`,
+                      backgroundRepeat: "no-repeat",
+                      backgroundSize: `${visualRef.current?.clientWidth ?? 0}px ${visualRef.current?.clientHeight ?? 0}px`,
+                      backgroundPosition: `${-(lensPosition.x - 68)}px ${-(lensPosition.y - 68)}px`,
+                    }}
+                  />
+
+                  <div
+                    className="absolute h-10 w-10 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white/92 text-[#16384f] shadow-[0_10px_22px_rgba(15,23,42,0.14)]"
+                    style={{
+                      left: `${lensPosition.x + 52}px`,
+                      top: `${lensPosition.y + 54}px`,
+                    }}
+                  >
+                    <div className="flex h-full w-full items-center justify-center">
+                      <svg
+                        aria-hidden="true"
+                        viewBox="0 0 24 24"
+                        className="h-5 w-5"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <circle cx="11" cy="11" r="6.5" />
+                        <path d="m16 16 4.5 4.5" />
+                      </svg>
+                    </div>
+                  </div>
+                </div>
               ) : null}
 
               <div className="absolute inset-x-0 top-0 z-10 bg-[linear-gradient(180deg,rgba(255,255,255,0.9)_0%,rgba(255,255,255,0.76)_42%,rgba(255,255,255,0.18)_78%,rgba(255,255,255,0)_100%)] px-5 pb-7 pt-8 text-center md:px-10 lg:px-12 lg:pb-8 lg:pt-10">

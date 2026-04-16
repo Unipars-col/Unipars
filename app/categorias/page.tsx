@@ -303,17 +303,19 @@ export default function CategoriasPage() {
                   key={producto.nombre}
                   className="overflow-hidden rounded-[1.75rem] border border-black/8 bg-white shadow-[0_16px_35px_rgba(15,23,42,0.05)] transition-transform duration-300 hover:-translate-y-1"
                 >
-                  <div className="relative">
+                  <div className="relative bg-white">
                     <span className="absolute left-4 top-4 z-10 rounded-lg bg-[#ed8435] px-3 py-1 text-sm font-semibold text-white">
                       {producto.descuento}
                     </span>
-                    <Image
-                      src={producto.imagen}
-                      alt={producto.nombre}
-                      width={900}
-                      height={700}
-                      className="h-48 w-full object-cover"
-                    />
+                    <div className="flex h-52 items-center justify-center px-7 py-7">
+                      <Image
+                        src={producto.imagen}
+                        alt={producto.nombre}
+                        width={900}
+                        height={700}
+                        className="max-h-[140px] w-auto max-w-full object-contain"
+                      />
+                    </div>
                     <HoverCartControl
                       id={producto.slug}
                       nombre={producto.nombre}

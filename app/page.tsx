@@ -178,17 +178,17 @@ export default async function Home() {
               key={producto.nombre}
               className="overflow-hidden rounded-[1.75rem] border border-black/8 bg-white shadow-[0_16px_35px_rgba(15,23,42,0.05)] transition-transform duration-300 hover:-translate-y-1"
             >
-              <div className="relative bg-[#f2f2f1]">
+              <div className="relative bg-white">
                 <span className="absolute left-4 top-4 z-10 rounded-lg bg-[#ed8435] px-3 py-1 text-sm font-semibold text-white">
                   {producto.descuento}
                 </span>
-                <div className="flex h-48 items-center justify-center px-8 py-8">
+                <div className="flex h-52 items-center justify-center px-7 py-7">
                   <Image
                     src={producto.imagen}
                     alt={producto.nombre}
                     width={800}
                     height={600}
-                    className="max-h-[120px] w-auto max-w-full object-contain"
+                    className="max-h-[140px] w-auto max-w-full object-contain"
                   />
                 </div>
                 <HoverCartControl
