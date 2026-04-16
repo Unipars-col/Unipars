@@ -70,25 +70,25 @@ export default function HoverCartControl({
           ? "pointer-events-none opacity-0"
           : "pointer-events-none opacity-0 group-hover/cart:pointer-events-auto group-hover/cart:translate-y-0 group-hover/cart:opacity-100 group-focus-within/cart:pointer-events-auto group-focus-within/cart:translate-y-0 group-focus-within/cart:opacity-100"
       }`}>
-        <div className="min-w-[286px] rounded-[1.1rem] border border-black/8 bg-white/98 p-2.5 shadow-[0_18px_34px_rgba(15,23,42,0.14)]">
-          <div className="flex items-center gap-3">
+        <div className="min-w-[264px] rounded-[1.1rem] border border-black/8 bg-white/98 p-2 shadow-[0_18px_34px_rgba(15,23,42,0.14)]">
+          <div className="flex items-center gap-2.5">
             <div className="flex overflow-hidden rounded-[0.95rem] border border-black/10 bg-white">
               <button
                 type="button"
                 aria-label="Disminuir cantidad"
                 onClick={() => setCantidad((current) => Math.max(1, current - 1))}
-                className="inline-flex h-10 w-10 items-center justify-center text-lg text-[#4f545a] transition-colors duration-200 hover:bg-[#f5f5f5]"
+                className="inline-flex h-10 w-9 items-center justify-center text-lg text-[#4f545a] transition-colors duration-200 hover:bg-[#f5f5f5]"
               >
                 -
               </button>
-              <span className="inline-flex h-10 min-w-[3.3rem] items-center justify-center border-x border-black/10 text-base font-medium text-[#1f2328]">
+              <span className="inline-flex h-10 min-w-[2.8rem] items-center justify-center border-x border-black/10 px-1 text-sm font-medium text-[#1f2328]">
                 {cantidad}
               </span>
               <button
                 type="button"
                 aria-label="Aumentar cantidad"
                 onClick={() => setCantidad((current) => current + 1)}
-                className="inline-flex h-10 w-10 items-center justify-center text-lg text-[#4f545a] transition-colors duration-200 hover:bg-[#f5f5f5]"
+                className="inline-flex h-10 w-9 items-center justify-center text-lg text-[#4f545a] transition-colors duration-200 hover:bg-[#f5f5f5]"
               >
                 +
               </button>
@@ -97,7 +97,7 @@ export default function HoverCartControl({
             <button
               type="button"
               onClick={handleAdd}
-              className={`inline-flex h-10 min-w-[136px] flex-1 items-center justify-center whitespace-nowrap rounded-full px-4 text-sm font-semibold text-white transition-colors duration-200 ${
+              className={`inline-flex h-10 min-w-[124px] flex-1 items-center justify-center whitespace-nowrap rounded-full px-3.5 text-[13px] font-semibold text-white transition-colors duration-200 ${
                 added
                   ? "bg-[#16384f]"
                   : "bg-[#ed8435] hover:bg-[#d67024]"
