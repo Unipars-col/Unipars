@@ -98,44 +98,69 @@ export default function QuienesSomosPage() {
         </div>
 
         {/* MISIÓN Y VISIÓN */}
-        <div className="mt-32 flex flex-col gap-12">
+        <div className="mt-28 flex flex-col gap-6">
           
           {/* MISIÓN */}
-          <div className="flex flex-col md:flex-row items-center rounded-[40px] bg-white px-8 py-12 md:px-16 border-l-[12px] border-[#ed8435] shadow-[0_10px_30px_rgba(0,0,0,0.03)] transition-all hover:shadow-xl">
-            <div className="mb-8 md:mb-0 md:mr-16 flex h-[120px] w-[120px] shrink-0 items-center justify-center rounded-3xl bg-[#ed8435]/10">
+          <div className="grid gap-8 rounded-lg border border-black/8 bg-white px-8 py-8 shadow-[0_18px_42px_rgba(15,23,42,0.06)] transition-all duration-300 hover:shadow-[0_24px_50px_rgba(15,23,42,0.09)] md:grid-cols-[120px_minmax(0,1fr)] md:px-10 md:py-10">
+            <div className="flex h-[104px] w-[104px] items-center justify-center rounded-lg bg-[#fff5ec] shadow-[inset_0_0_0_1px_rgba(237,132,53,0.08)]">
               <Image 
                 src="/icon-mision.png" 
                 alt="Misión" 
-                width={60} 
-                height={60} 
-                style={{ width: "60px", height: "auto" }} // CORRECCIÓN AQUÍ
+                width={52} 
+                height={52} 
+                style={{ width: "52px", height: "auto" }}
               />
             </div>
             <div>
-              <h3 className="text-[32px] font-black text-[#2f4f68] tracking-tighter mb-3 uppercase">Nuestra Misión</h3>
-              <p className="max-w-[800px] text-[19px] leading-relaxed text-[#4c6275]">
-                Ser líderes en repuestos automotrices con calidad y precio, brindando soluciones reales a clientes y talleres con excelencia e innovación.
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#ed8435]">
+                Nuestra esencia
               </p>
+              <h3 className="mt-3 text-[2rem] font-semibold tracking-[-0.05em] text-[#16384f] md:text-[2.5rem]">
+                Nuestra Misión
+              </h3>
+              <div className="mt-4 max-w-[56rem] space-y-3 text-[1.05rem] leading-8 text-[#526474]">
+                <p>
+                  Ser la empresa lider en el suministro de partes y repuestos de alta calidad para el sector carrocero y automotriz, ofreciendo un servicio excepcional y precios competitivos.
+                </p>
+                <p>
+                  Brindar soluciones integrales a las necesidades de nuestros clientes, contribuyendo al exito de sus negocios.
+                </p>
+                <p>
+                  Fomentar una cultura de excelencia en todos los aspectos de nuestra empresa, basada en la responsabilidad, el trabajo en equipo y la innovacion.
+                </p>
+              </div>
             </div>
           </div>
           
           {/* VISIÓN */}
-          <div className="flex flex-col md:flex-row items-center rounded-[40px] bg-[#2f4f68] px-8 py-12 md:px-16 border-l-[12px] border-[#ed8435] shadow-2xl transition-all hover:scale-[1.01]">
-            <div className="mb-8 md:mb-0 md:mr-16 flex h-[120px] w-[120px] shrink-0 items-center justify-center rounded-3xl bg-white/10">
+          <div className="grid gap-8 rounded-lg border border-black/8 bg-white px-8 py-8 shadow-[0_18px_42px_rgba(15,23,42,0.06)] transition-all duration-300 hover:shadow-[0_24px_50px_rgba(15,23,42,0.09)] md:grid-cols-[120px_minmax(0,1fr)] md:px-10 md:py-10">
+            <div className="flex h-[104px] w-[104px] items-center justify-center rounded-lg bg-[#fff5ec] shadow-[inset_0_0_0_1px_rgba(237,132,53,0.08)]">
               <Image 
                 src="/icon-vision.png" 
                 alt="Visión" 
-                width={60} 
-                height={60} 
-                className="brightness-200"
-                style={{ width: "60px", height: "auto" }} // CORRECCIÓN AQUÍ
+                width={52} 
+                height={52} 
+                style={{ width: "52px", height: "auto" }}
               />
             </div>
             <div>
-              <h3 className="text-[32px] font-black text-white tracking-tighter mb-3 uppercase">Nuestra Visión</h3>
-              <p className="max-w-[800px] text-[19px] leading-relaxed text-blue-50/80">
-                Ser la empresa más confiable del sector, expandiéndonos a nivel nacional e internacional como referentes en calidad y servicio.
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#ed8435]">
+                Hacia donde vamos
               </p>
+              <h3 className="mt-3 text-[2rem] font-semibold tracking-[-0.05em] text-[#16384f] md:text-[2.5rem]">
+                Nuestra Visión
+              </h3>
+              <div className="mt-4 max-w-[56rem] space-y-3 text-[1.05rem] leading-8 text-[#526474]">
+                <p>
+                  Ser reconocidos como la empresa mas confiable y respetada del sector carrocero y automotriz, tanto por nuestros clientes como por nuestros proveedores.
+                </p>
+                <p>
+                  Expandir nuestra presencia a nivel nacional e internacional, consolidando nuestra posicion como lideres en el mercado.
+                </p>
+                <p>
+                  Convertirnos en un referente en materia de calidad, innovacion y atencion al cliente.
+                </p>
+              </div>
             </div>
           </div>
         </div>

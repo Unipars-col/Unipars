@@ -182,13 +182,15 @@ export default async function Home() {
                 <span className="absolute left-4 top-4 z-10 rounded-lg bg-[#ed8435] px-3 py-1 text-sm font-semibold text-white">
                   {producto.descuento}
                 </span>
-                <Image
-                  src={producto.imagen}
-                  alt={producto.nombre}
-                  width={800}
-                  height={600}
-                  className="h-56 w-full object-cover"
-                />
+                <div className="flex h-48 items-center justify-center px-8 py-8">
+                  <Image
+                    src={producto.imagen}
+                    alt={producto.nombre}
+                    width={800}
+                    height={600}
+                    className="max-h-[120px] w-auto max-w-full object-contain"
+                  />
+                </div>
                 <HoverCartControl
                   id={producto.slug}
                   nombre={producto.nombre}

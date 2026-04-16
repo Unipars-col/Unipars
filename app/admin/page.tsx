@@ -1350,178 +1350,160 @@ export default function AdminPage() {
                   {productCountLabel}. Mantuvimos el panel por módulos para que crear, editar, inventario y envíos se sientan más claros.
                 </p>
 
-                <div className="mt-8 grid w-full max-w-4xl gap-4 md:grid-cols-2">
-                  <button
-                    type="button"
-                    onClick={openCreateView}
-                    className={`admin-card-drift relative min-h-[220px] overflow-hidden rounded-[1.6rem] border px-6 py-6 text-left transition-all duration-200 ${
-                      activeTab === "create"
-                        ? "border-[#16384f] bg-[#16384f] text-white shadow-[0_18px_35px_rgba(22,56,79,0.22)]"
-                        : "border-black/8 bg-[#fbfbfa] text-[#1f2328] hover:-translate-y-0.5 hover:border-[#16384f]/18 hover:shadow-[0_16px_30px_rgba(15,23,42,0.08)]"
-                    }`}
-                  >
-                    <span className="pointer-events-none absolute -right-8 -top-8 h-28 w-28 rounded-full bg-[radial-gradient(circle,_rgba(237,132,53,0.16),_transparent_68%)]" />
-                    <span className="flex items-center justify-between gap-4">
-                      <span className="text-sm font-semibold uppercase tracking-[0.18em]">
-                        Crear
-                      </span>
-                      <span
-                        className={`inline-flex h-10 w-10 items-center justify-center rounded-full transition-colors duration-200 ${
-                          activeTab === "create"
-                            ? "bg-white/14 text-white"
-                            : "bg-[#16384f] text-white"
-                        }`}
-                      >
-                        +
-                      </span>
-                    </span>
-                    <p
-                      className={`mt-4 text-2xl font-semibold tracking-[-0.04em] ${
-                        activeTab === "create" ? "text-white" : "text-[#16384f]"
+                <div className="mt-8 w-full max-w-4xl">
+                  <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+                    <button
+                      type="button"
+                      onClick={openCreateView}
+                      className={`group rounded-[1rem] border px-4 py-4 text-left transition-all duration-200 ${
+                        activeTab === "create"
+                          ? "border-[#16384f] bg-[#16384f] text-white shadow-[0_14px_28px_rgba(22,56,79,0.18)]"
+                          : "border-black/8 bg-[#fbfbfa] text-[#1f2328] hover:border-[#16384f]/18 hover:bg-white"
                       }`}
                     >
-                      Crear producto
-                    </p>
-                    <p
-                      className={`mt-3 max-w-[18rem] text-sm leading-6 ${
-                        activeTab === "create" ? "text-white/78" : "text-[#6e7379]"
-                      }`}
-                    >
-                      Carga un producto nuevo con fotos, inventario y precios sin tocar código.
-                    </p>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={openEditView}
-                    className={`admin-card-drift relative min-h-[220px] overflow-hidden rounded-[1.6rem] border px-6 py-6 text-left transition-all duration-200 ${
-                      activeTab === "edit"
-                        ? "border-[#16384f] bg-[#16384f] text-white shadow-[0_18px_35px_rgba(22,56,79,0.22)]"
-                        : "border-black/8 bg-[#fbfbfa] text-[#1f2328] hover:-translate-y-0.5 hover:border-[#16384f]/18 hover:shadow-[0_16px_30px_rgba(15,23,42,0.08)]"
-                    }`}
-                  >
-                    <span className="pointer-events-none absolute -bottom-10 -right-10 h-32 w-32 rounded-full bg-[radial-gradient(circle,_rgba(22,56,79,0.12),_transparent_68%)]" />
-                    <span className="flex items-center justify-between gap-4">
-                      <span className="text-sm font-semibold uppercase tracking-[0.18em]">
-                        Editar
-                      </span>
-                      <span
-                        className={`inline-flex h-10 w-10 items-center justify-center rounded-full transition-colors duration-200 ${
-                          activeTab === "edit"
-                            ? "bg-white/14 text-white"
-                            : "bg-[#ed8435] text-white"
-                        }`}
-                      >
-                        <svg
-                          aria-hidden="true"
-                          viewBox="0 0 24 24"
-                          className="h-4 w-4"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
+                      <div className="flex items-center justify-between gap-3">
+                        <span className="text-[11px] font-semibold uppercase tracking-[0.2em]">
+                          Crear
+                        </span>
+                        <span
+                          className={`inline-flex h-8 w-8 items-center justify-center rounded-full text-sm transition-colors duration-200 ${
+                            activeTab === "create"
+                              ? "bg-white/14 text-white"
+                              : "bg-[#16384f] text-white"
+                          }`}
                         >
-                          <path d="M12 20h9" />
-                          <path d="m16.5 3.5 4 4L7 21l-4 1 1-4Z" />
-                        </svg>
-                      </span>
-                    </span>
-                    <p
-                      className={`mt-4 text-2xl font-semibold tracking-[-0.04em] ${
+                          +
+                        </span>
+                      </div>
+                      <p className={`mt-4 text-[1.4rem] font-semibold tracking-[-0.04em] ${
+                        activeTab === "create" ? "text-white" : "text-[#16384f]"
+                      }`}>
+                        Crear producto
+                      </p>
+                      <p className={`mt-2 text-sm leading-6 ${
+                        activeTab === "create" ? "text-white/76" : "text-[#6e7379]"
+                      }`}>
+                        Carga uno nuevo con fotos, stock y precios.
+                      </p>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={openEditView}
+                      className={`group rounded-[1rem] border px-4 py-4 text-left transition-all duration-200 ${
+                        activeTab === "edit"
+                          ? "border-[#16384f] bg-[#16384f] text-white shadow-[0_14px_28px_rgba(22,56,79,0.18)]"
+                          : "border-black/8 bg-[#fbfbfa] text-[#1f2328] hover:border-[#16384f]/18 hover:bg-white"
+                      }`}
+                    >
+                      <div className="flex items-center justify-between gap-3">
+                        <span className="text-[11px] font-semibold uppercase tracking-[0.2em]">
+                          Editar
+                        </span>
+                        <span
+                          className={`inline-flex h-8 w-8 items-center justify-center rounded-full transition-colors duration-200 ${
+                            activeTab === "edit"
+                              ? "bg-white/14 text-white"
+                              : "bg-[#ed8435] text-white"
+                          }`}
+                        >
+                          <svg
+                            aria-hidden="true"
+                            viewBox="0 0 24 24"
+                            className="h-3.5 w-3.5"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          >
+                            <path d="M12 20h9" />
+                            <path d="m16.5 3.5 4 4L7 21l-4 1 1-4Z" />
+                          </svg>
+                        </span>
+                      </div>
+                      <p className={`mt-4 text-[1.4rem] font-semibold tracking-[-0.04em] ${
                         activeTab === "edit" ? "text-white" : "text-[#16384f]"
-                      }`}
-                    >
-                      Editar productos
-                    </p>
-                    <p
-                      className={`mt-3 max-w-[18rem] text-sm leading-6 ${
-                        activeTab === "edit" ? "text-white/78" : "text-[#6e7379]"
-                      }`}
-                    >
-                      Encuentra un producto rápido y abre solo el editor que vas a modificar.
-                    </p>
-                  </button>
+                      }`}>
+                        Editar productos
+                      </p>
+                      <p className={`mt-2 text-sm leading-6 ${
+                        activeTab === "edit" ? "text-white/76" : "text-[#6e7379]"
+                      }`}>
+                        Encuentra rápido el producto que vas a modificar.
+                      </p>
+                    </button>
 
-                  <button
-                    type="button"
-                    onClick={openInventoryView}
-                    className={`admin-card-drift relative min-h-[220px] overflow-hidden rounded-[1.6rem] border px-6 py-6 text-left transition-all duration-200 ${
-                      activeTab === "inventory"
-                        ? "border-[#16384f] bg-[#16384f] text-white shadow-[0_18px_35px_rgba(22,56,79,0.22)]"
-                        : "border-black/8 bg-[#fbfbfa] text-[#1f2328] hover:-translate-y-0.5 hover:border-[#16384f]/18 hover:shadow-[0_16px_30px_rgba(15,23,42,0.08)]"
-                    }`}
-                  >
-                    <span className="pointer-events-none absolute -left-10 -bottom-10 h-32 w-32 rounded-full bg-[radial-gradient(circle,_rgba(31,139,69,0.16),_transparent_68%)]" />
-                    <span className="flex items-center justify-between gap-4">
-                      <span className="text-sm font-semibold uppercase tracking-[0.18em]">
-                        Inventario
-                      </span>
-                      <span
-                        className={`inline-flex h-10 w-10 items-center justify-center rounded-full transition-colors duration-200 ${
-                          activeTab === "inventory"
-                            ? "bg-white/14 text-white"
-                            : "bg-[#1f8b45] text-white"
-                        }`}
-                      >
-                        ≡
-                      </span>
-                    </span>
-                    <p
-                      className={`mt-4 text-2xl font-semibold tracking-[-0.04em] ${
+                    <button
+                      type="button"
+                      onClick={openInventoryView}
+                      className={`group rounded-[1rem] border px-4 py-4 text-left transition-all duration-200 ${
+                        activeTab === "inventory"
+                          ? "border-[#16384f] bg-[#16384f] text-white shadow-[0_14px_28px_rgba(22,56,79,0.18)]"
+                          : "border-black/8 bg-[#fbfbfa] text-[#1f2328] hover:border-[#16384f]/18 hover:bg-white"
+                      }`}
+                    >
+                      <div className="flex items-center justify-between gap-3">
+                        <span className="text-[11px] font-semibold uppercase tracking-[0.2em]">
+                          Inventario
+                        </span>
+                        <span
+                          className={`inline-flex h-8 w-8 items-center justify-center rounded-full text-sm transition-colors duration-200 ${
+                            activeTab === "inventory"
+                              ? "bg-white/14 text-white"
+                              : "bg-[#1f8b45] text-white"
+                          }`}
+                        >
+                          ≡
+                        </span>
+                      </div>
+                      <p className={`mt-4 text-[1.4rem] font-semibold tracking-[-0.04em] ${
                         activeTab === "inventory" ? "text-white" : "text-[#16384f]"
-                      }`}
-                    >
-                      Inventario
-                    </p>
-                    <p
-                      className={`mt-3 max-w-[18rem] text-sm leading-6 ${
-                        activeTab === "inventory" ? "text-white/78" : "text-[#6e7379]"
-                      }`}
-                    >
-                      Ajusta stock, revisa alertas y controla movimientos recientes del inventario.
-                    </p>
-                  </button>
+                      }`}>
+                        Inventario
+                      </p>
+                      <p className={`mt-2 text-sm leading-6 ${
+                        activeTab === "inventory" ? "text-white/76" : "text-[#6e7379]"
+                      }`}>
+                        Ajusta stock, alertas y movimientos recientes.
+                      </p>
+                    </button>
 
-                  <button
-                    type="button"
-                    onClick={openOrdersView}
-                    className={`admin-card-drift relative min-h-[220px] overflow-hidden rounded-[1.6rem] border px-6 py-6 text-left transition-all duration-200 ${
-                      activeTab === "orders"
-                        ? "border-[#16384f] bg-[#16384f] text-white shadow-[0_18px_35px_rgba(22,56,79,0.22)]"
-                        : "border-black/8 bg-[#fbfbfa] text-[#1f2328] hover:-translate-y-0.5 hover:border-[#16384f]/18 hover:shadow-[0_16px_30px_rgba(15,23,42,0.08)]"
-                    }`}
-                  >
-                    <span className="pointer-events-none absolute -right-10 -bottom-10 h-32 w-32 rounded-full bg-[radial-gradient(circle,_rgba(99,102,241,0.16),_transparent_68%)]" />
-                    <span className="flex items-center justify-between gap-4">
-                      <span className="text-sm font-semibold uppercase tracking-[0.18em]">
-                        Pedidos
-                      </span>
-                      <span
-                        className={`inline-flex h-10 w-10 items-center justify-center rounded-full transition-colors duration-200 ${
-                          activeTab === "orders"
-                            ? "bg-white/14 text-white"
-                            : "bg-[#6366f1] text-white"
-                        }`}
-                      >
-                        ↗
-                      </span>
-                    </span>
-                    <p
-                      className={`mt-4 text-2xl font-semibold tracking-[-0.04em] ${
+                    <button
+                      type="button"
+                      onClick={openOrdersView}
+                      className={`group rounded-[1rem] border px-4 py-4 text-left transition-all duration-200 ${
+                        activeTab === "orders"
+                          ? "border-[#16384f] bg-[#16384f] text-white shadow-[0_14px_28px_rgba(22,56,79,0.18)]"
+                          : "border-black/8 bg-[#fbfbfa] text-[#1f2328] hover:border-[#16384f]/18 hover:bg-white"
+                      }`}
+                    >
+                      <div className="flex items-center justify-between gap-3">
+                        <span className="text-[11px] font-semibold uppercase tracking-[0.2em]">
+                          Pedidos
+                        </span>
+                        <span
+                          className={`inline-flex h-8 w-8 items-center justify-center rounded-full text-sm transition-colors duration-200 ${
+                            activeTab === "orders"
+                              ? "bg-white/14 text-white"
+                              : "bg-[#6366f1] text-white"
+                          }`}
+                        >
+                          ↗
+                        </span>
+                      </div>
+                      <p className={`mt-4 text-[1.4rem] font-semibold tracking-[-0.04em] ${
                         activeTab === "orders" ? "text-white" : "text-[#16384f]"
-                      }`}
-                    >
-                      Pedidos y envíos
-                    </p>
-                    <p
-                      className={`mt-3 max-w-[18rem] text-sm leading-6 ${
-                        activeTab === "orders" ? "text-white/78" : "text-[#6e7379]"
-                      }`}
-                    >
-                      Actualiza estados, guía y transportadora para seguir cada pedido.
-                    </p>
-                  </button>
+                      }`}>
+                        Pedidos y envíos
+                      </p>
+                      <p className={`mt-2 text-sm leading-6 ${
+                        activeTab === "orders" ? "text-white/76" : "text-[#6e7379]"
+                      }`}>
+                        Da seguimiento a estados, guía y transporte.
+                      </p>
+                    </button>
+                  </div>
                 </div>
 
                 {activeTab && (

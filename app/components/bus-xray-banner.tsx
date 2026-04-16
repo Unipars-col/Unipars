@@ -270,7 +270,7 @@ export default function BusXrayBanner() {
                       Asistente Unipars
                     </p>
                     <h3 className="mt-1 text-[1.5rem] font-semibold leading-[0.96] tracking-[-0.05em] text-[#16384f]">
-                      Habla con Uniparcero
+                      Que tiene tu vehiculo?
                     </h3>
                   </div>
                 </div>
