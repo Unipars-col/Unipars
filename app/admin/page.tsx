@@ -2201,7 +2201,7 @@ export default function AdminPage() {
                 className={
                   selectedOrder && selectedOrderPreview
                     ? "space-y-8"
-                    : "mx-auto max-w-[460px] space-y-5"
+                    : "mx-auto w-full max-w-[980px] space-y-5"
                 }
               >
                 <aside
@@ -2324,12 +2324,12 @@ export default function AdminPage() {
                                 : "border-black/8 bg-white hover:-translate-y-0.5 hover:border-[#16384f]/18"
                             }`}
                           >
-                            <div className="grid gap-5 xl:grid-cols-[minmax(220px,0.9fr)_minmax(320px,1.2fr)_auto] xl:items-center">
+                            <div className="grid gap-5 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] xl:grid-cols-[minmax(220px,0.9fr)_minmax(320px,1.1fr)_minmax(180px,auto)] xl:items-center">
                               <div className="min-w-0">
                                 <p className="text-[13px] font-semibold uppercase tracking-[0.22em] text-[#8b8d91]">
                                   Pedido
                                 </p>
-                                <p className="mt-3 text-[1.42rem] font-semibold leading-tight text-[#1f2328]">
+                                <p className="mt-3 break-words text-[1.42rem] font-semibold leading-tight text-[#1f2328]">
                                   {order.id}
                                 </p>
                                 <p className="mt-3 text-[15px] text-[#5d6167]">
@@ -2349,12 +2349,15 @@ export default function AdminPage() {
                                 </div>
                               </div>
 
-                              <div className="min-w-0">
+                              <div className="min-w-0 lg:row-start-2 lg:col-span-2 xl:row-start-auto xl:col-span-1">
                                 {previewItems.length > 0 ? (
-                                  <div className="flex flex-wrap gap-3 xl:justify-center">
+                                  <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:justify-items-center">
                                     {previewItems.map((item, index) => (
-                                      <div key={`${order.id}-preview-${index}`} className="w-[118px] text-center">
-                                        <div className="mx-auto h-[94px] w-[118px] overflow-hidden rounded-[0.95rem] border border-black/8 bg-white shadow-[0_10px_20px_rgba(15,23,42,0.12)]">
+                                      <div
+                                        key={`${order.id}-preview-${index}`}
+                                        className="min-w-0 max-w-[118px] text-center"
+                                      >
+                                        <div className="mx-auto h-[94px] w-full overflow-hidden rounded-[0.95rem] border border-black/8 bg-white shadow-[0_10px_20px_rgba(15,23,42,0.12)]">
                                           <Image
                                             src={item.image}
                                             alt={`Producto ${index + 1} del pedido ${order.id}`}
@@ -2377,15 +2380,15 @@ export default function AdminPage() {
                                 )}
                               </div>
 
-                              <div className="flex flex-wrap items-center gap-3 xl:justify-end">
+                              <div className="flex flex-wrap items-center gap-3 lg:justify-end lg:self-start xl:flex-col xl:items-end xl:justify-center">
                                 <span className="rounded-full bg-[#fff6ee] px-4 py-2 text-sm font-semibold text-[#b85d12]">
                                   {getPaymentStatusLabel(order.paymentStatus)}
                                 </span>
-                                <span className="text-black/20">|</span>
+                                <span className="hidden text-black/20 xl:inline">|</span>
                                 <span className="rounded-full bg-[#effaf2] px-4 py-2 text-sm font-semibold text-[#1f6b39]">
                                   {getShippingStatusLabel(order.shippingStatus)}
                                 </span>
-                                <span className="ml-2 inline-flex h-10 w-10 items-center justify-center rounded-full text-[#ed8435]">
+                                <span className="ml-auto inline-flex h-10 w-10 items-center justify-center rounded-full text-[#ed8435] lg:ml-0">
                                   <svg
                                     aria-hidden="true"
                                     viewBox="0 0 24 24"
