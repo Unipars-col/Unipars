@@ -90,7 +90,7 @@ function normalizeStockAvailability(
   minimumStock: number,
 ): Disponibilidad {
   if (stock <= 0) {
-    return "Agotado";
+    return "Disponible por pedido";
   }
 
   if (availability === "Agotado") {
@@ -224,7 +224,7 @@ function toStoreProduct(product: ProductRecord): StoreProduct {
     stock: product.stock,
     stockMinimo: product.minimumStock,
     estadoInventario,
-    puedeComprar: product.stock > 0,
+    puedeComprar: true,
     descuento: formatearDescuento(product.price, product.previousPrice),
     imagen: product.image,
     imagenesExtra: normalizeGalleryImages(product.galleryImages || []),
@@ -266,7 +266,12 @@ function getFallbackProducts(): StoreProduct[] {
         : (producto.stock ?? 12) <= (producto.stockMinimo ?? 3)
           ? "low-stock"
           : "in-stock",
-    puedeComprar: (producto.stock ?? 12) > 0,
+    disponibilidad: normalizeStockAvailability(
+      producto.disponibilidad,
+      producto.stock ?? 12,
+      producto.stockMinimo ?? 3,
+    ),
+    puedeComprar: true,
     descripcion:
       producto.descripcion ||
       descripcionProducto({

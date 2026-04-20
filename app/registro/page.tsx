@@ -256,6 +256,24 @@ export default function RegistroPage() {
 
           <div>
             <label
+              htmlFor="confirmPassword"
+              className="mb-2 block text-sm font-medium text-slate-700"
+            >
+              Confirmar contraseña
+            </label>
+            <input
+              id="confirmPassword"
+              type="password"
+              value={form.confirmPassword}
+              onChange={handleChange}
+              placeholder="Repite tu contraseña"
+              required
+              className="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none transition-colors duration-200 focus:border-[#ed8435]"
+            />
+          </div>
+
+          <div>
+            <label
               htmlFor="department"
               className="mb-2 block text-sm font-medium text-slate-700"
             >
@@ -337,24 +355,6 @@ export default function RegistroPage() {
               value={form.addressLine2}
               onChange={handleChange}
               placeholder="Apto, interior, piso, bodega..."
-              className="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none transition-colors duration-200 focus:border-[#ed8435]"
-            />
-          </div>
-
-          <div>
-            <label
-              htmlFor="confirmPassword"
-              className="mb-2 block text-sm font-medium text-slate-700"
-            >
-              Confirmar contraseña
-            </label>
-            <input
-              id="confirmPassword"
-              type="password"
-              value={form.confirmPassword}
-              onChange={handleChange}
-              placeholder="Repite tu contraseña"
-              required
               className="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none transition-colors duration-200 focus:border-[#ed8435]"
             />
           </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, type ChangeEvent, type FormEvent } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import AccountEntryLoading from "../components/account-entry-loading";
@@ -71,6 +72,8 @@ export default function LoginPage() {
   const [showAdminPinModal, setShowAdminPinModal] = useState(false);
   const [pendingAdminUserId, setPendingAdminUserId] = useState<string | null>(null);
   const [isEnteringAccount, setIsEnteringAccount] = useState(false);
+  const [invalidFields, setInvalidFields] = useState<string[]>([]);
+  const [logoAnimationKey, setLogoAnimationKey] = useState(0);
 
   useEffect(() => {
     if (!toast) return;
@@ -87,6 +90,44 @@ export default function LoginPage() {
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     const { id, value } = event.target;
     setForm((current) => ({ ...current, [id]: value }));
+    setInvalidFields((current) => current.filter((field) => field !== id));
+  };
+
+  const triggerLogoError = () => {
+    setLogoAnimationKey((current) => current + 1);
+  };
+
+  const validateForm = () => {
+    const nextInvalidFields: string[] = [];
+
+    if (!form.email.trim()) {
+      nextInvalidFields.push("email");
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) {
+      nextInvalidFields.push("email");
+    }
+
+    if (!form.password.trim()) {
+      nextInvalidFields.push("password");
+    }
+
+    if (nextInvalidFields.length > 0) {
+      setInvalidFields(nextInvalidFields);
+      triggerLogoError();
+      setInlineError(
+        nextInvalidFields.includes("email") && nextInvalidFields.includes("password")
+          ? "Llena bien el correo y la contraseña."
+          : nextInvalidFields.includes("email")
+            ? "Llena bien el correo electrónico."
+            : "Ingresa bien la contraseña.",
+      );
+      setToast({
+        tone: "error",
+        message: "Revisa los campos marcados antes de continuar.",
+      });
+      return false;
+    }
+
+    return true;
   };
 
   const completeLogin = async (payload: {
@@ -126,6 +167,12 @@ export default function LoginPage() {
     event.preventDefault();
     setInlineError("");
     setToast(null);
+    setInvalidFields([]);
+
+    if (!validateForm()) {
+      return;
+    }
+
     setIsSubmitting(true);
 
     const response = await fetch("/api/auth/login", {
@@ -158,6 +205,7 @@ export default function LoginPage() {
     if (!response.ok) {
       const message = payload.error || "No fue posible iniciar sesión.";
       setInlineError(message);
+      triggerLogoError();
       setToast({ tone: "error", message });
       return;
     }
@@ -193,6 +241,7 @@ export default function LoginPage() {
     if (!response.ok) {
       const message = payload.error || "No fue posible validar el PIN.";
       setInlineError(message);
+      triggerLogoError();
       setToast({ tone: "error", message });
       return;
     }
@@ -297,28 +346,31 @@ export default function LoginPage() {
       )}
 
       <section className="w-full max-w-md rounded-2xl bg-white p-8 shadow-lg shadow-black/10">
-        <Link
-          href="/"
-          className="text-sm font-semibold uppercase tracking-wide text-[#16384f] transition-colors duration-200 hover:text-[#ed8435]"
-        >
-          Volver al inicio
-        </Link>
-
-        <div className="mt-6">
-          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[#ed8435]">
-            Unipars
-          </p>
-          <h1 className="mt-2 text-3xl font-bold text-[#16384f]">
+        <div className="mt-1">
+          <div
+            key={logoAnimationKey}
+            className={`flex justify-center ${logoAnimationKey > 0 ? "logo-error-bump" : ""}`}
+          >
+            <Image
+              src="/login-unipars-logo.png"
+              alt="Logo de Unipars"
+              width={168}
+              height={168}
+              priority
+              className="h-[168px] w-[168px] object-contain"
+            />
+          </div>
+          <h1 className="mt-2 text-center text-3xl font-bold text-[#16384f]">
             Iniciar sesión
           </h1>
-          <p className="mt-3 text-sm text-slate-600">
+          <p className="mt-3 text-center text-sm text-slate-600">
             Ingresa con los mismos datos que usaste para crear tu cuenta.
             Si tu cuenta tiene permisos de administración, entrarás al panel automáticamente.
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="mt-8 space-y-5">
-          <div>
+        <form noValidate onSubmit={handleSubmit} className="mt-8 space-y-5">
+          <div className={invalidFields.includes("email") ? "field-shake" : ""}>
             <label
               htmlFor="email"
               className="mb-2 block text-sm font-medium text-slate-700"
@@ -331,12 +383,15 @@ export default function LoginPage() {
               value={form.email}
               onChange={handleChange}
               placeholder="tu@correo.com"
-              required
-              className="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none transition-colors duration-200 focus:border-[#ed8435]"
+              className={`w-full rounded-xl border px-4 py-3 outline-none transition-colors duration-200 focus:border-[#ed8435] ${
+                invalidFields.includes("email")
+                  ? "border-[#ed8435] bg-[#fff8f2]"
+                  : "border-slate-200"
+              }`}
             />
           </div>
 
-          <div>
+          <div className={invalidFields.includes("password") ? "field-shake" : ""}>
             <label
               htmlFor="password"
               className="mb-2 block text-sm font-medium text-slate-700"
@@ -349,8 +404,11 @@ export default function LoginPage() {
               value={form.password}
               onChange={handleChange}
               placeholder="Ingresa tu contraseña"
-              required
-              className="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none transition-colors duration-200 focus:border-[#ed8435]"
+              className={`w-full rounded-xl border px-4 py-3 outline-none transition-colors duration-200 focus:border-[#ed8435] ${
+                invalidFields.includes("password")
+                  ? "border-[#ed8435] bg-[#fff8f2]"
+                  : "border-slate-200"
+              }`}
             />
           </div>
 

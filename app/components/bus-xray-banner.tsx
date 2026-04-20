@@ -201,6 +201,9 @@ export default function BusXrayBanner() {
     if (!isInitialVisual || !visualRef.current) return;
 
     const bounds = visualRef.current.getBoundingClientRect();
+    if (!isLensVisible) {
+      setIsLensVisible(true);
+    }
     setLensPosition({
       x: event.clientX - bounds.left,
       y: event.clientY - bounds.top,

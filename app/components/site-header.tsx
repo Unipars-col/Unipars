@@ -83,16 +83,16 @@ export default function SiteHeader({ currentUser }: SiteHeaderProps) {
             <Image
               src="/logo.png"
               alt="Unipars"
-              width={104}
-              height={27}
-              style={{ width: "104px", height: "auto" }}
+              width={128}
+              height={34}
+              style={{ width: "128px", height: "auto" }}
               priority
             />
           </Link>
 
           <form
             onSubmit={handleSearch}
-            className="flex min-w-0 flex-1 items-center rounded-full border border-black/10 bg-[#f8f8f7] p-2 shadow-[0_8px_20px_rgba(15,23,42,0.04)]"
+            className="flex min-w-0 flex-1 items-center rounded-full border border-black/10 bg-[#f8f8f7] p-2 shadow-[0_8px_20px_rgba(15,23,42,0.04)] md:max-w-[720px]"
           >
             <input
               key={searchParams.get("q") || ""}

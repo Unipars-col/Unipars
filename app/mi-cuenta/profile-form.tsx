@@ -71,6 +71,14 @@ function formatCurrency(value: number) {
   }).format(value);
 }
 
+function formatOrderDate(value: Date) {
+  return new Date(value).toLocaleDateString("es-CO", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
+}
+
 function getOrderStatusLabel(status: AccountOrder["status"]) {
   if (status === "PAID") return "Pagado";
   if (status === "CANCELLED") return "Cancelado";
@@ -89,6 +97,20 @@ function getShippingStatusLabel(status: AccountOrder["shippingStatus"]) {
   if (status === "DELIVERED") return "Entregado";
   if (status === "CANCELLED") return "Envío cancelado";
   return "Pendiente de despacho";
+}
+
+function getShippingStatusClasses(status: AccountOrder["shippingStatus"]) {
+  if (status === "DELIVERED") return "border-[#1f8b45]/18 bg-[#effaf2] text-[#1f6b39]";
+  if (status === "SHIPPED") return "border-[#16384f]/15 bg-[#eaf3f8] text-[#16384f]";
+  if (status === "PREPARING") return "border-[#ed8435]/18 bg-[#fff6ee] text-[#b85d12]";
+  if (status === "CANCELLED") return "border-black/10 bg-[#f3f4f6] text-[#60656b]";
+  return "border-black/8 bg-white text-[#6e7379]";
+}
+
+function getPaymentStatusClasses(status: AccountOrder["paymentStatus"]) {
+  if (status === "PAID") return "border-[#1f8b45]/18 bg-[#effaf2] text-[#1f6b39]";
+  if (status === "FAILED") return "border-[#ed8435]/18 bg-[#fff6ee] text-[#b85d12]";
+  return "border-black/8 bg-white text-[#6e7379]";
 }
 
 function getOrderProgressStep(order: AccountOrder) {
@@ -253,9 +275,7 @@ export default function AccountProfileForm({
   const router = useRouter();
   const [activePanel, setActivePanel] = useState<AccountPanel>("summary");
   const [showFullOrderHistory, setShowFullOrderHistory] = useState(false);
-  const [expandedOrderId, setExpandedOrderId] = useState<string | null>(
-    orders[0]?.id ?? null,
-  );
+  const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
   const [form, setForm] = useState<FormState>({
     fullName: user.fullName,
     company: user.company || "",
@@ -304,6 +324,14 @@ export default function AccountProfileForm({
     (order) => order.shippingStatus === "DELIVERED",
   ).length;
   const recentOrders = showFullOrderHistory ? orders : orders.slice(0, 3);
+  const visibleSelectedOrderId = recentOrders.some(
+    (order) => order.id === selectedOrderId,
+  )
+    ? selectedOrderId
+    : null;
+  const selectedOrder =
+    recentOrders.find((order) => order.id === visibleSelectedOrderId) ??
+    null;
 
   useEffect(() => {
     if (!toast) return;
@@ -739,160 +767,271 @@ export default function AccountProfileForm({
               aquí con su dirección, estado y productos.
             </div>
           ) : (
-            <div className="mt-6 space-y-5">
-              {recentOrders.map((order) => (
-                <article
-                  key={order.id}
-                  className="overflow-hidden rounded-[1.75rem] border border-black/8 bg-[#fafaf9]"
-                >
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setExpandedOrderId((current) =>
-                        current === order.id ? null : order.id,
-                      )
-                    }
-                    className="flex w-full flex-col gap-4 p-5 text-left transition-colors duration-200 hover:bg-white/45"
-                  >
-                    <div className="flex flex-wrap items-start justify-between gap-4">
-                      <div>
-                        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#8b8d91]">
+            <div className="mt-6 grid gap-6 xl:grid-cols-[380px_minmax(0,1fr)]">
+              <aside className="space-y-5">
+                <div className="rounded-[1.75rem] border border-black/8 bg-white p-6 shadow-[0_14px_28px_rgba(15,23,42,0.05)]">
+                  <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[#8b8d91]">
+                    Pedidos
+                  </p>
+                  <h3 className="mt-3 text-2xl font-semibold tracking-[-0.04em] text-[#16384f]">
+                    Historial listo para revisar
+                  </h3>
+                  <p className="mt-3 text-sm leading-7 text-[#6e7379]">
+                    Elige un pedido de la lista para ver sus productos, despacho y fechas clave.
+                  </p>
+                </div>
+
+                <div className="rounded-[1.75rem] border border-black/8 bg-white p-5 shadow-[0_14px_28px_rgba(15,23,42,0.05)]">
+                <div className="space-y-4">
+                  {recentOrders.map((order) => {
+                    const isSelected = selectedOrder?.id === order.id;
+
+                    return (
+                      <button
+                        key={order.id}
+                        type="button"
+                        onClick={() => setSelectedOrderId(order.id)}
+                        className={`w-full rounded-[1.4rem] border px-5 py-5 text-left transition-colors duration-200 ${
+                          isSelected
+                            ? "border-[#16384f] bg-[#16384f] text-white shadow-[0_14px_28px_rgba(22,56,79,0.18)]"
+                            : "border-black/8 bg-[#fafaf9] text-[#16384f] hover:bg-[#f4f7f9]"
+                        }`}
+                      >
+                        <p
+                          className={`text-[11px] font-semibold uppercase tracking-[0.22em] ${
+                            isSelected ? "text-white/70" : "text-[#8b8d91]"
+                          }`}
+                        >
                           Pedido
                         </p>
-                        <h3 className="mt-2 text-lg font-semibold text-[#16384f] md:text-xl">
+                        <p className="mt-3 truncate text-[1.45rem] font-semibold leading-tight">
                           {order.id}
-                        </h3>
-                        <p className="mt-2 text-sm text-[#6e7379]">
-                          {new Date(order.createdAt).toLocaleDateString("es-CO")} ·{" "}
-                          {order.city} · {order.totalItems} producto
+                        </p>
+                        <p
+                          className={`mt-2 text-sm ${
+                            isSelected ? "text-white/80" : "text-[#5d6167]"
+                          }`}
+                        >
+                          {user.fullName} · {order.city}
+                        </p>
+                        <p
+                          className={`mt-1 text-sm ${
+                            isSelected ? "text-white/70" : "text-[#7a7f86]"
+                          }`}
+                        >
+                          {formatOrderDate(order.createdAt)} · {order.totalItems} producto
                           {order.totalItems === 1 ? "" : "s"}
                         </p>
-                      </div>
-
-                      <div className="flex flex-wrap items-center justify-end gap-2">
-                        <span className="rounded-full bg-[#16384f] px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-white">
-                          {getOrderStatusLabel(order.status)}
-                        </span>
-                        <span className="rounded-full border border-[#ed8435]/18 bg-[#fff6ee] px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-[#b85d12]">
-                          {getPaymentStatusLabel(order.paymentStatus)}
-                        </span>
-                        <span className="rounded-full border border-[#1f8b45]/18 bg-[#effaf2] px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-[#1f6b39]">
-                          {getShippingStatusLabel(order.shippingStatus)}
-                        </span>
-                        <span className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-black/8 bg-white text-[#16384f]">
-                          <svg
-                            aria-hidden="true"
-                            viewBox="0 0 24 24"
-                            className={`h-4 w-4 transition-transform duration-200 ${
-                              expandedOrderId === order.id ? "rotate-180" : ""
+                        <div className="mt-4 flex flex-wrap gap-2">
+                          <span
+                            className={`rounded-full px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] ${
+                              isSelected
+                                ? "bg-white/12 text-white"
+                                : getShippingStatusClasses(order.shippingStatus)
                             }`}
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
                           >
-                            <path d="m6 9 6 6 6-6" />
-                          </svg>
+                            {getShippingStatusLabel(order.shippingStatus)}
+                          </span>
+                          <span
+                            className={`rounded-full px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] ${
+                              isSelected
+                                ? "bg-white/12 text-white"
+                                : getPaymentStatusClasses(order.paymentStatus)
+                            }`}
+                          >
+                            {getPaymentStatusLabel(order.paymentStatus)}
+                          </span>
+                        </div>
+                        <p
+                          className={`mt-5 text-base font-semibold ${
+                            isSelected ? "text-white" : "text-[#ed8435]"
+                          }`}
+                        >
+                          {formatCurrency(order.subtotal)}
+                        </p>
+                      </button>
+                    );
+                  })}
+                </div>
+                </div>
+              </aside>
+
+              {!selectedOrder ? (
+                <div className="rounded-[1.75rem] border border-dashed border-black/12 bg-white p-8 text-center text-sm leading-7 text-[#6e7379]">
+                  Selecciona un pedido para ver el detalle completo.
+                </div>
+              ) : (
+                <div className="rounded-[1.75rem] border border-black/8 bg-white p-6 shadow-[0_14px_28px_rgba(15,23,42,0.05)]">
+                  <div className="flex flex-wrap items-start justify-between gap-4">
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#8b8d91]">
+                        Pedido seleccionado
+                      </p>
+                      <h3 className="mt-2 text-3xl font-semibold tracking-[-0.04em] text-[#16384f]">
+                        {selectedOrder.id}
+                      </h3>
+                      <p className="mt-3 text-sm leading-7 text-[#6e7379]">
+                        {user.fullName} · {user.email}
+                        {user.phone ? ` · ${user.phone}` : ""}
+                      </p>
+                      <p className="text-sm leading-7 text-[#6e7379]">
+                        {selectedOrder.department}, {selectedOrder.city} ·{" "}
+                        {selectedOrder.addressLine1}
+                        {selectedOrder.addressLine2
+                          ? ` · ${selectedOrder.addressLine2}`
+                          : ""}
+                      </p>
+                    </div>
+
+                    <div className="flex flex-wrap gap-2">
+                      <span className="rounded-full bg-[#16384f] px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-white">
+                        {getOrderStatusLabel(selectedOrder.status)}
+                      </span>
+                      <span
+                        className={`rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] ${getPaymentStatusClasses(selectedOrder.paymentStatus)}`}
+                      >
+                        {getPaymentStatusLabel(selectedOrder.paymentStatus)}
+                      </span>
+                      <span
+                        className={`rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] ${getShippingStatusClasses(selectedOrder.shippingStatus)}`}
+                      >
+                        {getShippingStatusLabel(selectedOrder.shippingStatus)}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="mt-6 grid gap-4 xl:grid-cols-[minmax(0,1.2fr)_320px]">
+                    <div className="rounded-[1.4rem] border border-black/8 bg-[#fafaf9] p-5">
+                      <div className="flex flex-wrap items-center justify-between gap-3">
+                        <div>
+                          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#8b8d91]">
+                            Resumen del pedido
+                          </p>
+                          <p className="mt-2 text-sm text-[#6e7379]">
+                            Revisa qué compraste y cómo va el despacho.
+                          </p>
+                        </div>
+                        <span className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-[#16384f] shadow-[0_8px_20px_rgba(15,23,42,0.06)]">
+                          {selectedOrder.totalItems} producto
+                          {selectedOrder.totalItems === 1 ? "" : "s"}
                         </span>
                       </div>
-                    </div>
 
-                    <div className="flex items-center justify-between gap-3 border-t border-black/8 pt-4 text-sm">
-                      <span className="text-[#6e7379]">
-                        {order.carrier || "Transportadora pendiente"} ·{" "}
-                        {order.trackingNumber || "Sin guía"}
-                      </span>
-                      <span className="text-lg font-semibold text-[#ed8435]">
-                        {formatCurrency(order.subtotal)}
-                      </span>
-                    </div>
-                  </button>
-
-                  {expandedOrderId === order.id && (
-                    <div className="border-t border-black/8 px-5 pb-5 pt-5">
-                      <OrderProgressTimeline order={order} />
-
-                      <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-                        <div className="rounded-[1.1rem] border border-black/8 bg-white px-4 py-3">
-                          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#8b8d91]">
-                            Transportadora
-                          </p>
-                          <p className="mt-2 text-sm font-semibold text-[#16384f]">
-                            {order.carrier || "Por definir"}
-                          </p>
-                        </div>
-                        <div className="rounded-[1.1rem] border border-black/8 bg-white px-4 py-3">
-                          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#8b8d91]">
-                            Número de guía
-                          </p>
-                          <p className="mt-2 text-sm font-semibold text-[#16384f]">
-                            {order.trackingNumber || "Aún no asignado"}
-                          </p>
-                        </div>
-                        <div className="rounded-[1.1rem] border border-black/8 bg-white px-4 py-3">
-                          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#8b8d91]">
-                            Fecha de envío
-                          </p>
-                          <p className="mt-2 text-sm font-semibold text-[#16384f]">
-                            {order.shippedAt
-                              ? new Date(order.shippedAt).toLocaleDateString("es-CO")
-                              : "Pendiente"}
-                          </p>
-                        </div>
-                        <div className="rounded-[1.1rem] border border-black/8 bg-white px-4 py-3">
-                          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#8b8d91]">
-                            Fecha de entrega
-                          </p>
-                          <p className="mt-2 text-sm font-semibold text-[#16384f]">
-                            {order.deliveredAt
-                              ? new Date(order.deliveredAt).toLocaleDateString("es-CO")
-                              : "Sin confirmar"}
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="mt-5 rounded-[1.1rem] border border-black/8 bg-white px-4 py-4">
-                        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#8b8d91]">
-                          Dirección de entrega
-                        </p>
-                        <p className="mt-2 text-sm leading-7 text-[#5d6167]">
-                          {order.department} · {order.city} · {order.addressLine1}
-                          {order.addressLine2 ? ` · ${order.addressLine2}` : ""}
-                        </p>
-                      </div>
-
-                      <div className="mt-5 grid gap-3 md:grid-cols-2">
-                        {order.items.map((item) => (
+                      <div className="mt-5 space-y-3">
+                        {selectedOrder.items.map((item) => (
                           <div
                             key={item.id}
-                            className="rounded-[1.1rem] border border-black/8 bg-white px-4 py-3"
+                            className="rounded-[1rem] border border-black/8 bg-white px-4 py-4"
                           >
-                            <p className="text-sm font-semibold text-[#1f2328]">{item.name}</p>
-                            <div className="mt-2 flex items-center justify-between text-sm text-[#6e7379]">
-                              <span>Cantidad: {item.quantity}</span>
-                              <span className="font-semibold text-[#16384f]">
-                                {formatCurrency(item.unitPrice)}
-                              </span>
+                            <div className="flex items-start justify-between gap-3">
+                              <div>
+                                <p className="text-sm font-semibold text-[#1f2328]">
+                                  {item.name}
+                                </p>
+                                <p className="mt-2 text-xs uppercase tracking-[0.18em] text-[#8b8d91]">
+                                  Cantidad
+                                </p>
+                                <p className="mt-1 text-sm font-medium text-[#5d6167]">
+                                  {item.quantity}
+                                </p>
+                              </div>
+                              <div className="text-right">
+                                <p className="text-xs uppercase tracking-[0.18em] text-[#8b8d91]">
+                                  Precio unidad
+                                </p>
+                                <p className="mt-1 text-sm font-semibold text-[#16384f]">
+                                  {formatCurrency(item.unitPrice)}
+                                </p>
+                                <p className="mt-3 text-xs uppercase tracking-[0.18em] text-[#8b8d91]">
+                                  Subtotal
+                                </p>
+                                <p className="mt-1 text-sm font-semibold text-[#ed8435]">
+                                  {formatCurrency(item.unitPrice * item.quantity)}
+                                </p>
+                              </div>
                             </div>
                           </div>
                         ))}
                       </div>
+                    </div>
 
-                      {order.adminNotes && (
-                        <div className="mt-5 rounded-[1.1rem] border border-black/8 bg-white px-4 py-4">
-                          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#8b8d91]">
-                            Nota de envío
-                          </p>
-                          <p className="mt-2 text-sm leading-7 text-[#5d6167]">
-                            {order.adminNotes}
-                          </p>
-                        </div>
-                      )}
+                    <div className="grid gap-3">
+                      <div className="rounded-[1.4rem] border border-black/8 bg-[#fafaf9] px-5 py-4">
+                        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#8b8d91]">
+                          Total del pedido
+                        </p>
+                        <p className="mt-2 text-3xl font-semibold tracking-[-0.03em] text-[#ed8435]">
+                          {formatCurrency(selectedOrder.subtotal)}
+                        </p>
+                      </div>
+                      <div className="rounded-[1.4rem] border border-black/8 bg-[#fafaf9] px-5 py-4">
+                        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#8b8d91]">
+                          Transportadora actual
+                        </p>
+                        <p className="mt-2 text-sm font-semibold text-[#16384f]">
+                          {selectedOrder.carrier || "Por definir"}
+                        </p>
+                      </div>
+                      <div className="rounded-[1.4rem] border border-black/8 bg-[#fafaf9] px-5 py-4">
+                        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#8b8d91]">
+                          Guía actual
+                        </p>
+                        <p className="mt-2 text-sm font-semibold text-[#16384f]">
+                          {selectedOrder.trackingNumber || "Aún no asignada"}
+                        </p>
+                      </div>
+                      <div className="rounded-[1.4rem] border border-black/8 bg-[#fafaf9] px-5 py-4">
+                        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#8b8d91]">
+                          Fechas clave
+                        </p>
+                        <p className="mt-2 text-sm font-semibold text-[#16384f]">
+                          Creado: {formatOrderDate(selectedOrder.createdAt)}
+                        </p>
+                        <p className="mt-2 text-sm font-semibold text-[#16384f]">
+                          Enviado:{" "}
+                          {selectedOrder.shippedAt
+                            ? formatOrderDate(selectedOrder.shippedAt)
+                            : "Pendiente"}
+                        </p>
+                        <p className="mt-2 text-sm font-semibold text-[#16384f]">
+                          Entregado:{" "}
+                          {selectedOrder.deliveredAt
+                            ? formatOrderDate(selectedOrder.deliveredAt)
+                            : "Sin confirmar"}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="mt-6">
+                    <OrderProgressTimeline order={selectedOrder} />
+                  </div>
+
+                  <div className="mt-5 rounded-[1.1rem] border border-black/8 bg-[#fafaf9] px-4 py-4">
+                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#8b8d91]">
+                      Dirección de entrega
+                    </p>
+                    <p className="mt-2 text-sm leading-7 text-[#5d6167]">
+                      {selectedOrder.department} · {selectedOrder.city} ·{" "}
+                      {selectedOrder.addressLine1}
+                      {selectedOrder.addressLine2
+                        ? ` · ${selectedOrder.addressLine2}`
+                        : ""}
+                    </p>
+                  </div>
+
+                  {selectedOrder.adminNotes && (
+                    <div className="mt-5 rounded-[1.1rem] border border-black/8 bg-[#fafaf9] px-4 py-4">
+                      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#8b8d91]">
+                        Nota de envío
+                      </p>
+                      <p className="mt-2 text-sm leading-7 text-[#5d6167]">
+                        {selectedOrder.adminNotes}
+                      </p>
                     </div>
                   )}
-                </article>
-              ))}
+                </div>
+              )}
             </div>
           )}
           </section>

@@ -9,7 +9,6 @@ import {
   type FormEvent,
 } from "react";
 import Image from "next/image";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useProducts } from "../components/products-provider";
 import { categorias, type Categoria, type ProductoCatalogo } from "../data/catalog";
@@ -136,6 +135,8 @@ type AdminOrder = {
   items: Array<{
     id: string;
     name: string;
+    productId?: string | null;
+    image?: string | null;
     quantity: number;
     unitPrice: number;
     lineTotal: number;
@@ -184,6 +185,15 @@ function formatCurrency(value: number) {
     currency: "COP",
     maximumFractionDigits: 0,
   }).format(value);
+}
+
+function normalizeComparableText(value: string) {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
 }
 
 function getShippingStatusLabel(status: ShippingStatus) {
@@ -1103,11 +1113,6 @@ export default function AdminPage() {
     }
 
     setOrders(payload.orders);
-
-    if (!selectedOrderId && payload.orders[0]) {
-      setSelectedOrderId(payload.orders[0].id);
-      setOrderForm(getOrderEditState(payload.orders[0]));
-    }
   }
 
   const handleQuickInventoryAdjust = async (
@@ -1223,15 +1228,6 @@ export default function AdminPage() {
     });
   };
 
-  const handleLogout = async () => {
-    await fetch("/api/auth/logout", {
-      method: "POST",
-    });
-    setIsAuthenticated(false);
-    setAdminName("");
-    router.refresh();
-  };
-
   if (isCheckingSession) {
     return (
       <main className="min-h-screen bg-[#f5f5f5] text-[#111]">
@@ -1297,244 +1293,142 @@ export default function AdminPage() {
         </div>
       )}
 
-      <section className="mx-auto max-w-[1440px] px-6 py-16">
-        <div className="mb-10 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
-          <div>
-            <p className="mb-3 text-xs font-medium uppercase tracking-[0.35em] text-[#8b8d91]">
-              Gestión interna
-            </p>
-            <h1 className="text-4xl font-semibold tracking-[-0.04em] text-[#4f545a] md:text-6xl">
-              Administrador de productos
-            </h1>
-            <p className="mt-4 max-w-2xl text-lg leading-8 text-[#6e7379]">
-              Desde aquí puedes crear productos nuevos para que aparezcan en el
-              catálogo y queden guardados en Supabase sin modificar el código.
-            </p>
-            {adminName && (
-              <p className="mt-3 text-sm font-medium text-[#16384f]">
-                Sesión activa: {adminName}
-              </p>
-            )}
-          </div>
-
-          <div className="flex flex-wrap gap-3">
-            <Link
-              href="/categorias"
-              className="inline-flex rounded-full border border-[#16384f]/15 px-5 py-3 text-sm font-semibold text-[#16384f] transition-colors duration-200 hover:bg-[#16384f] hover:text-white"
-            >
-              Ver catálogo
-            </Link>
-            <button
-              type="button"
-              onClick={handleLogout}
-              className="inline-flex rounded-full border border-black/10 px-5 py-3 text-sm font-semibold text-[#16384f] transition-colors duration-200 hover:bg-[#16384f] hover:text-white"
-            >
-              Cerrar sesión
-            </button>
-          </div>
-        </div>
-
+      <section className="py-16">
         <div className="space-y-8">
-          <div className="admin-fade-up overflow-hidden rounded-[2rem] border border-black/8 bg-white shadow-[0_18px_50px_rgba(15,23,42,0.06)]">
-            <div className="relative px-6 py-8 md:px-10 md:py-10">
-              <div className="admin-glow absolute left-1/2 top-0 h-40 w-40 -translate-x-1/2 rounded-full bg-[radial-gradient(circle,_rgba(237,132,53,0.26),_rgba(237,132,53,0.06)_55%,_transparent_72%)] blur-2xl" />
-              <div className="absolute inset-x-0 top-0 h-28 bg-[radial-gradient(circle_at_top,_rgba(237,132,53,0.16),_transparent_58%)]" />
-              <div className="relative mx-auto flex max-w-5xl flex-col items-center text-center">
-                <p className="text-xs font-semibold uppercase tracking-[0.38em] text-[#8b8d91]">
-                  Flujo de administración
-                </p>
-                <h2 className="mt-4 max-w-3xl text-3xl font-semibold tracking-[-0.05em] text-[#1f2328] md:text-4xl">
-                  Elige el módulo que necesitas
-                </h2>
-                <p className="mt-3 max-w-2xl text-sm leading-7 text-[#6e7379] md:text-base">
-                  {productCountLabel}. Mantuvimos el panel por módulos para que crear, editar, inventario y envíos se sientan más claros.
-                </p>
-
-                <div className="mt-6 w-full max-w-4xl">
-                  <div className="grid gap-2.5 md:grid-cols-2 xl:grid-cols-4">
-                    <button
-                      type="button"
-                      onClick={openCreateView}
-                      className={`group rounded-[0.95rem] border px-4 py-3.5 text-left transition-all duration-200 ${
-                        activeTab === "create"
-                          ? "border-[#16384f] bg-[#16384f] text-white shadow-[0_14px_28px_rgba(22,56,79,0.18)]"
-                          : "border-black/8 bg-[#fbfbfa] text-[#1f2328] hover:border-[#16384f]/18 hover:bg-white"
-                      }`}
-                    >
-                      <div className="flex items-center justify-between gap-3">
-                        <span className="text-[11px] font-semibold uppercase tracking-[0.2em]">
-                          Crear
-                        </span>
-                        <span
-                          className={`inline-flex h-8 w-8 items-center justify-center rounded-full text-sm transition-colors duration-200 ${
-                            activeTab === "create"
-                              ? "bg-white/14 text-white"
-                              : "bg-[#16384f] text-white"
-                          }`}
-                        >
-                          +
-                        </span>
-                      </div>
-                      <p className={`mt-3 text-[1.28rem] font-semibold tracking-[-0.04em] ${
-                        activeTab === "create" ? "text-white" : "text-[#16384f]"
-                      }`}>
-                        Crear producto
-                      </p>
-                      <p className={`mt-1.5 text-[13px] leading-6 ${
-                        activeTab === "create" ? "text-white/76" : "text-[#6e7379]"
-                      }`}>
-                        Carga uno nuevo con fotos, stock y precios.
-                      </p>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={openEditView}
-                      className={`group rounded-[0.95rem] border px-4 py-3.5 text-left transition-all duration-200 ${
-                        activeTab === "edit"
-                          ? "border-[#16384f] bg-[#16384f] text-white shadow-[0_14px_28px_rgba(22,56,79,0.18)]"
-                          : "border-black/8 bg-[#fbfbfa] text-[#1f2328] hover:border-[#16384f]/18 hover:bg-white"
-                      }`}
-                    >
-                      <div className="flex items-center justify-between gap-3">
-                        <span className="text-[11px] font-semibold uppercase tracking-[0.2em]">
-                          Editar
-                        </span>
-                        <span
-                          className={`inline-flex h-8 w-8 items-center justify-center rounded-full transition-colors duration-200 ${
-                            activeTab === "edit"
-                              ? "bg-white/14 text-white"
-                              : "bg-[#ed8435] text-white"
-                          }`}
-                        >
-                          <svg
-                            aria-hidden="true"
-                            viewBox="0 0 24 24"
-                            className="h-3.5 w-3.5"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                          >
-                            <path d="M12 20h9" />
-                            <path d="m16.5 3.5 4 4L7 21l-4 1 1-4Z" />
-                          </svg>
-                        </span>
-                      </div>
-                      <p className={`mt-3 text-[1.28rem] font-semibold tracking-[-0.04em] ${
-                        activeTab === "edit" ? "text-white" : "text-[#16384f]"
-                      }`}>
-                        Editar productos
-                      </p>
-                      <p className={`mt-1.5 text-[13px] leading-6 ${
-                        activeTab === "edit" ? "text-white/76" : "text-[#6e7379]"
-                      }`}>
-                        Encuentra rápido el producto que vas a modificar.
-                      </p>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={openInventoryView}
-                      className={`group rounded-[0.95rem] border px-4 py-3.5 text-left transition-all duration-200 ${
-                        activeTab === "inventory"
-                          ? "border-[#16384f] bg-[#16384f] text-white shadow-[0_14px_28px_rgba(22,56,79,0.18)]"
-                          : "border-black/8 bg-[#fbfbfa] text-[#1f2328] hover:border-[#16384f]/18 hover:bg-white"
-                      }`}
-                    >
-                      <div className="flex items-center justify-between gap-3">
-                        <span className="text-[11px] font-semibold uppercase tracking-[0.2em]">
-                          Inventario
-                        </span>
-                        <span
-                          className={`inline-flex h-8 w-8 items-center justify-center rounded-full text-sm transition-colors duration-200 ${
-                            activeTab === "inventory"
-                              ? "bg-white/14 text-white"
-                              : "bg-[#1f8b45] text-white"
-                          }`}
-                        >
-                          ≡
-                        </span>
-                      </div>
-                      <p className={`mt-3 text-[1.28rem] font-semibold tracking-[-0.04em] ${
-                        activeTab === "inventory" ? "text-white" : "text-[#16384f]"
-                      }`}>
-                        Inventario
-                      </p>
-                      <p className={`mt-1.5 text-[13px] leading-6 ${
-                        activeTab === "inventory" ? "text-white/76" : "text-[#6e7379]"
-                      }`}>
-                        Ajusta stock, alertas y movimientos recientes.
-                      </p>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={openOrdersView}
-                      className={`group rounded-[0.95rem] border px-4 py-3.5 text-left transition-all duration-200 ${
-                        activeTab === "orders"
-                          ? "border-[#16384f] bg-[#16384f] text-white shadow-[0_14px_28px_rgba(22,56,79,0.18)]"
-                          : "border-black/8 bg-[#fbfbfa] text-[#1f2328] hover:border-[#16384f]/18 hover:bg-white"
-                      }`}
-                    >
-                      <div className="flex items-center justify-between gap-3">
-                        <span className="text-[11px] font-semibold uppercase tracking-[0.2em]">
-                          Pedidos
-                        </span>
-                        <span
-                          className={`inline-flex h-8 w-8 items-center justify-center rounded-full text-sm transition-colors duration-200 ${
-                            activeTab === "orders"
-                              ? "bg-white/14 text-white"
-                              : "bg-[#6366f1] text-white"
-                          }`}
-                        >
-                          ↗
-                        </span>
-                      </div>
-                      <p className={`mt-3 text-[1.28rem] font-semibold tracking-[-0.04em] ${
-                        activeTab === "orders" ? "text-white" : "text-[#16384f]"
-                      }`}>
-                        Pedidos y envíos
-                      </p>
-                      <p className={`mt-1.5 text-[13px] leading-6 ${
-                        activeTab === "orders" ? "text-white/76" : "text-[#6e7379]"
-                      }`}>
-                        Da seguimiento a estados, guía y transporte.
-                      </p>
-                    </button>
-                  </div>
+          <div className="admin-fade-up mx-auto max-w-[1440px] px-6">
+            <div className="grid items-center gap-8 lg:grid-cols-[minmax(0,0.9fr)_minmax(560px,1.1fr)]">
+              <div className="order-2 lg:order-1">
+                <div className="max-w-[640px]">
+                  <p className="text-xs font-semibold uppercase tracking-[0.34em] text-[#8b8d91]">
+                    Flujo de administración
+                  </p>
+                  <h2 className="mt-3 text-3xl font-semibold tracking-[-0.05em] text-[#1f2328]">
+                    Elige el módulo que necesitas
+                  </h2>
+                  <p className="mt-2 max-w-[38rem] text-sm leading-7 text-[#6e7379]">
+                    {productCountLabel}. Dejamos una navegación más directa para crear, editar,
+                    inventario y pedidos sin tanto ruido visual.
+                  </p>
                 </div>
 
-                {activeTab && (
+                <div className="mt-6 flex flex-wrap gap-3">
                   <button
                     type="button"
-                    onClick={handleResetForm}
-                    className="mt-5 inline-flex rounded-full border border-black/10 px-4 py-2 text-sm font-semibold text-[#5d6167] transition-colors duration-200 hover:border-[#16384f]/18 hover:bg-[#16384f] hover:text-white"
+                    onClick={openCreateView}
+                    className={`inline-flex min-h-12 items-center gap-3 rounded-full border px-4 py-2.5 text-sm font-semibold transition-all duration-200 ${
+                      activeTab === "create"
+                        ? "border-[#16384f] bg-[#16384f] text-white"
+                        : "border-black/8 bg-white text-[#16384f] hover:border-[#16384f]/18 hover:bg-[#f8f8f7]"
+                    }`}
                   >
-                    Volver a vista limpia
+                    <span
+                      className={`inline-flex h-8 w-8 items-center justify-center rounded-full text-sm ${
+                        activeTab === "create" ? "bg-white/14 text-white" : "bg-[#16384f] text-white"
+                      }`}
+                    >
+                      +
+                    </span>
+                    Crear producto
                   </button>
-                )}
+
+                  <button
+                    type="button"
+                    onClick={openEditView}
+                    className={`inline-flex min-h-12 items-center gap-3 rounded-full border px-4 py-2.5 text-sm font-semibold transition-all duration-200 ${
+                      activeTab === "edit"
+                        ? "border-[#16384f] bg-[#16384f] text-white"
+                        : "border-black/8 bg-white text-[#16384f] hover:border-[#16384f]/18 hover:bg-[#f8f8f7]"
+                    }`}
+                  >
+                    <span
+                      className={`inline-flex h-8 w-8 items-center justify-center rounded-full ${
+                        activeTab === "edit" ? "bg-white/14 text-white" : "bg-[#ed8435] text-white"
+                      }`}
+                    >
+                      <svg
+                        aria-hidden="true"
+                        viewBox="0 0 24 24"
+                        className="h-3.5 w-3.5"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <path d="M12 20h9" />
+                        <path d="m16.5 3.5 4 4L7 21l-4 1 1-4Z" />
+                      </svg>
+                    </span>
+                    Editar productos
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={openInventoryView}
+                    className={`inline-flex min-h-12 items-center gap-3 rounded-full border px-4 py-2.5 text-sm font-semibold transition-all duration-200 ${
+                      activeTab === "inventory"
+                        ? "border-[#16384f] bg-[#16384f] text-white"
+                        : "border-black/8 bg-white text-[#16384f] hover:border-[#16384f]/18 hover:bg-[#f8f8f7]"
+                    }`}
+                  >
+                    <span
+                      className={`inline-flex h-8 w-8 items-center justify-center rounded-full text-sm ${
+                        activeTab === "inventory" ? "bg-white/14 text-white" : "bg-[#1f8b45] text-white"
+                      }`}
+                    >
+                      ≡
+                    </span>
+                    Inventario
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={openOrdersView}
+                    className={`inline-flex min-h-12 items-center gap-3 rounded-full border px-4 py-2.5 text-sm font-semibold transition-all duration-200 ${
+                      activeTab === "orders"
+                        ? "border-[#16384f] bg-[#16384f] text-white"
+                        : "border-black/8 bg-white text-[#16384f] hover:border-[#16384f]/18 hover:bg-[#f8f8f7]"
+                    }`}
+                  >
+                    <span
+                      className={`inline-flex h-8 w-8 items-center justify-center rounded-full text-sm ${
+                        activeTab === "orders" ? "bg-white/14 text-white" : "bg-[#6366f1] text-white"
+                      }`}
+                    >
+                      ↗
+                    </span>
+                    Pedidos y envíos
+                  </button>
+
+                  {activeTab && (
+                    <button
+                      type="button"
+                      onClick={handleResetForm}
+                      className="inline-flex min-h-12 items-center rounded-full border border-black/10 bg-white px-4 py-2.5 text-sm font-semibold text-[#5d6167] transition-colors duration-200 hover:border-[#16384f]/18 hover:bg-[#16384f] hover:text-white"
+                    >
+                      Vista limpia
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              <div className="order-1 lg:order-2">
+                <div className="flex min-h-[360px] items-center justify-center lg:min-h-[460px]">
+                  <Image
+                    src="/admin-banner.jpg"
+                    alt="Banner del administrador de productos"
+                    width={1600}
+                    height={900}
+                    priority
+                    sizes="(min-width: 1024px) 52vw, 100vw"
+                    className="h-auto w-full max-w-[820px] object-contain"
+                  />
+                </div>
               </div>
             </div>
           </div>
 
-          {!activeTab && (
-            <div className="admin-fade-up rounded-[2rem] border border-dashed border-[#16384f]/12 bg-[linear-gradient(180deg,rgba(255,255,255,0.92),rgba(248,248,247,0.92))] px-6 py-14 text-center shadow-[0_12px_28px_rgba(15,23,42,0.04)]">
-              <div className="mx-auto max-w-xl">
-                <p className="text-xs font-semibold uppercase tracking-[0.34em] text-[#8b8d91]">
-                  Panel en espera
-                </p>
-                <h3 className="mt-4 text-2xl font-semibold tracking-[-0.04em] text-[#16384f]">
-                  Elige una acción para empezar
-                </h3>
-                <p className="mt-4 text-sm leading-7 text-[#6e7379]">
-                  Mantuvimos esta vista despejada para que el administrador no vea formularios hasta
-                  decidir si quiere crear o editar.
-                </p>
-              </div>
-            </div>
-          )}
+          <div className="mx-auto max-w-[1440px] px-6">
 
           {activeTab === "create" && (
             <form
@@ -2303,8 +2197,18 @@ export default function AdminPage() {
 
           {activeTab === "orders" && (
             <div className="admin-fade-up space-y-8">
-              <div className="grid gap-8 xl:grid-cols-[360px_minmax(0,1fr)]">
-                <aside className="space-y-5">
+              <div
+                className={
+                  selectedOrder && selectedOrderPreview
+                    ? "space-y-8"
+                    : "mx-auto max-w-[460px] space-y-5"
+                }
+              >
+                <aside
+                  className={`space-y-5 ${
+                    selectedOrder && selectedOrderPreview ? "hidden" : ""
+                  }`}
+                >
                   <div className="rounded-[1.75rem] border border-black/8 bg-white p-6 shadow-[0_14px_28px_rgba(15,23,42,0.05)]">
                     <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[#8b8d91]">
                       Pedidos
@@ -2364,7 +2268,7 @@ export default function AdminPage() {
                     </p>
                   </div>
 
-                  <div className="space-y-3">
+                  <div className="space-y-4">
                     {isLoadingOrders ? (
                       <div className="rounded-[1.5rem] border border-black/8 bg-white p-5 text-sm text-[#6e7379] shadow-[0_14px_28px_rgba(15,23,42,0.05)]">
                         Cargando pedidos...
@@ -2374,48 +2278,159 @@ export default function AdminPage() {
                         Aún no hay pedidos que coincidan con los filtros actuales.
                       </div>
                     ) : (
-                      filteredOrders.map((order) => (
-                        <button
-                          key={order.id}
-                          type="button"
-                          onClick={() => {
-                            setSelectedOrderId(order.id);
-                            setOrderForm(getOrderEditState(order));
-                          }}
-                          className={`block w-full rounded-[1.4rem] border p-5 text-left shadow-[0_14px_28px_rgba(15,23,42,0.05)] transition-all duration-200 ${
-                            selectedOrderId === order.id
-                              ? "border-[#16384f] bg-[#16384f] text-white"
-                              : "border-black/8 bg-white hover:-translate-y-0.5 hover:border-[#16384f]/18"
-                          }`}
-                        >
-                          <p className={`text-xs font-semibold uppercase tracking-[0.22em] ${selectedOrderId === order.id ? "text-white/72" : "text-[#8b8d91]"}`}>
-                            Pedido
-                          </p>
-                          <p className="mt-2 text-lg font-semibold">{order.id}</p>
-                          <p className={`mt-2 text-sm ${selectedOrderId === order.id ? "text-white/78" : "text-[#5d6167]"}`}>
-                            {order.customerName} · {order.city}
-                          </p>
-                          <div className="mt-4 flex flex-wrap gap-2">
-                            <span className={`rounded-full px-3 py-1 text-xs font-semibold ${selectedOrderId === order.id ? "bg-white/14 text-white" : "bg-[#effaf2] text-[#1f6b39]"}`}>
-                              {getShippingStatusLabel(order.shippingStatus)}
-                            </span>
-                            <span className={`rounded-full px-3 py-1 text-xs font-semibold ${selectedOrderId === order.id ? "bg-white/14 text-white" : "bg-[#fff6ee] text-[#b85d12]"}`}>
-                              {getPaymentStatusLabel(order.paymentStatus)}
-                            </span>
-                          </div>
-                        </button>
-                      ))
+                      filteredOrders.map((order) => {
+                        const previewItems = order.items
+                          .map((item) => {
+                            const normalizedItemName = normalizeComparableText(item.name);
+                            const fallbackBySlug = item.productId
+                              ? adminProducts.find((product) => product.slug === item.productId)
+                              : null;
+                            const fallbackByName =
+                              fallbackBySlug ||
+                              adminProducts.find((product) => {
+                                const normalizedProductName = normalizeComparableText(product.nombre);
+
+                                return (
+                                  normalizedProductName === normalizedItemName ||
+                                  normalizedProductName.includes(normalizedItemName) ||
+                                  normalizedItemName.includes(normalizedProductName)
+                                );
+                              });
+                            const fallbackImage = item.productId
+                              ? fallbackBySlug?.imagen || fallbackByName?.imagen || null
+                              : null;
+
+                            return {
+                              name: item.name,
+                              image: item.image || fallbackImage || fallbackByName?.imagen || null,
+                            };
+                          })
+                          .filter(
+                            (item): item is { name: string; image: string } => Boolean(item.image),
+                          )
+                          .slice(0, 3);
+
+                        return (
+                          <button
+                            key={order.id}
+                            type="button"
+                            onClick={() => {
+                              setSelectedOrderId(order.id);
+                              setOrderForm(getOrderEditState(order));
+                            }}
+                            className={`block w-full rounded-[1.5rem] border px-5 py-5 text-left shadow-[0_14px_28px_rgba(15,23,42,0.05)] transition-all duration-200 ${
+                              selectedOrderId === order.id
+                                ? "border-[#16384f]/22 bg-white shadow-[0_18px_32px_rgba(22,56,79,0.12)] ring-2 ring-[#16384f]/12"
+                                : "border-black/8 bg-white hover:-translate-y-0.5 hover:border-[#16384f]/18"
+                            }`}
+                          >
+                            <div className="grid gap-5 xl:grid-cols-[minmax(220px,0.9fr)_minmax(320px,1.2fr)_auto] xl:items-center">
+                              <div className="min-w-0">
+                                <p className="text-[13px] font-semibold uppercase tracking-[0.22em] text-[#8b8d91]">
+                                  Pedido
+                                </p>
+                                <p className="mt-3 text-[1.42rem] font-semibold leading-tight text-[#1f2328]">
+                                  {order.id}
+                                </p>
+                                <p className="mt-3 text-[15px] text-[#5d6167]">
+                                  {order.customerName} · {order.city}
+                                </p>
+                                <p className="mt-1 text-[15px] text-[#7a7f86]">
+                                  {new Date(order.createdAt).toLocaleDateString("es-CO")} · {order.totalItems} producto
+                                  {order.totalItems === 1 ? "" : "s"}
+                                </p>
+                                <p className="mt-5 text-[1.45rem] font-semibold text-[#ed8435]">
+                                  {formatCurrency(order.subtotal)}
+                                </p>
+                                <div className="mt-4 border-t border-black/8 pt-3">
+                                  <p className="line-clamp-2 text-[13px] leading-5 text-[#7a7f86]">
+                                    {order.items[0]?.name || "Pedido con productos varios"}
+                                  </p>
+                                </div>
+                              </div>
+
+                              <div className="min-w-0">
+                                {previewItems.length > 0 ? (
+                                  <div className="flex flex-wrap gap-3 xl:justify-center">
+                                    {previewItems.map((item, index) => (
+                                      <div key={`${order.id}-preview-${index}`} className="w-[118px] text-center">
+                                        <div className="mx-auto h-[94px] w-[118px] overflow-hidden rounded-[0.95rem] border border-black/8 bg-white shadow-[0_10px_20px_rgba(15,23,42,0.12)]">
+                                          <Image
+                                            src={item.image}
+                                            alt={`Producto ${index + 1} del pedido ${order.id}`}
+                                            width={118}
+                                            height={94}
+                                            sizes="118px"
+                                            className="h-full w-full object-cover"
+                                          />
+                                        </div>
+                                        <p className="mt-2 line-clamp-2 text-[11px] leading-4 text-[#5d6167]">
+                                          {item.name || "Producto"}
+                                        </p>
+                                      </div>
+                                    ))}
+                                  </div>
+                                ) : (
+                                  <div className="flex h-[94px] w-[118px] items-center justify-center rounded-[0.95rem] border border-black/8 bg-[#16384f] text-center text-[11px] font-semibold uppercase tracking-[0.16em] text-white shadow-[0_10px_20px_rgba(15,23,42,0.12)]">
+                                    {order.items[0]?.name?.slice(0, 2) || "UP"}
+                                  </div>
+                                )}
+                              </div>
+
+                              <div className="flex flex-wrap items-center gap-3 xl:justify-end">
+                                <span className="rounded-full bg-[#fff6ee] px-4 py-2 text-sm font-semibold text-[#b85d12]">
+                                  {getPaymentStatusLabel(order.paymentStatus)}
+                                </span>
+                                <span className="text-black/20">|</span>
+                                <span className="rounded-full bg-[#effaf2] px-4 py-2 text-sm font-semibold text-[#1f6b39]">
+                                  {getShippingStatusLabel(order.shippingStatus)}
+                                </span>
+                                <span className="ml-2 inline-flex h-10 w-10 items-center justify-center rounded-full text-[#ed8435]">
+                                  <svg
+                                    aria-hidden="true"
+                                    viewBox="0 0 24 24"
+                                    className="h-5 w-5"
+                                    fill="currentColor"
+                                  >
+                                    <path d="m8 5 8 7-8 7z" />
+                                  </svg>
+                                </span>
+                              </div>
+                            </div>
+                          </button>
+                        );
+                      })
                     )}
                   </div>
                 </aside>
 
-                <div className="space-y-8">
-                  {!selectedOrder || !selectedOrderPreview ? (
-                    <div className="rounded-[1.75rem] border border-dashed border-black/12 bg-white p-8 text-center text-sm leading-7 text-[#6e7379] shadow-[0_14px_28px_rgba(15,23,42,0.05)]">
-                      Selecciona un pedido para editar su envío, guía y notas internas.
-                    </div>
-                  ) : (
+                <div
+                  className={
+                    selectedOrder && selectedOrderPreview ? "space-y-8" : "hidden"
+                  }
+                >
+                  {!selectedOrder || !selectedOrderPreview ? null : (
                     <>
+                      <button
+                        type="button"
+                        onClick={() => setSelectedOrderId(null)}
+                        className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-white px-5 py-3 text-sm font-semibold text-[#16384f] transition-colors duration-200 hover:bg-[#16384f] hover:text-white"
+                      >
+                        <svg
+                          aria-hidden="true"
+                          viewBox="0 0 24 24"
+                          className="h-4 w-4"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <path d="m15 18-6-6 6-6" />
+                        </svg>
+                        Atrás
+                      </button>
+
                       <div className="rounded-[1.75rem] border border-black/8 bg-white p-6 shadow-[0_14px_28px_rgba(15,23,42,0.05)]">
                         <div className="flex flex-wrap items-start justify-between gap-4">
                           <div>
@@ -2775,20 +2790,32 @@ export default function AdminPage() {
                           className="rounded-[1.5rem] border border-black/8 bg-white p-5 shadow-[0_14px_28px_rgba(15,23,42,0.05)]"
                         >
                           <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
-                            <div className="min-w-0">
-                              <p className="text-xs font-medium uppercase tracking-[0.22em] text-[#8b8d91]">
-                                {product.categoria} · {product.marca}
-                              </p>
-                              <h3 className="mt-2 text-xl font-semibold tracking-[-0.03em] text-[#1f2328]">
-                                {product.nombre}
-                              </h3>
-                              <div className="mt-3 flex flex-wrap gap-2 text-sm">
-                                <span className="rounded-full border border-black/8 bg-[#fafaf9] px-3 py-1 text-[#5d6167]">
-                                  SKU: {product.sku || "Sin SKU"}
-                                </span>
-                                <span className={`rounded-full px-3 py-1 font-semibold ${inventoryTone.className}`}>
-                                  {inventoryTone.label}
-                                </span>
+                            <div className="flex min-w-0 items-center gap-4">
+                              <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-[1rem] border border-black/8 bg-[#fafaf9]">
+                                <Image
+                                  src={product.imagen}
+                                  alt={product.nombre}
+                                  fill
+                                  sizes="96px"
+                                  className="object-cover"
+                                />
+                              </div>
+
+                              <div className="min-w-0">
+                                <p className="text-xs font-medium uppercase tracking-[0.22em] text-[#8b8d91]">
+                                  {product.categoria} · {product.marca}
+                                </p>
+                                <h3 className="mt-2 text-xl font-semibold tracking-[-0.03em] text-[#1f2328]">
+                                  {product.nombre}
+                                </h3>
+                                <div className="mt-3 flex flex-wrap gap-2 text-sm">
+                                  <span className="rounded-full border border-black/8 bg-[#fafaf9] px-3 py-1 text-[#5d6167]">
+                                    SKU: {product.sku || "Sin SKU"}
+                                  </span>
+                                  <span className={`rounded-full px-3 py-1 font-semibold ${inventoryTone.className}`}>
+                                    {inventoryTone.label}
+                                  </span>
+                                </div>
                               </div>
                             </div>
 
@@ -2948,6 +2975,7 @@ export default function AdminPage() {
               </div>
             </div>
           )}
+          </div>
         </div>
       </section>
     </main>

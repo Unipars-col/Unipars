@@ -368,7 +368,9 @@ export default function ProductoDetallePage() {
               <p className="text-5xl font-semibold tracking-[-0.04em] text-[#33373d]">
                 {producto.precio}
               </p>
-              <p className="mt-2 text-2xl text-[#4f545a]">{producto.precioAnterior}</p>
+              <p className="mt-2 text-2xl text-[#a0a3a8] line-through">
+                {producto.precioAnterior}
+              </p>
               <p className="mt-3 text-sm font-medium text-[#6e7379]">
                 Stock disponible: {producto.stock ?? 0}
               </p>

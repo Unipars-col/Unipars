@@ -1,6 +1,6 @@
 "use client";
 
-import { startTransition, useState } from "react";
+import { startTransition, useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -19,18 +19,19 @@ const disponibilidades = [
   "Recoger en tienda",
   "Agotado",
 ] as const;
-const rangosPrecio = [
-  "Hasta $200.000",
-  "$200.000 - $500.000",
-  "Más de $500.000",
-] as const;
-
 export default function CategoriasPage() {
   const { products } = useProducts();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const marcas = Array.from(new Set(products.map((product) => product.marca)));
+  const priceBounds = useMemo(() => {
+    const values = products.map((product) => product.precioValor);
+    const min = values.length > 0 ? Math.min(...values) : 0;
+    const max = values.length > 0 ? Math.max(...values) : 1000000;
+
+    return { min, max };
+  }, [products]);
 
   const categoriaActiva = categoriaDesdeSlug(searchParams.get("categoria"));
   const categoriaVisual = categoriaMeta(
@@ -48,7 +49,13 @@ export default function CategoriasPage() {
 
   const [marcasActivas, setMarcasActivas] = useState<string[]>([]);
   const [disponibilidadActiva, setDisponibilidadActiva] = useState<string[]>([]);
-  const [rangoActivo, setRangoActivo] = useState<string[]>([]);
+  const [precioMinimo, setPrecioMinimo] = useState(priceBounds.min);
+  const [precioMaximo, setPrecioMaximo] = useState(priceBounds.max);
+
+  useEffect(() => {
+    setPrecioMinimo(priceBounds.min);
+    setPrecioMaximo(priceBounds.max);
+  }, [priceBounds.max, priceBounds.min]);
 
   const cambiarCategoria = (categoria: string) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -85,13 +92,8 @@ export default function CategoriasPage() {
       disponibilidadActiva.length === 0 ||
       disponibilidadActiva.includes(producto.disponibilidad);
     const coincidePrecio =
-      rangoActivo.length === 0 ||
-      rangoActivo.some((rango) => {
-        if (rango === "Hasta $200.000") return producto.precioValor <= 200000;
-        if (rango === "$200.000 - $500.000")
-          return producto.precioValor > 200000 && producto.precioValor <= 500000;
-        return producto.precioValor > 500000;
-      });
+      producto.precioValor >= precioMinimo &&
+      producto.precioValor <= precioMaximo;
 
     return (
       coincideBusqueda &&
@@ -238,21 +240,56 @@ export default function CategoriasPage() {
               <h3 className="text-sm font-semibold uppercase tracking-[0.24em] text-[#16384f]">
                 Rango de precio
               </h3>
-              <div className="mt-4 space-y-3">
-                {rangosPrecio.map((item) => (
-                  <label
-                    key={item}
-                    className="flex items-center gap-3 text-sm text-[#5d6167]"
-                  >
+              <div className="mt-5">
+                <div className="flex items-center justify-between gap-3 text-sm font-medium text-[#5d6167]">
+                  <span>Desde {Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", maximumFractionDigits: 0 }).format(precioMinimo)}</span>
+                  <span>Hasta {Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", maximumFractionDigits: 0 }).format(precioMaximo)}</span>
+                </div>
+
+                <div className="mt-5 space-y-4">
+                  <div>
                     <input
-                      type="checkbox"
-                      checked={rangoActivo.includes(item)}
-                      onChange={() => alternar(item, rangoActivo, setRangoActivo)}
-                      className="h-4 w-4 rounded border-slate-300 text-[#ed8435] focus:ring-[#ed8435]"
+                      type="range"
+                      min={priceBounds.min}
+                      max={priceBounds.max}
+                      step={10000}
+                      value={precioMinimo}
+                      onChange={(event) =>
+                        setPrecioMinimo(
+                          Math.min(Number(event.target.value), precioMaximo),
+                        )
+                      }
+                      className="h-2 w-full cursor-pointer appearance-none rounded-full bg-[#d9dde3] accent-[#ed8435]"
                     />
-                    <span>{item}</span>
-                  </label>
-                ))}
+                  </div>
+
+                  <div>
+                    <input
+                      type="range"
+                      min={priceBounds.min}
+                      max={priceBounds.max}
+                      step={10000}
+                      value={precioMaximo}
+                      onChange={(event) =>
+                        setPrecioMaximo(
+                          Math.max(Number(event.target.value), precioMinimo),
+                        )
+                      }
+                      className="h-2 w-full cursor-pointer appearance-none rounded-full bg-[#d9dde3] accent-[#16384f]"
+                    />
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setPrecioMinimo(priceBounds.min);
+                    setPrecioMaximo(priceBounds.max);
+                  }}
+                  className="mt-5 text-sm font-semibold text-[#16384f] transition-colors duration-200 hover:text-[#ed8435]"
+                >
+                  Restablecer rango
+                </button>
               </div>
             </div>
           </aside>

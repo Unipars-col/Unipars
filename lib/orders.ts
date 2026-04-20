@@ -84,7 +84,11 @@ export async function createOrderFromCart(userId: string, input: CheckoutInput) 
     for (const item of cartItems) {
       const product = products.find((entry) => entry.slug === item.productId);
 
-      if (!product || product.stock < item.quantity) {
+      if (!product) {
+        throw new Error("INSUFFICIENT_STOCK");
+      }
+
+      if (product.stock > 0 && product.stock < item.quantity) {
         throw new Error("INSUFFICIENT_STOCK");
       }
     }
@@ -132,26 +136,29 @@ export async function createOrderFromCart(userId: string, input: CheckoutInput) 
         continue;
       }
 
-      const nextStock = product.stock - item.quantity;
+      const deductedQuantity = Math.min(product.stock, item.quantity);
+      const nextStock = Math.max(product.stock - item.quantity, 0);
 
       await tx.product.update({
         where: { id: product.id },
         data: {
           stock: nextStock,
           availability:
-            nextStock <= 0
-              ? "Agotado"
-              : nextStock <= product.minimumStock
+            nextStock <= product.minimumStock
                 ? "Disponible por pedido"
                 : "Entrega inmediata",
-          inventoryMovements: {
-            create: {
-              type: "ORDER_DEDUCTION",
-              quantity: -item.quantity,
-              stockAfter: nextStock,
-              note: `Descuento automático por pedido ${createdOrder.id}`,
-            },
-          },
+          ...(deductedQuantity > 0
+            ? {
+                inventoryMovements: {
+                  create: {
+                    type: "ORDER_DEDUCTION",
+                    quantity: -deductedQuantity,
+                    stockAfter: nextStock,
+                    note: `Descuento automático por pedido ${createdOrder.id}`,
+                  },
+                },
+              }
+            : {}),
         },
       });
     }
