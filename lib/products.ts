@@ -33,6 +33,7 @@ type ProductRecord = {
   application?: string | null;
   compatibility?: string[] | null;
   warranty?: string | null;
+  technicalSheetUrl?: string | null;
   technicalSpecs?: unknown;
   featured: boolean;
 };
@@ -72,6 +73,7 @@ export type ProductMutationInput = {
   aplicacion?: string;
   compatibilidad?: string[];
   garantia?: string;
+  fichaTecnicaUrl?: string;
   especificacionesTecnicas?: ProductoEspecificacion[];
 };
 
@@ -241,6 +243,7 @@ function toStoreProduct(product: ProductRecord): StoreProduct {
       `Aplicación recomendada para la línea ${categoria}.`,
     compatibilidad: normalizeTextList(product.compatibility || []),
     garantia: product.warranty?.trim() || "1 año de garantía del fabricante",
+    fichaTecnicaUrl: product.technicalSheetUrl || undefined,
     especificacionesTecnicas: normalizeTechnicalSpecs(product.technicalSpecs, {
       categoria,
       marca: product.brand,
@@ -397,6 +400,7 @@ export async function createProduct(input: ProductMutationInput) {
         set: normalizeTextList(input.compatibilidad || []),
       },
       warranty: input.garantia?.trim() || "1 año de garantía del fabricante",
+      technicalSheetUrl: input.fichaTecnicaUrl?.trim() || null,
       technicalSpecs: normalizeTechnicalSpecs(input.especificacionesTecnicas),
       featured: false,
       active: true,
@@ -513,6 +517,7 @@ export async function updateProduct(slug: string, input: ProductMutationInput) {
         set: normalizeTextList(input.compatibilidad || []),
       },
       warranty: input.garantia?.trim() || "1 año de garantía del fabricante",
+      technicalSheetUrl: input.fichaTecnicaUrl?.trim() || null,
       technicalSpecs: normalizeTechnicalSpecs(input.especificacionesTecnicas),
       inventoryMovements:
         stockDelta !== 0

@@ -31,6 +31,7 @@ export type AdminProductInput = {
   aplicacion?: string;
   compatibilidad?: string[];
   garantia?: string;
+  fichaTecnicaUrl?: string;
   especificacionesTecnicas?: ProductoEspecificacion[];
 };
 

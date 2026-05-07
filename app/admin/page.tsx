@@ -613,6 +613,8 @@ export default function AdminPage() {
   >("all");
   const [form, setForm] = useState<FormState>(initialState);
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [selectedPdf, setSelectedPdf] = useState<File | null>(null);
+  const [existingPdfUrl, setExistingPdfUrl] = useState<string | null>(null);
   const [technicalSpecs, setTechnicalSpecs] = useState<TechnicalSpecFormItem[]>([
     createTechnicalSpecItem({ etiqueta: "Observaciones" }),
   ]);
@@ -847,6 +849,18 @@ export default function AdminPage() {
       );
     };
 
+  const uploadPdf = async (file: File, productName: string) => {
+    const uploadData = new FormData();
+    uploadData.append("file", file);
+    uploadData.append("productName", productName);
+    const res = await fetch("/api/uploads", { method: "POST", body: uploadData });
+    const payload = (await res.json()) as { error?: string; publicUrl?: string };
+    if (!res.ok || !payload.publicUrl) {
+      throw new Error(payload.error || "No fue posible subir la ficha técnica.");
+    }
+    return payload.publicUrl;
+  };
+
   const uploadProductImage = async (file: File, productName: string) => {
     const uploadData = new FormData();
     uploadData.append("file", file);
@@ -891,10 +905,15 @@ export default function AdminPage() {
     let imageUrl =
       adminProducts.find((product) => product.slug === editingSlug)?.imagen ||
       "/hero-unipars.jpg";
+    let fichaTecnicaUrl = existingPdfUrl || undefined;
 
     try {
       if (selectedImage) {
         imageUrl = await uploadProductImage(selectedImage, form.nombre);
+      }
+
+      if (selectedPdf) {
+        fichaTecnicaUrl = await uploadPdf(selectedPdf, form.nombre);
       }
 
       const currentExtraImages =
@@ -950,6 +969,7 @@ export default function AdminPage() {
         aplicacion: form.aplicacion,
         compatibilidad: splitCommaSeparatedValues(form.compatibilidad),
         garantia: form.garantia,
+        fichaTecnicaUrl,
         especificacionesTecnicas: normalizeTechnicalSpecFormItems(technicalSpecs),
       };
       const result = editingSlug
@@ -969,6 +989,8 @@ export default function AdminPage() {
 
       setForm(initialState);
       setSelectedImage(null);
+      setSelectedPdf(null);
+      setExistingPdfUrl(null);
       setTechnicalSpecs([createTechnicalSpecItem({ etiqueta: "Observaciones" })]);
       setSelectedExtraImages(Array.from({ length: EXTRA_IMAGE_SLOTS }, () => null));
       setPrimaryImageIndex(0);
@@ -1020,6 +1042,8 @@ export default function AdminPage() {
       garantia: product.garantia || initialState.garantia,
       descripcion: product.descripcion || "",
     });
+    setExistingPdfUrl(product.fichaTecnicaUrl || null);
+    setSelectedPdf(null);
     setTechnicalSpecs(
       (product.especificacionesTecnicas || []).length > 0
         ? (product.especificacionesTecnicas || []).map((item) =>
@@ -1502,28 +1526,6 @@ export default function AdminPage() {
                 </label>
 
                 <label className="space-y-2">
-                  <span className="text-sm font-medium text-[#4f545a]">Referencia OEM</span>
-                  <input
-                    name="oemReferencia"
-                    value={form.oemReferencia}
-                    onChange={handleChange}
-                    placeholder="Ej. OEM-45892"
-                    className="w-full rounded-2xl border border-black/10 bg-[#fafaf9] px-4 py-3 text-sm text-[#1f2328] outline-none transition-colors duration-200 focus:border-[#ed8435]"
-                  />
-                </label>
-
-                <label className="space-y-2">
-                  <span className="text-sm font-medium text-[#4f545a]">Referencias alternas</span>
-                  <input
-                    name="referenciasAlternas"
-                    value={form.referenciasAlternas}
-                    onChange={handleChange}
-                    placeholder="Separadas por coma"
-                    className="w-full rounded-2xl border border-black/10 bg-[#fafaf9] px-4 py-3 text-sm text-[#1f2328] outline-none transition-colors duration-200 focus:border-[#ed8435]"
-                  />
-                </label>
-
-                <label className="space-y-2">
                   <span className="text-sm font-medium text-[#4f545a]">Precio actual</span>
                   <input
                     name="precioValor"
@@ -1695,6 +1697,28 @@ export default function AdminPage() {
                     ))}
                   </select>
                 </label>
+              </div>
+
+              <div className="mt-6 space-y-2">
+                <span className="text-sm font-medium text-[#4f545a]">Ficha técnica (PDF)</span>
+                <label className="flex cursor-pointer items-center gap-3 rounded-2xl border border-dashed border-black/15 bg-[#fafaf9] px-4 py-3 transition-colors hover:border-[#ed8435]/50">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ed8435" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+                  <span className="text-sm text-[#4f545a]">
+                    {selectedPdf ? selectedPdf.name : "Sube acá tu ficha técnica"}
+                  </span>
+                  <input
+                    key={`pdf-${fileInputKey}`}
+                    type="file"
+                    accept="application/pdf"
+                    className="hidden"
+                    onChange={(e) => setSelectedPdf(e.target.files?.[0] ?? null)}
+                  />
+                </label>
+                {existingPdfUrl && !selectedPdf && (
+                  <a href={existingPdfUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs text-[#ed8435] underline">
+                    Ver ficha técnica actual
+                  </a>
+                )}
               </div>
 
               <div className="mt-8 flex flex-wrap gap-3">
@@ -1978,28 +2002,6 @@ export default function AdminPage() {
                     </label>
 
                     <label className="space-y-2">
-                      <span className="text-sm font-medium text-[#4f545a]">Referencia OEM</span>
-                      <input
-                        name="oemReferencia"
-                        value={form.oemReferencia}
-                        onChange={handleChange}
-                        placeholder="Ej. OEM-45892"
-                        className="w-full rounded-2xl border border-black/10 bg-[#fafaf9] px-4 py-3 text-sm text-[#1f2328] outline-none transition-colors duration-200 focus:border-[#ed8435]"
-                      />
-                    </label>
-
-                    <label className="space-y-2">
-                      <span className="text-sm font-medium text-[#4f545a]">Referencias alternas</span>
-                      <input
-                        name="referenciasAlternas"
-                        value={form.referenciasAlternas}
-                        onChange={handleChange}
-                        placeholder="Separadas por coma"
-                        className="w-full rounded-2xl border border-black/10 bg-[#fafaf9] px-4 py-3 text-sm text-[#1f2328] outline-none transition-colors duration-200 focus:border-[#ed8435]"
-                      />
-                    </label>
-
-                    <label className="space-y-2">
                       <span className="text-sm font-medium text-[#4f545a]">Precio actual</span>
                       <input
                         name="precioValor"
@@ -2167,6 +2169,28 @@ export default function AdminPage() {
                         ))}
                       </select>
                     </label>
+                  </div>
+
+                  <div className="mt-6 space-y-2">
+                    <span className="text-sm font-medium text-[#4f545a]">Ficha técnica (PDF)</span>
+                    <label className="flex cursor-pointer items-center gap-3 rounded-2xl border border-dashed border-black/15 bg-[#fafaf9] px-4 py-3 transition-colors hover:border-[#ed8435]/50">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ed8435" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+                      <span className="text-sm text-[#4f545a]">
+                        {selectedPdf ? selectedPdf.name : "Sube acá tu ficha técnica"}
+                      </span>
+                      <input
+                        key={`pdf-edit-${fileInputKey}`}
+                        type="file"
+                        accept="application/pdf"
+                        className="hidden"
+                        onChange={(e) => setSelectedPdf(e.target.files?.[0] ?? null)}
+                      />
+                    </label>
+                    {existingPdfUrl && !selectedPdf && (
+                      <a href={existingPdfUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs text-[#ed8435] underline">
+                        Ver ficha técnica actual
+                      </a>
+                    )}
                   </div>
 
                   <div className="mt-8 flex flex-wrap gap-3">

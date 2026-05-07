@@ -3,7 +3,9 @@ import { slugify } from "@/app/data/catalog";
 import { requireAdminUser } from "@/lib/admin";
 
 const MAX_FILE_SIZE_BYTES = 3 * 1024 * 1024;
+const MAX_PDF_SIZE_BYTES = 10 * 1024 * 1024;
 const ALLOWED_FILE_TYPES = ["image/jpeg", "image/png", "image/webp"];
+const ALLOWED_PDF_TYPES = ["application/pdf"];
 
 function getFileExtension(fileName: string) {
   const cleanName = fileName.toLowerCase();
@@ -31,26 +33,30 @@ export async function POST(request: Request) {
     const productName = String(formData.get("productName") || "producto");
 
     if (!(file instanceof File)) {
-      return Response.json({ error: "Debes seleccionar una imagen." }, { status: 400 });
+      return Response.json({ error: "Debes seleccionar un archivo." }, { status: 400 });
     }
 
-    if (!ALLOWED_FILE_TYPES.includes(file.type)) {
+    const isPdf = ALLOWED_PDF_TYPES.includes(file.type);
+
+    if (!isPdf && !ALLOWED_FILE_TYPES.includes(file.type)) {
       return Response.json(
-        { error: "La imagen debe estar en formato JPG, PNG o WEBP." },
+        { error: "El archivo debe estar en formato JPG, PNG, WEBP o PDF." },
         { status: 400 },
       );
     }
 
-    if (file.size > MAX_FILE_SIZE_BYTES) {
+    const maxSize = isPdf ? MAX_PDF_SIZE_BYTES : MAX_FILE_SIZE_BYTES;
+    if (file.size > maxSize) {
       return Response.json(
-        { error: "La imagen supera el límite de 3 MB." },
+        { error: isPdf ? "El PDF supera el límite de 10 MB." : "La imagen supera el límite de 3 MB." },
         { status: 400 },
       );
     }
 
     const bucket = getStorageBucket();
     const extension = getFileExtension(file.name);
-    const filePath = `products/${Date.now()}-${slugify(productName)}.${extension}`;
+    const folder = isPdf ? "fichas-tecnicas" : "products";
+    const filePath = `${folder}/${Date.now()}-${slugify(productName)}.${extension}`;
 
     const { error: uploadError } = await supabase.storage
       .from(bucket)
