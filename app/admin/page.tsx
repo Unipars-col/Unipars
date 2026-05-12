@@ -9,7 +9,7 @@ import {
   type FormEvent,
 } from "react";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useProducts } from "../components/products-provider";
 import { categorias, type Categoria, type ProductoCatalogo } from "../data/catalog";
 import type { ProductoEspecificacion } from "../data/catalog";
@@ -592,6 +592,7 @@ function splitCommaSeparatedValues(value: string) {
 
 export default function AdminPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const {
     adminProducts,
     createProduct,
@@ -601,7 +602,7 @@ export default function AdminPage() {
   } = useProducts();
   const [activeTab, setActiveTab] = useState<
     "create" | "edit" | "inventory" | "orders" | null
-  >(null);
+  >(searchParams.get("view") === "create" ? "create" : null);
   const [editSearch, setEditSearch] = useState("");
   const [editCategoryFilter, setEditCategoryFilter] = useState<"Todas" | Categoria>("Todas");
   const [inventoryStatusFilter, setInventoryStatusFilter] = useState<
@@ -805,9 +806,12 @@ export default function AdminPage() {
 
   useEffect(() => {
     if (!isCheckingSession && !isAuthenticated) {
-      router.replace("/login?next=/admin");
+      const adminPath =
+        searchParams.get("view") === "create" ? "/admin?view=create" : "/admin";
+
+      router.replace(`/login?next=${encodeURIComponent(adminPath)}`);
     }
-  }, [isAuthenticated, isCheckingSession, router]);
+  }, [isAuthenticated, isCheckingSession, router, searchParams]);
 
   const handleChange = (
     event: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>,
