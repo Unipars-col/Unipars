@@ -67,7 +67,6 @@ export default function LoginPage() {
   const [form, setForm] = useState<LoginFormState>(initialState);
   const [adminPin, setAdminPin] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isProviderSubmitting, setIsProviderSubmitting] = useState(false);
   const [toast, setToast] = useState<ToastState>(null);
   const [inlineError, setInlineError] = useState("");
   const [showAdminPinModal, setShowAdminPinModal] = useState(false);
@@ -134,7 +133,7 @@ export default function LoginPage() {
   const completeLogin = async (payload: {
     message?: string;
     user?: { id: string; role: "CUSTOMER" | "ADMIN" };
-  }, options?: { adminPath?: string }) => {
+  }) => {
     setIsEnteringAccount(true);
     setForm(initialState);
     setAdminPin("");
@@ -150,9 +149,7 @@ export default function LoginPage() {
     const userId = payload.user?.id;
     const nextPath =
       payload.user?.role === "ADMIN"
-        ? requestedPath?.startsWith("/admin")
-          ? requestedPath
-          : options?.adminPath || "/admin"
+        ? "/admin"
         : requestedPath === "/admin"
           ? "/mi-cuenta"
           : requestedPath || "/mi-cuenta";
@@ -214,35 +211,6 @@ export default function LoginPage() {
     }
 
     await completeLogin(payload);
-  };
-
-  const handleProviderLogin = async () => {
-    setInlineError("");
-    setToast(null);
-    setInvalidFields([]);
-    setIsProviderSubmitting(true);
-
-    const response = await fetch("/api/auth/provider-login", {
-      method: "POST",
-    });
-
-    const payload = (await response.json()) as {
-      error?: string;
-      message?: string;
-      user?: { id: string; role: "CUSTOMER" | "ADMIN" };
-    };
-
-    setIsProviderSubmitting(false);
-
-    if (!response.ok) {
-      const message = payload.error || "No fue posible iniciar sesión como proveedor.";
-      setInlineError(message);
-      triggerLogoError();
-      setToast({ tone: "error", message });
-      return;
-    }
-
-    await completeLogin(payload, { adminPath: "/admin?view=create" });
   };
 
   const handleAdminPinSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -452,19 +420,10 @@ export default function LoginPage() {
 
           <button
             type="submit"
-            disabled={isSubmitting || isProviderSubmitting}
+            disabled={isSubmitting}
             className="w-full rounded-xl bg-[#ed8435] px-4 py-3 font-semibold text-white transition-colors duration-200 hover:bg-[#d67024] disabled:cursor-not-allowed disabled:opacity-70"
           >
             {isSubmitting ? "Ingresando..." : "Iniciar sesión"}
-          </button>
-
-          <button
-            type="button"
-            onClick={handleProviderLogin}
-            disabled={isSubmitting || isProviderSubmitting}
-            className="w-full rounded-xl border border-[#16384f]/20 px-4 py-3 text-center font-semibold text-[#16384f] transition-colors duration-200 hover:border-[#ed8435] hover:bg-[#fff6ee] hover:text-[#d67024] disabled:cursor-not-allowed disabled:opacity-70"
-          >
-            {isProviderSubmitting ? "Entrando..." : "Inicio de sesión de proveedor"}
           </button>
         </form>
 
