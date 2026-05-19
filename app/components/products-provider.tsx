@@ -71,6 +71,7 @@ export function ProductsProvider({
     createProduct: async (input) => {
       const response = await fetch("/api/products", {
         method: "POST",
+        credentials: "include",
         headers: {
           "Content-Type": "application/json",
         },
@@ -87,9 +88,11 @@ export function ProductsProvider({
         return {
           ok: false,
           message:
-            payload.details && payload.error
-              ? `${payload.error} ${payload.details}`
-              : payload.error || "No fue posible guardar el producto.",
+            response.status === 401
+              ? "Tu sesión de administrador se venció. Ingresa de nuevo para crear productos."
+              : payload.details && payload.error
+                ? `${payload.error} ${payload.details}`
+                : payload.error || "No fue posible guardar el producto.",
         };
       }
 
@@ -100,6 +103,7 @@ export function ProductsProvider({
     updateProduct: async (slug, input) => {
       const response = await fetch(`/api/products/${slug}`, {
         method: "PATCH",
+        credentials: "include",
         headers: {
           "Content-Type": "application/json",
         },
@@ -116,9 +120,11 @@ export function ProductsProvider({
         return {
           ok: false,
           message:
-            payload.details && payload.error
-              ? `${payload.error} ${payload.details}`
-              : payload.error || "No fue posible actualizar el producto.",
+            response.status === 401
+              ? "Tu sesión de administrador se venció. Ingresa de nuevo para editar productos."
+              : payload.details && payload.error
+                ? `${payload.error} ${payload.details}`
+                : payload.error || "No fue posible actualizar el producto.",
         };
       }
 
@@ -133,13 +139,17 @@ export function ProductsProvider({
     removeProduct: async (slug) => {
       const response = await fetch(`/api/products/${slug}`, {
         method: "DELETE",
+        credentials: "include",
       });
 
       if (!response.ok) {
         const payload = (await response.json()) as { error?: string };
         return {
           ok: false,
-          message: payload.error || "No fue posible eliminar el producto.",
+          message:
+            response.status === 401
+              ? "Tu sesión de administrador se venció. Ingresa de nuevo para eliminar productos."
+              : payload.error || "No fue posible eliminar el producto.",
         };
       }
 
@@ -150,6 +160,7 @@ export function ProductsProvider({
     adjustInventory: async (slug, quantity, note) => {
       const response = await fetch(`/api/inventory/${slug}`, {
         method: "PATCH",
+        credentials: "include",
         headers: {
           "Content-Type": "application/json",
         },
@@ -164,7 +175,10 @@ export function ProductsProvider({
       if (!response.ok || !payload.product) {
         return {
           ok: false,
-          message: payload.error || "No fue posible ajustar el inventario.",
+          message:
+            response.status === 401
+              ? "Tu sesión de administrador se venció. Ingresa de nuevo para ajustar inventario."
+              : payload.error || "No fue posible ajustar el inventario.",
         };
       }
 

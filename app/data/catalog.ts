@@ -73,6 +73,13 @@ export const categoriasData: readonly CategoriaMeta[] = [
     bannerCopy: "Soluciones en cauchos y sellos para reposición, mantenimiento y trabajo industrial.",
   },
   {
+    nombre: "Adhesivos y sellantes",
+    color: "#ed8435",
+    icono: "⬢",
+    bannerCopy:
+      "Adhesivos, siliconas y sellantes para fijación, reparación y protección en mantenimiento automotor.",
+  },
+  {
     nombre: "Línea eléctrica",
     color: "#45b86a",
     icono: "◈",

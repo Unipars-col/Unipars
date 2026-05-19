@@ -9,7 +9,7 @@ const slides = [
     title: "Encuentra el repuesto que necesitas sin saber su nombre",
     description:
       "Busca por placa, modelo o referencia y compara opciones confiables en segundos.",
-    image: "/hero-banner-1.jpg",
+    image: "/hero-banner-transmilenio.jpg",
   },
   {
     id: 2,

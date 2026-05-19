@@ -1,7 +1,14 @@
 "use client";
 
 import Image from "next/image";
-import { useMemo, useRef, useState, type FormEvent, type PointerEvent } from "react";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type FormEvent,
+  type PointerEvent,
+} from "react";
 import { useRouter } from "next/navigation";
 import { categoriasData, slugCategoria, type Categoria } from "../data/catalog";
 
@@ -63,6 +70,14 @@ const diagnosticRules: DiagnosticRule[] = [
     suggestions: ["Sellos", "Empaques", "Cauchos técnicos"],
   },
   {
+    keywords: ["adhesivo", "pegante", "sellante", "silicona", "pegamento", "fuga"],
+    category: "Adhesivos y sellantes",
+    title: "La solución va por adhesivos y sellantes",
+    reply:
+      "Si necesitas fijar, sellar una unión, controlar una fuga o hacer una reparación rápida, entra por Adhesivos y sellantes para revisar productos de fijación y protección.",
+    suggestions: ["Siliconas", "Sellantes", "Pegantes técnicos"],
+  },
+  {
     keywords: ["cable", "electrico", "electrico", "corriente", "sensor", "conector"],
     category: "Línea eléctrica",
     title: "La búsqueda va por línea eléctrica",
@@ -88,13 +103,6 @@ const diagnosticRules: DiagnosticRule[] = [
   },
 ];
 
-const quickPrompts = [
-  "Mi bus casi no frena",
-  "No me prenden las luces",
-  "El retrovisor está flojo",
-  "El limpiaparabrisas no barre bien",
-];
-
 const defaultCategory = "Línea neumática" as Categoria;
 const defaultHeroImage = "/category-xray-vista-principal.jpg";
 const defaultXrayImage = "/category-xray-total.jpg";
@@ -108,6 +116,7 @@ const categoryXrayImages: Record<Categoria, string> = {
   "Línea inyección y extrusión": "/category-xray-inyeccion.jpg",
   "Línea mecanizado": "/category-xray-mecanizado.jpg",
   "Línea cauchos": "/category-xray-cauchos.jpg",
+  "Adhesivos y sellantes": "/category-xray-cauchos.jpg",
   "Línea eléctrica": "/category-xray-electrico.jpg",
 };
 
@@ -145,6 +154,7 @@ export default function BusXrayBanner() {
   const [selectedCategory, setSelectedCategory] = useState<Categoria | null>(null);
   const [isLensVisible, setIsLensVisible] = useState(false);
   const [lensPosition, setLensPosition] = useState({ x: 0, y: 0 });
+  const [visualSize, setVisualSize] = useState({ width: 0, height: 0 });
 
   const assistantState = useMemo(
     () => getAssistantState(userMessage),
@@ -165,6 +175,25 @@ export default function BusXrayBanner() {
     ? assistantState.reply
     : activeVisual.bannerCopy ||
       "Entra por esta línea para revisar los repuestos y referencias relacionadas con esa necesidad.";
+
+  useEffect(() => {
+    const element = visualRef.current;
+    if (!element) return;
+
+    const updateVisualSize = () => {
+      setVisualSize({
+        width: element.clientWidth,
+        height: element.clientHeight,
+      });
+    };
+
+    updateVisualSize();
+
+    const observer = new ResizeObserver(updateVisualSize);
+    observer.observe(element);
+
+    return () => observer.disconnect();
+  }, []);
 
   const applyDiagnosis = (message: string) => {
     const diagnosis = getAssistantState(message);
@@ -246,7 +275,7 @@ export default function BusXrayBanner() {
                       top: `${lensPosition.y}px`,
                       backgroundImage: `url(${defaultXrayImage})`,
                       backgroundRepeat: "no-repeat",
-                      backgroundSize: `${visualRef.current?.clientWidth ?? 0}px ${visualRef.current?.clientHeight ?? 0}px`,
+                      backgroundSize: `${visualSize.width}px ${visualSize.height}px`,
                       backgroundPosition: `${-(lensPosition.x - 68)}px ${-(lensPosition.y - 68)}px`,
                     }}
                   />
@@ -326,7 +355,14 @@ export default function BusXrayBanner() {
                             sizes="40px"
                             className="h-6 w-10 object-contain"
                           />
-                        ) : null}
+                        ) : (
+                          <span
+                            className="text-lg leading-none"
+                            style={{ color: category.color }}
+                          >
+                            {category.icono}
+                          </span>
+                        )}
                       </div>
                       <p className="text-[8px] font-semibold leading-[1.15] text-[#3e4349]">
                         {category.nombre}
@@ -410,7 +446,14 @@ export default function BusXrayBanner() {
                           sizes="64px"
                           className="h-9 w-12 object-contain"
                         />
-                      ) : null}
+                      ) : (
+                        <span
+                          className="text-2xl leading-none"
+                          style={{ color: category.color }}
+                        >
+                          {category.icono}
+                        </span>
+                      )}
                     </div>
                     <p className="text-xs font-semibold leading-4 text-[#3e4349]">
                       {category.nombre}

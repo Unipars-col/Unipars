@@ -79,13 +79,20 @@ export default function SiteHeader({ currentUser }: SiteHeaderProps) {
     <header className="sticky top-0 z-50 border-b border-black/8 bg-white text-[#16384f] shadow-[0_12px_30px_rgba(15,23,42,0.05)]">
       <div className="mx-auto max-w-[1600px] px-4 py-4 lg:px-5">
         <div className="flex items-center gap-3">
-          <Link href="/" className="inline-flex shrink-0">
+          <Link
+            href="/"
+            className="inline-flex shrink-0"
+            aria-label="Ir al inicio de Unipars"
+          >
             <Image
               src="/logo.png"
               alt="Unipars"
-              width={128}
-              height={34}
-              style={{ width: "128px", height: "auto" }}
+              width={3212}
+              height={1067}
+              style={{
+                width: "clamp(128px, 12vw, 150px)",
+                height: "auto",
+              }}
               priority
             />
           </Link>

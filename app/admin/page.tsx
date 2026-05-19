@@ -630,7 +630,6 @@ export default function AdminPage() {
   const [isSavingProduct, setIsSavingProduct] = useState(false);
   const [isCheckingSession, setIsCheckingSession] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [adminName, setAdminName] = useState("");
   const [inventoryAdjustments, setInventoryAdjustments] = useState<Record<string, string>>({});
   const [inventoryMovements, setInventoryMovements] = useState<InventoryMovementSummary[]>([]);
   const [isLoadingInventory, setIsLoadingInventory] = useState(false);
@@ -769,11 +768,12 @@ export default function AdminPage() {
 
   useEffect(() => {
     void (async () => {
-      const response = await fetch("/api/account");
+      const response = await fetch("/api/account", {
+        credentials: "include",
+      });
 
       if (!response.ok) {
         setIsAuthenticated(false);
-        setAdminName("");
         setIsCheckingSession(false);
         return;
       }
@@ -784,10 +784,8 @@ export default function AdminPage() {
 
       if (payload.user?.role === "ADMIN") {
         setIsAuthenticated(true);
-        setAdminName(payload.user.fullName);
       } else {
         setIsAuthenticated(false);
-        setAdminName("");
       }
 
       setIsCheckingSession(false);
@@ -853,10 +851,18 @@ export default function AdminPage() {
     const uploadData = new FormData();
     uploadData.append("file", file);
     uploadData.append("productName", productName);
-    const res = await fetch("/api/uploads", { method: "POST", body: uploadData });
+    const res = await fetch("/api/uploads", {
+      method: "POST",
+      body: uploadData,
+      credentials: "include",
+    });
     const payload = (await res.json()) as { error?: string; publicUrl?: string };
     if (!res.ok || !payload.publicUrl) {
-      throw new Error(payload.error || "No fue posible subir la ficha técnica.");
+      throw new Error(
+        res.status === 401
+          ? "Tu sesión de administrador se venció. Ingresa de nuevo para crear productos."
+          : payload.error || "No fue posible subir la ficha técnica.",
+      );
     }
     return payload.publicUrl;
   };
@@ -869,6 +875,7 @@ export default function AdminPage() {
     const uploadResponse = await fetch("/api/uploads", {
       method: "POST",
       body: uploadData,
+      credentials: "include",
     });
 
     const uploadPayload = (await uploadResponse.json()) as {
@@ -878,7 +885,9 @@ export default function AdminPage() {
 
     if (!uploadResponse.ok || !uploadPayload.publicUrl) {
       throw new Error(
-        uploadPayload.error || "No fue posible subir la imagen a Supabase Storage.",
+        uploadResponse.status === 401
+          ? "Tu sesión de administrador se venció. Ingresa de nuevo para crear productos."
+          : uploadPayload.error || "No fue posible subir la imagen a Supabase Storage.",
       );
     }
 
