@@ -43,7 +43,6 @@ export default function QuienesSomosPage() {
         <div className="relative z-20 mx-auto max-w-[1280px] w-full px-6 md:px-10">
           <div className="max-w-[700px]">
             <p className="text-[14px] font-bold uppercase tracking-[0.25em] text-[#ed8435]">
-              ¿QUIÉNES SOMOS?
             </p>
 
             <h1 className="mt-6 text-[45px] font-black leading-[1.05] tracking-[-0.03em] text-[#2f4f68] md:text-[65px] lg:text-[75px]">

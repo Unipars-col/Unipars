@@ -99,7 +99,6 @@ export default function ContactoPage() {
         <div className="relative mx-auto flex min-h-[660px] max-w-[1400px] items-center px-5 py-16 sm:px-6 lg:px-8">
           <div className="max-w-[760px]">
             <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#ed8435]">
-              Contacto Unipars
             </p>
             <h1 className="mt-5 text-4xl font-semibold tracking-[-0.05em] text-[#ed8435] sm:text-5xl lg:text-6xl">
               Contactanos

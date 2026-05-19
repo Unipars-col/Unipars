@@ -83,9 +83,6 @@ export default function HeroCarousel() {
 
             <div className="relative mx-auto flex h-full max-w-[1440px] items-center px-6 py-12 sm:py-16 md:py-20">
               <div className="max-w-2xl">
-                <p className="mb-4 text-sm font-semibold uppercase tracking-[0.35em] text-[#ed8435]">
-                  {slide.eyebrow}
-                </p>
                 <h1 className="mb-5 text-4xl font-bold leading-tight md:text-6xl">
                   {slide.title}
                 </h1>

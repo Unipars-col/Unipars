@@ -27,7 +27,6 @@ export default function ServicioDeReparacionPage() {
         <div className="relative mx-auto max-w-[1440px] px-5 pb-12 pt-12 sm:px-6 sm:pb-14 sm:pt-14 lg:px-8 lg:pb-14 lg:pt-16">
           <div className="mx-auto max-w-[430px] text-left lg:ml-[8%] lg:max-w-[620px]">
             <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-[#ed8435] sm:text-xs">
-              Soporte especializado
             </p>
             <h1 className="mt-3 text-[3.2rem] font-semibold leading-[0.96] tracking-[-0.06em] text-[#ed8435] sm:mt-4 sm:text-5xl lg:max-w-[12ch] lg:text-[4rem] lg:leading-[0.94]">
               Servicio de reparacion

@@ -151,7 +151,6 @@ export default function MediaShowcase({ items }: MediaShowcaseProps) {
         <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-3xl">
             <p className="text-xs font-semibold uppercase tracking-[0.32em] text-[#ff9a4a]">
-              Tips y videos
             </p>
             <h1 className="mt-4 text-4xl font-semibold leading-[0.92] tracking-[-0.07em] text-white md:text-6xl">
               Contenido vertical para seguir descubriendo
