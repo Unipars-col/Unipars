@@ -5,6 +5,7 @@ import { ProductsProvider } from "./components/products-provider";
 import SiteHeader from "./components/site-header";
 import SupportChat from "./components/support-chat";
 import ScrollToTop from "./components/scroll-to-top";
+import VisualSearchModal from "./components/visual-search-modal";
 import { getProducts } from "@/lib/products";
 import { getSessionFromCookies } from "@/lib/auth";
 import { getUserById } from "@/lib/users";
@@ -47,6 +48,7 @@ export default async function RootLayout({
               }
             />
             {children}
+            <VisualSearchModal />
             <SupportChat />
             <ScrollToTop />
           </CartProvider>

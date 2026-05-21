@@ -71,10 +71,10 @@ const diagnosticRules: DiagnosticRule[] = [
   },
   {
     keywords: ["adhesivo", "pegante", "sellante", "silicona", "pegamento", "fuga"],
-    category: "Adhesivos y sellantes",
-    title: "La solución va por adhesivos y sellantes",
+    category: "Adhesivos, lubricantes y sellantes",
+    title: "La solución va por adhesivos, lubricantes y sellantes",
     reply:
-      "Si necesitas fijar, sellar una unión, controlar una fuga o hacer una reparación rápida, entra por Adhesivos y sellantes para revisar productos de fijación y protección.",
+      "Si necesitas fijar, sellar una unión, controlar una fuga o hacer una reparación rápida, entra por Adhesivos, lubricantes y sellantes para revisar productos de fijación y protección.",
     suggestions: ["Siliconas", "Sellantes", "Pegantes técnicos"],
   },
   {
@@ -116,7 +116,7 @@ const categoryXrayImages: Record<Categoria, string> = {
   "Línea inyección y extrusión": "/category-xray-inyeccion.jpg",
   "Línea mecanizado": "/category-xray-mecanizado.jpg",
   "Línea cauchos": "/category-xray-cauchos.jpg",
-  "Adhesivos y sellantes": "/category-xray-cauchos.jpg",
+  "Adhesivos, lubricantes y sellantes": "/category-xray-cauchos.jpg",
   "Línea eléctrica": "/category-xray-electrico.jpg",
 };
 

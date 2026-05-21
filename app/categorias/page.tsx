@@ -106,7 +106,7 @@ export default function CategoriasPage() {
 
   return (
     <main className="min-h-screen bg-[#f5f5f5] text-[#111]">
-      <section className="px-6 pb-10 pt-6 text-white">
+      <section className="px-6 pb-4 pt-6 text-white">
         <div className="overflow-hidden rounded-[1.9rem] border border-black/8 bg-[#070b14] shadow-[0_26px_70px_rgba(0,0,0,0.16)]">
           <div className="relative aspect-[1920/500] min-h-[252px] overflow-hidden">
             {categoriaVisual.bannerImagen ? (
@@ -122,7 +122,7 @@ export default function CategoriasPage() {
             <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(2,5,11,0.86)_0%,rgba(2,5,11,0.74)_20%,rgba(2,5,11,0.28)_38%,rgba(2,5,11,0.06)_58%,rgba(2,5,11,0)_100%)]" />
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_82%_54%,rgba(255,140,64,0.1),transparent_16%),radial-gradient(circle_at_76%_48%,rgba(255,255,255,0.05),transparent_22%)]" />
             <div className="relative z-10 mx-auto flex h-full max-w-[1680px] items-center">
-              <div className="px-6 py-8 pb-20 md:px-8 lg:px-10">
+              <div className="px-6 py-8 md:px-8 lg:px-10">
                 <div className="max-w-[560px]">
                   <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-[#ffb46c]/72">
                     Catálogo Unipars
@@ -143,31 +143,32 @@ export default function CategoriasPage() {
               </div>
             </div>
 
-            <div className="absolute bottom-4 left-0 right-0 z-20">
-              <div className="mx-auto max-w-[1760px] px-2 sm:px-4 lg:px-6">
-                <div className="scrollbar-hidden flex gap-2 overflow-x-auto px-1">
-                  {categorias.map((categoria) => (
-                    <button
-                      key={categoria}
-                      type="button"
-                      onClick={() => cambiarCategoria(categoria)}
-                      className={`shrink-0 rounded-full border px-4 py-2 text-sm font-medium backdrop-blur-sm transition-all duration-200 ${
-                        categoriaActiva === categoria
-                          ? "border-[#ed8435] bg-[#ed8435] text-white shadow-[0_10px_24px_rgba(237,132,53,0.18)]"
-                          : "border-white/12 bg-[#141b24]/72 text-white/82 hover:border-white/24 hover:bg-[#1a2330]/78 hover:text-white"
-                      }`}
-                    >
-                      {categoria}
-                    </button>
-                  ))}
-                </div>
+          </div>
+
+          <div className="bg-[#070b14] px-4 pb-6 pt-3 sm:px-6">
+            <div className="mx-auto max-w-[1760px]">
+              <div className="flex flex-wrap justify-center gap-2 px-1 pb-1">
+                {categorias.map((categoria) => (
+                  <button
+                    key={categoria}
+                    type="button"
+                    onClick={() => cambiarCategoria(categoria)}
+                    className={`shrink-0 whitespace-nowrap rounded-full border px-4 py-2 text-sm font-medium backdrop-blur-sm transition-all duration-200 ${
+                      categoriaActiva === categoria
+                        ? "border-[#ed8435] bg-[#ed8435] text-white shadow-[0_10px_24px_rgba(237,132,53,0.18)]"
+                        : "border-white/12 bg-[#141b24]/72 text-white/82 hover:border-white/24 hover:bg-[#1a2330]/78 hover:text-white"
+                    }`}
+                  >
+                    {categoria}
+                  </button>
+                ))}
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      <section className="mx-auto max-w-[1680px] px-6 py-16">
+      <section className="mx-auto max-w-[1680px] px-6 pb-16 pt-6">
         <div className="grid gap-8 xl:grid-cols-[300px_minmax(0,1fr)]">
           <aside className="space-y-5">
             <div className="rounded-[1.75rem] border border-black/8 bg-white p-6 shadow-[0_14px_28px_rgba(15,23,42,0.05)]">
@@ -337,7 +338,7 @@ export default function CategoriasPage() {
             <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
               {productosFiltrados.map((producto) => (
                 <article
-                  key={producto.nombre}
+                  key={producto.slug}
                   className="overflow-hidden rounded-[1.75rem] border border-black/8 bg-white shadow-[0_16px_35px_rgba(15,23,42,0.05)] transition-transform duration-300 hover:-translate-y-1"
                 >
                   <div className="relative bg-white">

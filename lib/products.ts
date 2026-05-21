@@ -1,5 +1,6 @@
 import {
   categorias,
+  categoriasLegacy,
   descripcionProducto,
   disponibilidades,
   formatearDescuento,
@@ -192,6 +193,10 @@ function normalizeTechnicalSpecs(
 }
 
 function normalizeCategoria(value: string): Categoria {
+  if (categoriasLegacy[value]) {
+    return categoriasLegacy[value];
+  }
+
   return categorias.includes(value as Categoria)
     ? (value as Categoria)
     : categorias[0];

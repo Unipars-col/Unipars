@@ -73,7 +73,7 @@ export const categoriasData: readonly CategoriaMeta[] = [
     bannerCopy: "Soluciones en cauchos y sellos para reposición, mantenimiento y trabajo industrial.",
   },
   {
-    nombre: "Adhesivos y sellantes",
+    nombre: "Adhesivos, lubricantes y sellantes",
     color: "#ed8435",
     icono: "⬢",
     bannerCopy:
@@ -91,6 +91,9 @@ export const categoriasData: readonly CategoriaMeta[] = [
 
 export type Categoria = (typeof categoriasData)[number]["nombre"];
 export const categorias = categoriasData.map((item) => item.nombre) as Categoria[];
+export const categoriasLegacy: Record<string, Categoria> = {
+  "Adhesivos y sellantes": "Adhesivos, lubricantes y sellantes",
+};
 export const disponibilidades = [
   "Entrega inmediata",
   "Disponible por pedido",
@@ -444,7 +447,11 @@ export const slugCategoria = (categoria: string) =>
     .replace(/(^-|-$)/g, "");
 
 export const categoriaDesdeSlug = (slug: string | null) =>
-  categorias.find((categoria) => slugCategoria(categoria) === slug) ?? null;
+  categorias.find((categoria) => slugCategoria(categoria) === slug) ??
+  Object.entries(categoriasLegacy).find(
+    ([legacyCategoria]) => slugCategoria(legacyCategoria) === slug,
+  )?.[1] ??
+  null;
 
 export const categoriaMeta = (categoria: string) =>
   categoriasData.find((item) => item.nombre === categoria) ?? categoriasData[0];

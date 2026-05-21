@@ -67,6 +67,14 @@ export default function SiteHeader({ currentUser }: SiteHeaderProps) {
     router.push(targetUrl);
   };
 
+  const openVisualSearch = () => {
+    window.dispatchEvent(
+      new CustomEvent("unipars:visual-search-toggle", {
+        detail: { isOpen: true },
+      }),
+    );
+  };
+
   const handleLogout = async () => {
     await fetch("/api/auth/logout", {
       method: "POST",
@@ -116,8 +124,9 @@ export default function SiteHeader({ currentUser }: SiteHeaderProps) {
               >
                 Buscar
               </button>
-              <Link
-                href="/buscar-por-imagen"
+              <button
+                type="button"
+                onClick={openVisualSearch}
                 aria-label="Abrir búsqueda por imagen"
                 className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-[#16384f]/12 bg-white text-[#16384f] transition-colors duration-200 hover:border-[#ed8435] hover:bg-[#fff6ee] hover:text-[#ed8435]"
               >
@@ -134,7 +143,7 @@ export default function SiteHeader({ currentUser }: SiteHeaderProps) {
                   <path d="M14.5 4H9.5L8 6H5a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-3l-1.5-2Z" />
                   <circle cx="12" cy="12" r="3.5" />
                 </svg>
-              </Link>
+              </button>
             </div>
           </form>
         </div>
