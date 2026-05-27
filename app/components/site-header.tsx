@@ -186,6 +186,12 @@ export default function SiteHeader({ currentUser }: SiteHeaderProps) {
           </div>
 
           <Link
+            href="/vender"
+            className="whitespace-nowrap transition-colors duration-200 hover:text-[#ed8435]"
+          >
+            Vender
+          </Link>
+          <Link
             href="/quienes-somos"
             className="whitespace-nowrap transition-colors duration-200 hover:text-[#ed8435]"
           >
