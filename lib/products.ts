@@ -332,6 +332,19 @@ export async function getProducts() {
   }
 }
 
+export async function getVendorProducts(vendorId: string) {
+  if (!prisma) return [];
+  try {
+    const products = await prisma.product.findMany({
+      where: { vendorId },
+      orderBy: [{ createdAt: "desc" }],
+    });
+    return products.map(toStoreProduct);
+  } catch {
+    return [];
+  }
+}
+
 export async function getFeaturedProducts() {
   const products = await getProducts();
   const destacados = products.filter((product) => product.destacado);
@@ -339,7 +352,7 @@ export async function getFeaturedProducts() {
   return (destacados.length > 0 ? destacados : products).slice(0, 4);
 }
 
-export async function createProduct(input: ProductMutationInput) {
+export async function createProduct(input: ProductMutationInput, vendorId?: string) {
   if (!prisma) {
     throw new Error("DATABASE_NOT_CONFIGURED");
   }
@@ -409,6 +422,7 @@ export async function createProduct(input: ProductMutationInput) {
       technicalSpecs: normalizeTechnicalSpecs(input.especificacionesTecnicas),
       featured: false,
       active: true,
+      ...(vendorId ? { vendorId } : {}),
       inventoryMovements: {
         create: {
           type: "CREATED",

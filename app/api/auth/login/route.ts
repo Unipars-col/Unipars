@@ -1,5 +1,6 @@
 import { authenticateUser } from "@/lib/users";
 import { setSessionCookie } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
 
 export async function POST(request: Request) {
   try {
@@ -50,8 +51,18 @@ export async function POST(request: Request) {
       role: user.role,
     });
 
+    let isVendor = false;
+    if (user.role === "CUSTOMER" && prisma) {
+      const solicitud = await prisma.empresaSolicitud.findFirst({
+        where: { userId: user.id, estado: "APROBADA" },
+        select: { id: true },
+      });
+      isVendor = !!solicitud;
+    }
+
     return Response.json({
       user,
+      isVendor,
       message: "Inicio de sesión correcto.",
     });
   } catch (error) {

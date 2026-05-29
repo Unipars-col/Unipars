@@ -1,6 +1,6 @@
 import { getStorageBucket, createSupabaseStorageClient } from "@/lib/supabase-storage";
 import { slugify } from "@/app/data/catalog";
-import { requireAdminUser } from "@/lib/admin";
+import { requireSellerUser } from "@/lib/admin";
 
 const MAX_FILE_SIZE_BYTES = 3 * 1024 * 1024;
 const MAX_PDF_SIZE_BYTES = 10 * 1024 * 1024;
@@ -15,7 +15,7 @@ function getFileExtension(fileName: string) {
 
 export async function POST(request: Request) {
   try {
-    await requireAdminUser();
+    await requireSellerUser();
     const supabase = createSupabaseStorageClient();
 
     if (!supabase) {

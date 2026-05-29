@@ -10,6 +10,7 @@ import { getProducts } from "@/lib/products";
 import { getSessionFromCookies } from "@/lib/auth";
 import { getUserById } from "@/lib/users";
 import { getCartItemsForUser } from "@/lib/cart";
+import { prisma } from "@/lib/prisma";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -27,6 +28,17 @@ export default async function RootLayout({
   const initialCartItems = currentUser
     ? await getCartItemsForUser(currentUser.id)
     : [];
+
+  let isVendor = false;
+  if (currentUser?.role === "CUSTOMER" && prisma) {
+    try {
+      const solicitud = await prisma.empresaSolicitud.findFirst({
+        where: { userId: currentUser.id, estado: "APROBADA" },
+        select: { id: true },
+      });
+      isVendor = !!solicitud;
+    } catch { /* no-op */ }
+  }
   const cartProviderKey = `${currentUser?.id ?? "guest"}:${initialCartItems
     .map((item) => `${item.id}:${item.cantidad}`)
     .join("|")}`;
@@ -46,6 +58,7 @@ export default async function RootLayout({
                   ? { fullName: currentUser.fullName, role: currentUser.role }
                   : null
               }
+              isVendor={isVendor}
             />
             {children}
             <VisualSearchModal />

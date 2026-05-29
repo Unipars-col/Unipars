@@ -10,12 +10,12 @@ import {
 } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useProducts } from "../components/products-provider";
+import { useVendorProducts as useProducts } from "../components/vendor-products-provider";
 import { categorias, type Categoria, type ProductoCatalogo } from "../data/catalog";
 import type { ProductoEspecificacion } from "../data/catalog";
 import type { InventoryMovementSummary } from "@/lib/products";
 import type { ShippingStatus } from "@/lib/orders";
-import type { VendorWithMetrics } from "@/lib/empresas";
+
 
 const disponibilidades: ProductoCatalogo["disponibilidad"][] = [
   "Entrega inmediata",
@@ -601,7 +601,7 @@ export default function AdminPage() {
     adjustInventory,
   } = useProducts();
   const [activeTab, setActiveTab] = useState<
-    "create" | "edit" | "inventory" | "orders" | "vendors" | null
+    "create" | "edit" | "inventory" | "orders" | null
   >(null);
   const [editSearch, setEditSearch] = useState("");
   const [editCategoryFilter, setEditCategoryFilter] = useState<"Todas" | Categoria>("Todas");
@@ -645,11 +645,6 @@ export default function AdminPage() {
     adminNotes: "",
   });
   const [isSavingOrder, setIsSavingOrder] = useState(false);
-  const [vendors, setVendors] = useState<VendorWithMetrics[]>([]);
-  const [isLoadingVendors, setIsLoadingVendors] = useState(false);
-  const [vendorNotes, setVendorNotes] = useState<Record<string, string>>({});
-  const [isSavingVendor, setIsSavingVendor] = useState<string | null>(null);
-  const [vendorExpandedId, setVendorExpandedId] = useState<string | null>(null);
   const editFormRef = useRef<HTMLFormElement | null>(null);
   const editingProduct =
     adminProducts.find((product) => product.slug === editingSlug) ?? null;
@@ -788,7 +783,7 @@ export default function AdminPage() {
         user?: { fullName: string; role: "CUSTOMER" | "ADMIN" };
       };
 
-      if (payload.user?.role === "ADMIN") {
+      if (payload.user?.role === "ADMIN" || payload.user?.role === "CUSTOMER") {
         setIsAuthenticated(true);
       } else {
         setIsAuthenticated(false);
@@ -809,7 +804,7 @@ export default function AdminPage() {
 
   useEffect(() => {
     if (!isCheckingSession && !isAuthenticated) {
-      router.replace("/login?next=/admin");
+      router.replace("/login?next=/proveedor");
     }
   }, [isAuthenticated, isCheckingSession, router]);
 
@@ -1112,7 +1107,7 @@ export default function AdminPage() {
 
   async function loadInventoryMovements() {
     setIsLoadingInventory(true);
-    const response = await fetch("/api/inventory");
+    const response = await fetch("/api/vendor/inventory");
     const payload = (await response.json()) as {
       error?: string;
       movements?: InventoryMovementSummary[];
@@ -1135,7 +1130,7 @@ export default function AdminPage() {
   async function loadOrders() {
     setIsLoadingOrders(true);
 
-    const response = await fetch("/api/orders");
+    const response = await fetch("/api/vendor/orders");
     const payload = (await response.json()) as {
       error?: string;
       orders?: AdminOrder[];
@@ -1218,60 +1213,6 @@ export default function AdminPage() {
     void loadOrders();
   };
 
-  async function loadVendors() {
-    setIsLoadingVendors(true);
-    const response = await fetch("/api/admin/vendors");
-    const payload = (await response.json()) as {
-      error?: string;
-      vendors?: VendorWithMetrics[];
-    };
-    setIsLoadingVendors(false);
-    if (!response.ok || !payload.vendors) {
-      setToast({
-        tone: "error",
-        message: payload.error || "No fue posible cargar los proveedores.",
-      });
-      return;
-    }
-    setVendors(payload.vendors);
-  }
-
-  const openVendorsView = () => {
-    setSelectedImage(null);
-    setRequestError("");
-    setPrimaryImageIndex(0);
-    setEditingSlug(null);
-    setActiveTab("vendors");
-    void loadVendors();
-  };
-
-  const handleVendorEstado = async (
-    id: string,
-    estado: VendorWithMetrics["estado"],
-  ) => {
-    setIsSavingVendor(id);
-    const response = await fetch(`/api/admin/vendors/${id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ estado, adminNotes: vendorNotes[id] }),
-    });
-    const payload = (await response.json()) as { error?: string };
-    setIsSavingVendor(null);
-    if (!response.ok) {
-      setToast({
-        tone: "error",
-        message: payload.error || "No fue posible actualizar el proveedor.",
-      });
-      return;
-    }
-    setVendors((current) =>
-      current.map((v) =>
-        v.id === id ? { ...v, estado, adminNotes: vendorNotes[id] || v.adminNotes } : v,
-      ),
-    );
-    setToast({ tone: "success", message: "Estado del proveedor actualizado." });
-  };
-
   const handleOrderFieldChange = (
     event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
   ) => {
@@ -1288,7 +1229,7 @@ export default function AdminPage() {
     setIsSavingOrder(true);
     setToast(null);
 
-    const response = await fetch(`/api/orders/${selectedOrderId}`, {
+    const response = await fetch(`/api/vendor/orders/${selectedOrderId}`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
@@ -2421,8 +2362,8 @@ export default function AdminPage() {
                                 <p className="text-[13px] font-semibold uppercase tracking-[0.22em] text-[#8b8d91]">
                                   Pedido
                                 </p>
-                                <p className="mt-3 break-words text-[1.42rem] font-semibold leading-tight text-[#1f2328]">
-                                  {order.id}
+                                <p className="mt-3 font-mono text-[1.1rem] font-semibold uppercase leading-tight text-[#1f2328]">
+                                  #{order.id.slice(-8)}
                                 </p>
                                 <p className="mt-3 text-[15px] text-[#5d6167]">
                                   {order.customerName} · {order.city}
@@ -2532,8 +2473,8 @@ export default function AdminPage() {
                             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#8b8d91]">
                               Pedido seleccionado
                             </p>
-                            <h3 className="mt-2 text-3xl font-semibold tracking-[-0.04em] text-[#16384f]">
-                              {selectedOrderPreview.id}
+                            <h3 className="mt-2 font-mono text-2xl font-semibold uppercase tracking-tight text-[#16384f]">
+                              #{selectedOrderPreview.id.slice(-8)}
                             </h3>
                             <p className="mt-3 text-sm leading-7 text-[#6e7379]">
                               {selectedOrderPreview.customerName} · {selectedOrderPreview.customerEmail} · {selectedOrderPreview.customerPhone}
@@ -3068,423 +3009,6 @@ export default function AdminPage() {
                   </div>
                 </div>
               </div>
-            </div>
-          )}
-          {activeTab === "vendors" && (
-            <div className="admin-fade-up space-y-6">
-
-              {/* Stat cards */}
-              {(() => {
-                const counts = {
-                  PENDIENTE: vendors.filter((v) => v.estado === "PENDIENTE").length,
-                  EN_REVISION: vendors.filter((v) => v.estado === "EN_REVISION").length,
-                  APROBADA: vendors.filter((v) => v.estado === "APROBADA").length,
-                  RECHAZADA: vendors.filter((v) => v.estado === "RECHAZADA").length,
-                };
-                const cards = [
-                  { label: "Total", value: vendors.length, color: "#16384f", sub: "solicitudes" },
-                  { label: "Pendientes", value: counts.PENDIENTE, color: "#ed8435", sub: "por revisar" },
-                  { label: "Aprobados", value: counts.APROBADA, color: "#1f8b45", sub: "activos" },
-                  { label: "Rechazados", value: counts.RECHAZADA, color: "#c53b3b", sub: "no aptos" },
-                ];
-                return (
-                  <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-                    {cards.map((card) => (
-                      <div
-                        key={card.label}
-                        className="rounded-[1.5rem] border border-black/8 bg-white px-5 py-5 shadow-[0_8px_20px_rgba(15,23,42,0.04)]"
-                      >
-                        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#8b8d91]">{card.label}</p>
-                        <p className="mt-3 text-4xl font-semibold tracking-[-0.05em]" style={{ color: card.color }}>
-                          {card.value}
-                        </p>
-                        <p className="mt-1 text-xs text-[#6e7379]">{card.sub}</p>
-                      </div>
-                    ))}
-                  </div>
-                );
-              })()}
-
-              {/* Cards por vendor */}
-              {isLoadingVendors ? (
-                <div className="rounded-[2rem] border border-black/8 bg-white px-6 py-16 text-center text-sm text-[#6e7379] shadow-[0_16px_35px_rgba(15,23,42,0.05)]">
-                  Cargando solicitudes...
-                </div>
-              ) : vendors.length === 0 ? (
-                <div className="rounded-[2rem] border border-black/8 bg-white px-6 py-16 text-center text-sm text-[#6e7379] shadow-[0_16px_35px_rgba(15,23,42,0.05)]">
-                  Aún no hay solicitudes de proveedores registradas.
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {vendors.map((vendor) => {
-                    const isSaving = isSavingVendor === vendor.id;
-                    const estadoBadge: Record<string, string> = {
-                      PENDIENTE: "bg-[#fff6ee] text-[#b85d12] border-[#ed8435]/20",
-                      EN_REVISION: "bg-[#f0f0ff] text-[#4338ca] border-[#6366f1]/20",
-                      APROBADA: "bg-[#effaf2] text-[#1f6b39] border-[#1f8b45]/20",
-                      RECHAZADA: "bg-[#fff1f1] text-[#c53b3b] border-[#c53b3b]/20",
-                    };
-                    const estadoLabel: Record<string, string> = {
-                      PENDIENTE: "Pendiente",
-                      EN_REVISION: "En revisión",
-                      APROBADA: "Aprobada",
-                      RECHAZADA: "Rechazada",
-                    };
-                    const isAprobada = vendor.estado === "APROBADA";
-                    const isRechazada = vendor.estado === "RECHAZADA";
-
-                    return (
-                      <div
-                        key={vendor.id}
-                        className={`rounded-[2rem] border bg-white shadow-[0_8px_24px_rgba(15,23,42,0.05)] transition-all duration-200 ${
-                          isAprobada
-                            ? "border-[#1f8b45]/20"
-                            : isRechazada
-                              ? "border-[#c53b3b]/15"
-                              : "border-black/8"
-                        }`}
-                      >
-                        {/* Header de la card */}
-                        <div className="flex flex-wrap items-start justify-between gap-4 px-6 pt-6">
-                          <div className="min-w-0 flex-1">
-                            <div className="flex flex-wrap items-center gap-3">
-                              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#16384f] text-base font-bold text-white">
-                                {vendor.nombreEmpresa.charAt(0).toUpperCase()}
-                              </div>
-                              <div>
-                                <p className="font-semibold text-[#1f2328]">{vendor.nombreEmpresa}</p>
-                                <p className="text-xs text-[#8b8d91]">NIT {vendor.razonSocial}</p>
-                              </div>
-                              <span className={`inline-block rounded-full border px-3 py-1 text-xs font-semibold ${estadoBadge[vendor.estado] ?? ""}`}>
-                                {estadoLabel[vendor.estado] ?? vendor.estado}
-                              </span>
-                            </div>
-                          </div>
-                          <p className="shrink-0 text-xs text-[#8b8d91]">
-                            {new Date(vendor.createdAt).toLocaleDateString("es-CO", {
-                              day: "numeric", month: "short", year: "numeric",
-                            })}
-                          </p>
-                        </div>
-
-                        {/* Info central */}
-                        <div className="mt-4 grid gap-4 px-6 md:grid-cols-3">
-                          <div>
-                            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#8b8d91]">Contacto</p>
-                            <p className="mt-1 text-sm text-[#1f2328]">{vendor.correoEmpresa}</p>
-                            <p className="text-sm text-[#6e7379]">{vendor.telefonoEmpresa}</p>
-                            <p className="text-sm text-[#6e7379]">{vendor.ciudad}</p>
-                          </div>
-                          <div>
-                            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#8b8d91]">Categorías</p>
-                            <div className="mt-1.5 flex flex-wrap gap-1.5">
-                              {vendor.categorias.length > 0 ? vendor.categorias.map((cat) => (
-                                <span key={cat} className="rounded-full border border-black/8 bg-[#fafaf9] px-2.5 py-0.5 text-xs text-[#5d6167]">
-                                  {cat}
-                                </span>
-                              )) : (
-                                <span className="text-sm text-[#8b8d91]">Sin especificar</span>
-                              )}
-                            </div>
-                          </div>
-                          <div>
-                            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#8b8d91]">Métricas</p>
-                            <div className="mt-1 space-y-0.5">
-                              <p className="text-sm text-[#6e7379]">
-                                <span className="font-semibold text-[#1f2328]">{vendor.productCount}</span> productos publicados
-                              </p>
-                              <p className="text-sm text-[#6e7379]">
-                                <span className="font-semibold text-[#1f2328]">{vendor.orderCount}</span> pedidos
-                              </p>
-                              <p className="text-sm text-[#6e7379]">
-                                <span className="font-semibold text-[#1f2328]">{formatCurrency(vendor.totalSales)}</span> en ventas
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Documentos */}
-                        {(() => {
-                          const docs = [
-                            { label: "RUT", url: vendor.urlRut },
-                            { label: "Cámara de Comercio", url: vendor.urlCamaraComercio },
-                            { label: "Doc. Rep. Legal", url: vendor.urlDocRepLegal },
-                            { label: "Cert. Bancaria", url: vendor.urlCertBancaria },
-                            { label: "Logo", url: vendor.urlLogo },
-                            { label: "Catálogo", url: vendor.urlCatalogo },
-                          ].filter((d) => d.url);
-
-                          if (docs.length === 0) return null;
-
-                          return (
-                            <div className="mt-4 px-6">
-                              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#8b8d91]">
-                                Documentos adjuntos
-                              </p>
-                              <div className="mt-2 flex flex-wrap gap-2">
-                                {docs.map((doc) => (
-                                  <a
-                                    key={doc.label}
-                                    href={doc.url!}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="inline-flex items-center gap-2 rounded-full border border-[#16384f]/15 bg-[#f0f4f8] px-4 py-2 text-sm font-semibold text-[#16384f] transition-all duration-200 hover:bg-[#16384f] hover:text-white"
-                                  >
-                                    <svg aria-hidden="true" viewBox="0 0 20 20" className="h-3.5 w-3.5 shrink-0" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                                      <path d="M11 3H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6" />
-                                      <path d="M15 3h2v2" />
-                                      <path d="M10 10 17 3" />
-                                    </svg>
-                                    {doc.label}
-                                  </a>
-                                ))}
-                              </div>
-                            </div>
-                          );
-                        })()}
-
-                        {/* Notas admin */}
-                        <div className="mt-4 px-6">
-                          <textarea
-                            value={vendorNotes[vendor.id] ?? vendor.adminNotes ?? ""}
-                            onChange={(e) =>
-                              setVendorNotes((current) => ({ ...current, [vendor.id]: e.target.value }))
-                            }
-                            placeholder="Notas internas del administrador (razón de aprobación o rechazo, documentos pendientes, etc.)..."
-                            rows={2}
-                            className="w-full rounded-xl border border-black/10 bg-[#fafaf9] px-4 py-3 text-sm text-[#1f2328] outline-none transition-colors duration-200 focus:border-[#16384f] placeholder:text-[#a2a5aa]"
-                          />
-                        </div>
-
-                        {/* Panel expandible de detalle */}
-                        {vendorExpandedId === vendor.id && (() => {
-                          const docLinks = [
-                            { label: "RUT", url: vendor.urlRut },
-                            { label: "Cámara de Comercio", url: vendor.urlCamaraComercio },
-                            { label: "Doc. Representante Legal", url: vendor.urlDocRepLegal },
-                            { label: "Certificación Bancaria", url: vendor.urlCertBancaria },
-                            { label: "Logo", url: vendor.urlLogo },
-                            { label: "Catálogo", url: vendor.urlCatalogo },
-                          ];
-
-                          const Field = ({ label, value }: { label: string; value?: string | null | boolean }) => {
-                            if (value === undefined || value === null || value === "") return null;
-                            const display = typeof value === "boolean" ? (value ? "Sí" : "No") : value;
-                            return (
-                              <div>
-                                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#a2a5aa]">{label}</p>
-                                <p className="mt-0.5 text-sm text-[#1f2328]">{display}</p>
-                              </div>
-                            );
-                          };
-
-                          return (
-                            <div className="mx-6 mb-4 space-y-3 rounded-[1.5rem] border border-black/8 bg-[#fafaf9] p-5">
-
-                              {/* Empresa */}
-                              <div>
-                                <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.22em] text-[#8b8d91]">Empresa</p>
-                                <div className="grid gap-3 md:grid-cols-3">
-                                  <Field label="NIT" value={vendor.nit} />
-                                  <Field label="Ciudad" value={vendor.ciudad} />
-                                  <Field label="Dirección" value={vendor.direccion} />
-                                  <Field label="Teléfono" value={vendor.telefonoEmpresa} />
-                                  <Field label="Correo" value={vendor.correoEmpresa} />
-                                  {vendor.paginaWeb && <Field label="Web" value={vendor.paginaWeb} />}
-                                </div>
-                              </div>
-
-                              <div className="border-t border-black/6" />
-
-                              {/* Representante legal */}
-                              <div>
-                                <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.22em] text-[#8b8d91]">Representante legal</p>
-                                <div className="grid gap-3 md:grid-cols-3">
-                                  <Field label="Nombre" value={vendor.repNombre} />
-                                  <Field label="Cargo" value={vendor.repCargo} />
-                                  <Field label="Celular" value={vendor.repCelular} />
-                                  <Field label="Correo" value={vendor.repCorreo} />
-                                </div>
-                              </div>
-
-                              <div className="border-t border-black/6" />
-
-                              {/* Comercial */}
-                              <div>
-                                <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.22em] text-[#8b8d91]">Información comercial</p>
-                                <div className="grid gap-3 md:grid-cols-3">
-                                  <Field label="Años en el mercado" value={vendor.anosEnMercado} />
-                                  <Field label="Vende online" value={vendor.vendeOnline} />
-                                  {vendor.linkTienda && <Field label="Link tienda" value={vendor.linkTienda} />}
-                                  {vendor.operaEn && <Field label="Opera en" value={vendor.operaEn} />}
-                                  <Field label="Cant. productos" value={vendor.cantidadProductos} />
-                                  <Field label="Tiempo despacho" value={vendor.tiempoDespacho} />
-                                  <Field label="Cobertura envíos" value={vendor.coberturaEnvios} />
-                                  <Field label="Inventario propio" value={vendor.inventarioPropio} />
-                                  <Field label="Precios mayoristas" value={vendor.preciosMayoristas} />
-                                  <Field label="Ofrece garantía" value={vendor.ofreceGarantia} />
-                                </div>
-                                {vendor.descripcion && (
-                                  <div className="mt-3">
-                                    <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#a2a5aa]">Descripción</p>
-                                    <p className="mt-0.5 text-sm leading-6 text-[#1f2328]">{vendor.descripcion}</p>
-                                  </div>
-                                )}
-                              </div>
-
-                              {/* Documentos — siempre visibles */}
-                              <>
-                                <div className="border-t border-black/6" />
-                                <div>
-                                  <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.22em] text-[#8b8d91]">Documentos adjuntos</p>
-                                  <div className="grid gap-3 md:grid-cols-2">
-                                    {docLinks.map((doc) => {
-                                      if (!doc.url) {
-                                        return (
-                                          <div key={doc.label} className="overflow-hidden rounded-[1.1rem] border border-dashed border-black/12 bg-white">
-                                            <div className="flex items-center justify-between gap-3 border-b border-black/6 px-4 py-2.5">
-                                              <p className="text-sm font-semibold text-[#a2a5aa]">{doc.label}</p>
-                                              <span className="rounded-full bg-[#f5f5f4] px-2.5 py-1 text-xs font-medium text-[#a2a5aa]">No subido</span>
-                                            </div>
-                                            <div className="flex h-20 items-center justify-center gap-2 bg-[#fafaf9]">
-                                              <svg aria-hidden="true" viewBox="0 0 24 24" className="h-5 w-5 text-[#c8cacd]" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                                                <path d="M14 2v6h6"/>
-                                              </svg>
-                                              <p className="text-xs text-[#c8cacd]">Pendiente de entrega</p>
-                                            </div>
-                                          </div>
-                                        );
-                                      }
-                                      const url = doc.url;
-                                      const ext = url.split("?")[0].split(".").pop()?.toLowerCase() ?? "";
-                                      const isImage = ["jpg","jpeg","png","webp","gif","svg"].includes(ext);
-                                      const isPdf = ext === "pdf";
-                                      return (
-                                        <div key={doc.label} className="overflow-hidden rounded-[1.1rem] border border-black/8 bg-white">
-                                          <div className="flex items-center justify-between gap-3 border-b border-black/6 px-4 py-2.5">
-                                            <div className="flex items-center gap-2">
-                                              <span className="h-1.5 w-1.5 rounded-full bg-[#1f8b45]" />
-                                              <p className="text-sm font-semibold text-[#1f2328]">{doc.label}</p>
-                                            </div>
-                                            <a
-                                              href={url}
-                                              target="_blank"
-                                              rel="noopener noreferrer"
-                                              className="inline-flex items-center gap-1 rounded-full border border-black/10 px-3 py-1 text-xs font-semibold text-[#16384f] transition-colors hover:bg-[#16384f] hover:text-white"
-                                            >
-                                              Abrir
-                                              <svg aria-hidden="true" viewBox="0 0 12 12" className="h-2.5 w-2.5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                                <path d="M2 2h8v8"/><path d="M2 10 10 2"/>
-                                              </svg>
-                                            </a>
-                                          </div>
-                                          {isImage ? (
-                                            <img src={url} alt={doc.label} className="max-h-48 w-full object-contain bg-[#f8f8f7] p-2" />
-                                          ) : isPdf ? (
-                                            <iframe src={url} title={doc.label} className="h-48 w-full" />
-                                          ) : (
-                                            <div className="flex h-24 flex-col items-center justify-center gap-1.5 bg-[#f8f8f7]">
-                                              <svg aria-hidden="true" viewBox="0 0 32 32" className="h-8 w-8 text-[#16384f]/25" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                                                <path d="M18 3H8a2 2 0 0 0-2 2v22a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V11z"/>
-                                                <path d="M18 3v8h8"/>
-                                              </svg>
-                                              <p className="text-xs text-[#a2a5aa]">Archivo subido · haz clic en Abrir</p>
-                                            </div>
-                                          )}
-                                        </div>
-                                      );
-                                    })}
-                                    </div>
-                                  </div>
-                                </>
-                            </div>
-                          );
-                        })()}
-
-                        {/* Acciones */}
-                        <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-b-[2rem] border-t border-black/6 bg-[#fafaf9] px-6 py-4">
-                          <div className="flex flex-wrap gap-2">
-                            <button
-                              type="button"
-                              onClick={() => setVendorExpandedId(vendorExpandedId === vendor.id ? null : vendor.id)}
-                              className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-white px-4 py-2 text-sm font-semibold text-[#16384f] transition-all duration-200 hover:bg-[#16384f] hover:text-white"
-                            >
-                              <svg
-                                aria-hidden="true"
-                                viewBox="0 0 20 20"
-                                className={`h-3.5 w-3.5 transition-transform duration-200 ${vendorExpandedId === vendor.id ? "rotate-180" : ""}`}
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth="2"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                              >
-                                <path d="M5 7.5l5 5 5-5" />
-                              </svg>
-                              {vendorExpandedId === vendor.id ? "Ocultar detalle" : "Ver detalle"}
-                            </button>
-                            {vendor.estado !== "EN_REVISION" && (
-                              <button
-                                type="button"
-                                disabled={isSaving}
-                                onClick={() => void handleVendorEstado(vendor.id, "EN_REVISION")}
-                                className="inline-flex items-center gap-2 rounded-full border border-[#6366f1]/20 bg-[#f0f0ff] px-4 py-2 text-sm font-semibold text-[#4338ca] transition-all duration-200 hover:bg-[#e0e0ff] disabled:opacity-50"
-                              >
-                                Poner en revisión
-                              </button>
-                            )}
-                            {vendor.estado !== "PENDIENTE" && (
-                              <button
-                                type="button"
-                                disabled={isSaving}
-                                onClick={() => void handleVendorEstado(vendor.id, "PENDIENTE")}
-                                className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-white px-4 py-2 text-sm font-semibold text-[#5d6167] transition-all duration-200 hover:bg-[#f8f8f7] disabled:opacity-50"
-                              >
-                                Marcar pendiente
-                              </button>
-                            )}
-                          </div>
-
-                          <div className="flex gap-3">
-                            <button
-                              type="button"
-                              disabled={isSaving || isRechazada}
-                              onClick={() => void handleVendorEstado(vendor.id, "RECHAZADA")}
-                              className={`inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition-all duration-200 disabled:opacity-40 ${
-                                isRechazada
-                                  ? "bg-[#fff1f1] text-[#c53b3b] cursor-default"
-                                  : "border border-[#c53b3b]/20 bg-[#fff1f1] text-[#c53b3b] hover:bg-[#ffe0e0]"
-                              }`}
-                            >
-                              <svg aria-hidden="true" viewBox="0 0 20 20" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                <path d="M5 5l10 10M15 5 5 15" />
-                              </svg>
-                              {isRechazada ? "Rechazada" : "Rechazar"}
-                            </button>
-
-                            <button
-                              type="button"
-                              disabled={isSaving || isAprobada}
-                              onClick={() => void handleVendorEstado(vendor.id, "APROBADA")}
-                              className={`inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition-all duration-200 disabled:opacity-40 ${
-                                isAprobada
-                                  ? "bg-[#1f8b45] text-white cursor-default shadow-[0_8px_20px_rgba(31,139,69,0.3)]"
-                                  : "bg-[#1f8b45] text-white hover:bg-[#176b35] shadow-[0_8px_20px_rgba(31,139,69,0.2)] hover:shadow-[0_8px_24px_rgba(31,139,69,0.35)]"
-                              }`}
-                            >
-                              <svg aria-hidden="true" viewBox="0 0 20 20" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                                <path d="M4 10.5 8 14.5l8-9" />
-                              </svg>
-                              {isAprobada ? "Aprobada" : "Aprobar"}
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
             </div>
           )}
           </div>

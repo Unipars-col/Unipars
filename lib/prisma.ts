@@ -14,7 +14,8 @@ function hasExpectedDelegates(client: PrismaClient | null) {
     "cartItem" in client &&
     "order" in client &&
     "orderItem" in client &&
-    "inventoryMovement" in client
+    "inventoryMovement" in client &&
+    "empresaSolicitud" in client
   );
 }
 

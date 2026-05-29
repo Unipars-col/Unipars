@@ -13,6 +13,8 @@ import { useProducts } from "../components/products-provider";
 import { categorias, type Categoria, type ProductoCatalogo } from "../data/catalog";
 import type { ProductoEspecificacion } from "../data/catalog";
 
+type AuthGate = "loading" | "unauthenticated" | "no-company" | "vendor" | "ok";
+
 type SearchMode = "keyword" | "photo" | "code";
 type ProductFormState = {
   sku: string;
@@ -144,8 +146,26 @@ export default function SellFlow() {
   const [requestError, setRequestError] = useState("");
   const [saved, setSaved] = useState(false);
   const [isSavingProduct, setIsSavingProduct] = useState(false);
+  const [authGate, setAuthGate] = useState<AuthGate>("loading");
   const router = useRouter();
   const { createProduct } = useProducts();
+
+  useEffect(() => {
+    fetch("/api/account", { credentials: "include" })
+      .then((res) => res.json())
+      .then((data: { user?: { company?: string | null; role?: string }; isVendor?: boolean; error?: string }) => {
+        if (!data.user) {
+          setAuthGate("unauthenticated");
+        } else if (data.user.role === "ADMIN" || data.isVendor) {
+          setAuthGate("vendor");
+        } else if (!data.user.company?.trim()) {
+          setAuthGate("no-company");
+        } else {
+          setAuthGate("ok");
+        }
+      })
+      .catch(() => setAuthGate("unauthenticated"));
+  }, []);
 
   const previewImageUrl = useMemo(() => {
     if (selectedImage) {
@@ -281,7 +301,7 @@ export default function SellFlow() {
     if (!response.ok || !payload.publicUrl) {
       throw new Error(
         response.status === 401
-          ? "Tu sesion de administrador se vencio. Ingresa de nuevo para crear productos."
+          ? "Tu sesion se vencio. Ingresa de nuevo para crear productos."
           : payload.error || "No fue posible subir el archivo.",
       );
     }
@@ -380,6 +400,129 @@ export default function SellFlow() {
       );
     }
   };
+
+  if (authGate === "loading") {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-[#f8f8f7]">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#16384f] border-t-transparent" />
+      </main>
+    );
+  }
+
+  if (authGate === "unauthenticated") {
+    return (
+      <main className="min-h-screen bg-[#f8f8f7] text-[#16384f]">
+        <section className="bg-[#16384f] px-5 pb-24 pt-16 text-white sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-[760px]">
+            <h1 className="text-3xl font-semibold leading-tight tracking-[-0.02em] sm:text-4xl">
+              Primero necesitas una cuenta
+            </h1>
+          </div>
+        </section>
+
+        <section className="-mt-10 px-5 pb-28 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-[520px] rounded-2xl border border-black/10 bg-white p-8 shadow-[0_4px_20px_rgba(15,23,42,0.08)]">
+            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[#16384f]/10">
+              <Icon name="box" className="h-7 w-7 text-[#16384f]" />
+            </div>
+            <h2 className="mt-5 text-xl font-semibold text-[#16384f]">
+              Crea tu cuenta de empresa
+            </h2>
+            <p className="mt-3 text-sm leading-6 text-[#555]">
+              Para vender en Unipars necesitas registrarte con tu empresa. Es gratis y solo toma unos minutos.
+            </p>
+            <div className="mt-6 flex flex-col gap-3">
+              <a
+                href="/registro-empresa"
+                className="inline-flex w-full items-center justify-center rounded-full bg-[#ed8435] px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#d67024]"
+              >
+                Registrarme como empresa
+              </a>
+              <a
+                href="/login?redirect=/vender"
+                className="inline-flex w-full items-center justify-center rounded-full border border-[#16384f]/20 bg-white px-6 py-3 text-sm font-semibold text-[#16384f] transition-colors hover:border-[#16384f]/40 hover:bg-[#16384f]/5"
+              >
+                Ya tengo cuenta — Iniciar sesión
+              </a>
+            </div>
+          </div>
+        </section>
+      </main>
+    );
+  }
+
+  if (authGate === "vendor") {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-[#f8f8f7] px-5">
+        <div className="w-full max-w-[460px] rounded-2xl border border-black/10 bg-white p-8 shadow-[0_4px_20px_rgba(15,23,42,0.08)]">
+          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[#16384f]/10">
+            <svg className="h-7 w-7 text-[#16384f]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+            </svg>
+          </div>
+          <h2 className="mt-5 text-xl font-semibold text-[#16384f]">
+            Ya tienes sesión iniciada
+          </h2>
+          <p className="mt-3 text-sm leading-6 text-[#555]">
+            Tu cuenta ya está activa como proveedor en Unipars. Gestiona tus productos, inventario y pedidos desde tu panel.
+          </p>
+          <div className="mt-6">
+            <a
+              href="/proveedor"
+              className="inline-flex w-full items-center justify-center rounded-full bg-[#16384f] px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#0f2a3b]"
+            >
+              Ir a mi panel de proveedor
+            </a>
+          </div>
+        </div>
+      </main>
+    );
+  }
+
+  if (authGate === "no-company") {
+    return (
+      <main className="min-h-screen bg-[#f8f8f7] text-[#16384f]">
+        <section className="bg-[#16384f] px-5 pb-24 pt-16 text-white sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-[760px]">
+            <h1 className="text-3xl font-semibold leading-tight tracking-[-0.02em] sm:text-4xl">
+              Completa tu perfil de empresa
+            </h1>
+          </div>
+        </section>
+
+        <section className="-mt-10 px-5 pb-28 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-[520px] rounded-2xl border border-black/10 bg-white p-8 shadow-[0_4px_20px_rgba(15,23,42,0.08)]">
+            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[#ed8435]/10">
+              <svg className="h-7 w-7 text-[#ed8435]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.75m-.75 3h.75m-.75 3h.75m3-6h.75m-.75 3h.75m-.75 3h.75M6.75 21v-3.375c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21M3 3h12m-.75 4.5H21m-3.75 3.75h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008z" />
+              </svg>
+            </div>
+            <h2 className="mt-5 text-xl font-semibold text-[#16384f]">
+              Agrega el nombre de tu empresa
+            </h2>
+            <p className="mt-3 text-sm leading-6 text-[#555]">
+              Tu cuenta existe pero no tiene empresa registrada. Ve a tu perfil, agrega el nombre de tu empresa y vuelve aquí para publicar.
+            </p>
+            <div className="mt-6 flex flex-col gap-3">
+              <a
+                href="/registro-empresa"
+                className="inline-flex w-full items-center justify-center rounded-full bg-[#ed8435] px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#d67024]"
+              >
+                Registrar mi empresa
+              </a>
+              <button
+                type="button"
+                onClick={() => router.push("/vender")}
+                className="inline-flex w-full items-center justify-center rounded-full border border-[#16384f]/20 bg-white px-6 py-3 text-sm font-semibold text-[#16384f] transition-colors hover:border-[#16384f]/40"
+              >
+                Ya lo actualicé — Volver a intentar
+              </button>
+            </div>
+          </div>
+        </section>
+      </main>
+    );
+  }
 
   if (step === "item-form") {
     return (
