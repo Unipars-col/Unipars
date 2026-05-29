@@ -10,11 +10,12 @@ import { categorias, slugCategoria } from "../data/catalog";
 type SiteHeaderProps = {
   currentUser: {
     fullName: string;
-    role: "CUSTOMER" | "ADMIN";
+    role: "CUSTOMER" | "ADMIN" | "MASTER";
   } | null;
+  isVendor?: boolean;
 };
 
-export default function SiteHeader({ currentUser }: SiteHeaderProps) {
+export default function SiteHeader({ currentUser, isVendor }: SiteHeaderProps) {
   const [menuAbierto, setMenuAbierto] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
@@ -197,17 +198,17 @@ export default function SiteHeader({ currentUser }: SiteHeaderProps) {
           >
             Quiénes somos
           </Link>
-          <Link
+          {/* <Link
             href="/tips-y-videos"
             className="whitespace-nowrap transition-colors duration-200 hover:text-[#ed8435]"
           >
             Tips y videos
-          </Link>
+          </Link> */}
           <Link
             href="/servicio-de-reparacion"
             className="whitespace-nowrap transition-colors duration-200 hover:text-[#ed8435]"
           >
-            Servicio de reparación
+            Uniparceros
           </Link>
           <Link
             href="/contacto"
@@ -235,7 +236,7 @@ export default function SiteHeader({ currentUser }: SiteHeaderProps) {
                   Hola, {currentUser.fullName}
                 </span>
                 <Link
-                  href={currentUser.role === "ADMIN" ? "/admin" : "/mi-cuenta"}
+                  href={currentUser.role === "ADMIN" ? "/admin" : currentUser.role === "MASTER" ? "/master" : isVendor ? "/proveedor" : "/mi-cuenta"}
                   className="inline-flex items-center gap-2 rounded-full bg-[#ed8435] px-3 py-2.5 text-[11px] font-semibold tracking-[0.04em] text-white transition-colors duration-200 hover:bg-[#d67024] lg:px-4 lg:text-xs xl:px-5"
                 >
                   <svg

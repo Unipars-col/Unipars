@@ -10,6 +10,14 @@ datasource db {
 enum UserRole {
   CUSTOMER
   ADMIN
+  MASTER
+}
+
+enum SolicitudEstado {
+  PENDIENTE
+  EN_REVISION
+  APROBADA
+  RECHAZADA
 }
 
 enum OrderStatus {
@@ -62,6 +70,8 @@ model Product {
   technicalSpecs     Json?
   featured           Boolean             @default(false)
   active             Boolean             @default(true)
+  vendorId           String?
+  vendor             User?               @relation("VendorProducts", fields: [vendorId], references: [id])
   inventoryMovements InventoryMovement[]
   createdAt          DateTime            @default(now())
   updatedAt          DateTime            @updatedAt
@@ -78,11 +88,13 @@ model User {
   addressLine1 String?
   addressLine2 String?
   passwordHash String
-  role         UserRole @default(CUSTOMER)
-  cartItems    CartItem[]
-  orders       Order[]
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  role                UserRole            @default(CUSTOMER)
+  cartItems           CartItem[]
+  orders              Order[]
+  products            Product[]           @relation("VendorProducts")
+  empresaSolicitudes  EmpresaSolicitud[]
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
 }
 
 model CartItem {
@@ -150,4 +162,101 @@ model InventoryMovement {
   stockAfter Int
   note       String?
   createdAt  DateTime              @default(now())
+}
+
+model EmpresaSolicitud {
+  id String @id @default(cuid())
+
+  // 1. Datos de la empresa
+  nombreEmpresa    String
+  razonSocial      String
+  nit              String
+  tipoEmpresa      String
+  pais             String
+  ciudad           String
+  direccion        String
+  telefonoEmpresa  String
+  correoEmpresa    String
+  paginaWeb        String?
+
+  // 2. Representante legal
+  repNombre  String
+  repTipoDoc String
+  repNumDoc  String
+  repCargo   String
+  repCelular String
+  repCorreo  String
+
+  // 3. Información comercial
+  categorias    String[]  @default([])
+  subcategorias String?
+  descripcion   String
+  anosEnMercado String
+  vendeOnline   Boolean   @default(false)
+  linkTienda    String?
+  operaEn       String?
+
+  // 4. Documentos (URLs Supabase Storage)
+  urlRut            String?
+  urlCamaraComercio String?
+  urlDocRepLegal    String?
+  urlCertBancaria   String?
+  urlLogo           String?
+  urlCatalogo       String?
+
+  // 5. Información de productos
+  cantidadProductos String
+  inventarioPropio  Boolean @default(false)
+  preciosMayoristas Boolean @default(false)
+  ofreceGarantia    Boolean @default(false)
+  tiempoDespacho    String
+  coberturaEnvios   String
+
+  // 6. Pagos y facturación
+  banco             String
+  tipoCuenta        String
+  numeroCuenta      String
+  titularCuenta     String
+  emiteFactura      Boolean @default(false)
+  correoFacturacion String
+
+  // Estado y relación
+  estado        SolicitudEstado @default(PENDIENTE)
+  adminNotes    String?
+  calificacion  Int?
+  userId        String?
+  user       User?           @relation(fields: [userId], references: [id])
+  createdAt  DateTime        @default(now())
+  updatedAt  DateTime        @updatedAt
+}
+
+model TallerSolicitud {
+  id String @id @default(cuid())
+
+  // Datos del taller
+  nombreTaller   String
+  tipoTaller     String
+  servicios      String[]  @default([])
+  descripcion    String?
+
+  // Ubicación
+  ciudad         String
+  direccion      String
+  departamento   String?
+
+  // Contacto
+  nombreContacto String
+  telefono       String
+  whatsapp       String?
+  correo         String?
+  horario        String?
+
+  // Foto opcional
+  urlFoto        String?
+
+  // Estado
+  estado         SolicitudEstado @default(PENDIENTE)
+  adminNotes     String?
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
 }
