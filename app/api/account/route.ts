@@ -1,4 +1,5 @@
 import { getSessionFromCookies, setSessionCookie } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
 import { getUserById, updateUserProfile } from "@/lib/users";
 
 export async function GET() {
@@ -15,7 +16,16 @@ export async function GET() {
       return Response.json({ error: "No autorizado." }, { status: 401 });
     }
 
-    return Response.json({ user });
+    let isVendor = false;
+    if (prisma && user.role === "CUSTOMER") {
+      const sol = await prisma.empresaSolicitud.findFirst({
+        where: { userId: user.id, estado: "APROBADA" },
+        select: { id: true },
+      }).catch(() => null);
+      isVendor = !!sol;
+    }
+
+    return Response.json({ user, isVendor });
   } catch {
     return Response.json(
       { error: "No fue posible cargar la cuenta." },
@@ -83,7 +93,7 @@ export async function PATCH(request: Request) {
     await setSessionCookie({
       userId: user.id,
       email: user.email,
-      role: user.role,
+      role: user.role as "CUSTOMER" | "ADMIN" | "MASTER",
     });
 
     return Response.json({
