@@ -18,6 +18,7 @@ type SiteHeaderProps = {
 export default function SiteHeader({ currentUser, isVendor }: SiteHeaderProps) {
   const [menuAbierto, setMenuAbierto] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [mobileCatsOpen, setMobileCatsOpen] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -208,44 +209,56 @@ export default function SiteHeader({ currentUser, isVendor }: SiteHeaderProps) {
 
       {/* Menú mobile */}
       {mobileOpen && (
-        <div className="border-t border-black/8 bg-white px-4 pb-6 pt-4 md:hidden">
-          <nav className="flex flex-col gap-1 text-[15px] font-semibold text-[#16384f]">
-            <button type="button" onClick={() => irACategoria()}
-              className="rounded-xl px-4 py-3 text-left transition-colors hover:bg-[#f8f8f7] hover:text-[#ed8435]">
-              Categoría
+        <div className="border-t border-black/8 bg-white md:hidden">
+          <nav className="px-2 py-2">
+            {/* Categoría con acordeón */}
+            <button type="button"
+              onClick={() => setMobileCatsOpen((v) => !v)}
+              className="flex w-full items-center justify-between rounded-xl px-4 py-3.5 text-[15px] font-semibold text-[#16384f] transition-colors hover:bg-[#f5f5f4]">
+              <span>Categoría</span>
+              <span className="text-xs text-[#16384f]/50">{mobileCatsOpen ? "▲" : "▼"}</span>
             </button>
-            <div className="ml-4 grid grid-cols-2 gap-1">
-              {categorias.map((cat) => (
-                <button key={cat} type="button" onClick={() => irACategoria(cat)}
-                  className="rounded-xl px-3 py-2 text-left text-sm font-medium text-[#16384f]/70 transition-colors hover:bg-[#f8f8f7] hover:text-[#ed8435]">
-                  {cat}
-                </button>
-              ))}
-            </div>
-            <Link href="/vender" className="rounded-xl px-4 py-3 transition-colors hover:bg-[#f8f8f7] hover:text-[#ed8435]">Vender</Link>
-            <Link href="/quienes-somos" className="rounded-xl px-4 py-3 transition-colors hover:bg-[#f8f8f7] hover:text-[#ed8435]">Quiénes somos</Link>
-            <Link href="/servicio-de-reparacion" className="rounded-xl px-4 py-3 transition-colors hover:bg-[#f8f8f7] hover:text-[#ed8435]">Uniparceros</Link>
-            <Link href="/contacto" className="rounded-xl px-4 py-3 transition-colors hover:bg-[#f8f8f7] hover:text-[#ed8435]">Contacto</Link>
+            {mobileCatsOpen && (
+              <div className="mb-1 ml-2 flex flex-col gap-0.5 rounded-xl bg-[#f8f8f7] p-2">
+                {categorias.map((cat) => (
+                  <button key={cat} type="button" onClick={() => irACategoria(cat)}
+                    className="rounded-lg px-3 py-2.5 text-left text-sm text-[#16384f]/80 transition-colors hover:bg-white hover:text-[#ed8435]">
+                    {cat}
+                  </button>
+                ))}
+              </div>
+            )}
+            {[
+              { href: "/vender",                 label: "Vender" },
+              { href: "/quienes-somos",          label: "Quiénes somos" },
+              { href: "/servicio-de-reparacion", label: "Uniparceros" },
+              { href: "/contacto",               label: "Contacto" },
+            ].map((item) => (
+              <Link key={item.href} href={item.href}
+                className="flex items-center rounded-xl px-4 py-3.5 text-[15px] font-semibold text-[#16384f] transition-colors hover:bg-[#f5f5f4] hover:text-[#ed8435]">
+                {item.label}
+              </Link>
+            ))}
           </nav>
 
-          <div className="mt-4 border-t border-black/8 pt-4">
+          <div className="border-t border-black/8 px-4 py-4">
             {currentUser ? (
               <div className="flex flex-col gap-2">
-                <p className="px-4 text-sm text-[#8b8d91]">Hola, <strong className="text-[#16384f]">{currentUser.fullName}</strong></p>
+                <p className="text-sm text-[#8b8d91]">Hola, <strong className="text-[#16384f]">{currentUser.fullName}</strong></p>
                 <Link href={accountHref}
-                  className="flex items-center gap-2 rounded-xl bg-[#ed8435] px-4 py-3 text-sm font-semibold text-white">
+                  className="flex items-center justify-center gap-2 rounded-xl bg-[#ed8435] py-3 text-sm font-semibold text-white">
                   <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M20 21a8 8 0 0 0-16 0" /><circle cx="12" cy="8" r="4" />
                   </svg>
                   Mi cuenta
                 </Link>
                 <button type="button" onClick={handleLogout}
-                  className="rounded-xl border border-[#16384f]/25 px-4 py-3 text-sm font-semibold text-[#16384f]">
+                  className="rounded-xl border border-[#16384f]/25 py-3 text-sm font-semibold text-[#16384f]">
                   Salir
                 </button>
               </div>
             ) : (
-              <div className="flex gap-2">
+              <div className="flex gap-3">
                 <Link href="/registro" className="flex-1 rounded-xl bg-[#ed8435] py-3 text-center text-sm font-semibold text-white">Registro</Link>
                 <Link href="/login" className="flex-1 rounded-xl border border-[#16384f]/25 py-3 text-center text-sm font-semibold text-[#16384f]">Ingresar</Link>
               </div>
