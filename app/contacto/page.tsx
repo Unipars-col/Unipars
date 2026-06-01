@@ -94,7 +94,7 @@ export default function ContactoPage() {
           />
         </div>
 
-        <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(255,255,255,0.98)_0%,rgba(255,255,255,0.96)_42%,rgba(255,255,255,0.72)_60%,rgba(255,255,255,0.08)_78%,rgba(255,255,255,0)_100%)]" />
+        <div className="absolute inset-0 bg-white/95 sm:bg-[linear-gradient(90deg,rgba(255,255,255,0.98)_0%,rgba(255,255,255,0.96)_42%,rgba(255,255,255,0.72)_60%,rgba(255,255,255,0.08)_78%,rgba(255,255,255,0)_100%)]" />
 
         <div className="relative mx-auto flex min-h-[660px] max-w-[1400px] items-center px-5 py-16 sm:px-6 lg:px-8">
           <div className="max-w-[760px]">
