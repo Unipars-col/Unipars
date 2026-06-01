@@ -305,8 +305,8 @@ function VendorDetailPanel({ vendorId, isUnipars }: { vendorId: string; isUnipar
               {/* ── Fila 1: Hero mes actual ── */}
               <div className="flex items-center justify-between rounded-2xl bg-[#16384f] px-5 py-3">
                 <div className="flex items-baseline gap-3">
-                  <span className="text-[9px] font-black uppercase tracking-[0.22em] text-white/35">{new Date().toLocaleString("es-CO",{month:"long",year:"numeric"})}</span>
-                  <span className="text-xl font-black tracking-tight text-white">{fmt(detail.periodSales.thisMonth.revenue)}</span>
+                  <span className="text-[9px] font-medium uppercase tracking-[0.22em] text-white/35">{new Date().toLocaleString("es-CO",{month:"long",year:"numeric"})}</span>
+                  <span className="text-xl font-medium text-white">{fmt(detail.periodSales.thisMonth.revenue)}</span>
                   <span className="text-[10px] text-white/35">{detail.periodSales.thisMonth.units} uds</span>
                 </div>
                 {deltaLastMonth !== null && (
@@ -321,20 +321,20 @@ function VendorDetailPanel({ vendorId, isUnipars }: { vendorId: string; isUnipar
               <div className="grid grid-cols-3 gap-3">
                 {/* Mes anterior */}
                 <div className="rounded-[1.2rem] border border-black/[0.07] bg-white p-4 shadow-[0_2px_12px_rgba(15,23,42,0.05)]">
-                  <p className="text-[9px] font-black uppercase tracking-[0.22em] text-[#c5c7cb]">Mes anterior</p>
-                  <p className="mt-2 text-xl font-black tracking-[-0.04em] text-[#1f2328]">{fmt(detail.periodSales.lastMonth.revenue)}</p>
+                  <p className="text-[9px] font-medium uppercase tracking-[0.22em] text-[#c5c7cb]">Mes anterior</p>
+                  <p className="mt-2 text-xl font-medium tracking-normal text-[#1f2328]">{fmt(detail.periodSales.lastMonth.revenue)}</p>
                   <p className="mt-0.5 text-[10px] text-[#b0b3b8]">{detail.periodSales.lastMonth.units} uds</p>
                 </div>
                 {/* Este año */}
                 <div className="rounded-[1.2rem] bg-[#f7f8fa] p-4">
-                  <p className="text-[9px] font-black uppercase tracking-[0.22em] text-[#c5c7cb]">Este año</p>
-                  <p className="mt-2 text-xl font-black tracking-[-0.04em] text-[#16384f]">{fmt(detail.periodSales.thisYear.revenue)}</p>
+                  <p className="text-[9px] font-medium uppercase tracking-[0.22em] text-[#c5c7cb]">Este año</p>
+                  <p className="mt-2 text-xl font-medium tracking-normal text-[#16384f]">{fmt(detail.periodSales.thisYear.revenue)}</p>
                   <p className="mt-0.5 text-[10px] text-[#a2a5aa]">{detail.periodSales.thisYear.units} uds</p>
                 </div>
                 {/* Histórico */}
                 <div className="rounded-[1.2rem] border border-[#ed8435]/15 bg-[#fffaf6] p-4">
-                  <p className="text-[9px] font-black uppercase tracking-[0.22em] text-[#c5c7cb]">Histórico total</p>
-                  <p className="mt-2 text-xl font-black tracking-[-0.04em] text-[#16384f]">{fmt(detail.totalRevenue)}</p>
+                  <p className="text-[9px] font-medium uppercase tracking-[0.22em] text-[#c5c7cb]">Histórico total</p>
+                  <p className="mt-2 text-xl font-medium tracking-normal text-[#16384f]">{fmt(detail.totalRevenue)}</p>
                   <p className="mt-0.5 text-[10px] text-[#a2a5aa]">{detail.totalUnits} uds</p>
                 </div>
               </div>
@@ -347,7 +347,7 @@ function VendorDetailPanel({ vendorId, isUnipars }: { vendorId: string; isUnipar
                   </div>
                   <div>
                     <p className="text-[9px] font-bold uppercase tracking-[0.18em] text-[#c5c7cb]">Ticket prom.</p>
-                    <p className="mt-0.5 text-sm font-black tracking-tight text-[#1f2328]">{fmt(detail.avgOrderValue)}</p>
+                    <p className="mt-0.5 text-sm font-medium text-[#1f2328]">{fmt(detail.avgOrderValue)}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3 rounded-[1.2rem] border border-black/[0.06] bg-white px-4 py-3 shadow-[0_2px_10px_rgba(15,23,42,0.04)]">
@@ -356,7 +356,7 @@ function VendorDetailPanel({ vendorId, isUnipars }: { vendorId: string; isUnipar
                   </div>
                   <div>
                     <p className="text-[9px] font-bold uppercase tracking-[0.18em] text-[#c5c7cb]">Productos</p>
-                    <p className="mt-0.5 text-sm font-black tracking-tight text-[#1f2328]">{detail.products}</p>
+                    <p className="mt-0.5 text-sm font-medium text-[#1f2328]">{detail.products}</p>
                   </div>
                 </div>
                 <div className={`flex items-center gap-3 rounded-[1.2rem] px-4 py-3 ${detail.pendingDispatch > 0 ? "border border-[#ed8435]/20 bg-[#fffaf5]" : "border border-[#1f8b45]/15 bg-[#f4fbf6]"}`}>
@@ -368,7 +368,7 @@ function VendorDetailPanel({ vendorId, isUnipars }: { vendorId: string; isUnipar
                   </div>
                   <div>
                     <p className="text-[9px] font-bold uppercase tracking-[0.18em] text-[#c5c7cb]">Por despachar</p>
-                    <p className={`mt-0.5 text-sm font-black tracking-tight ${detail.pendingDispatch > 0 ? "text-[#b85d12]" : "text-[#1f8b45]"}`}>
+                    <p className={`mt-0.5 text-sm font-medium ${detail.pendingDispatch > 0 ? "text-[#b85d12]" : "text-[#1f8b45]"}`}>
                       {detail.pendingDispatch > 0 ? `${detail.pendingDispatch} pedido${detail.pendingDispatch > 1 ? "s" : ""}` : "Al día ✓"}
                     </p>
                   </div>
@@ -383,13 +383,13 @@ function VendorDetailPanel({ vendorId, isUnipars }: { vendorId: string; isUnipar
                       <svg viewBox="0 0 14 14" className="h-3.5 w-3.5 text-[#16384f]" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M1 13V8M4 13V5M7 13V2M10 13V7M13 13V10"/></svg>
                     </div>
                     <div>
-                      <p className="text-xs font-black uppercase tracking-[0.2em] text-[#6e7379]">Rendimiento mensual {new Date().getFullYear()}</p>
+                      <p className="text-xs font-medium uppercase tracking-[0.2em] text-[#6e7379]">Rendimiento mensual {new Date().getFullYear()}</p>
                       <p className="text-[10px] text-[#c5c7cb]">{activeMonths} {activeMonths === 1 ? "mes con ventas" : "meses con ventas"}</p>
                     </div>
                   </div>
                   {detail.totalRevenue > 0 && (
                     <div className="text-right">
-                      <p className="text-sm font-black tracking-tight text-[#16384f]">{fmt(detail.totalRevenue)}</p>
+                      <p className="text-sm font-medium text-[#16384f]">{fmt(detail.totalRevenue)}</p>
                       <p className="text-[10px] text-[#c5c7cb]">{detail.totalUnits} uds acumuladas</p>
                     </div>
                   )}
@@ -415,7 +415,7 @@ function VendorDetailPanel({ vendorId, isUnipars }: { vendorId: string; isUnipar
                         ) : null;
                         return (
                           <div key={m.monthIndex} className="flex items-center gap-2">
-                            <span className={`w-9 shrink-0 text-right text-[9px] font-black uppercase ${isNow ? "text-[#ed8435]" : "text-[#d0d2d6]"}`}>
+                            <span className={`w-9 shrink-0 text-right text-[9px] font-medium uppercase ${isNow ? "text-[#ed8435]" : "text-[#d0d2d6]"}`}>
                               {m.month}
                             </span>
                             {/* Barra */}
@@ -425,7 +425,7 @@ function VendorDetailPanel({ vendorId, isUnipars }: { vendorId: string; isUnipar
                               )}
                             </div>
                             {/* Precio — siempre fuera de la barra */}
-                            <span className={`w-24 shrink-0 text-right text-[10px] font-black tabular-nums ${
+                            <span className={`w-24 shrink-0 text-right text-[10px] font-medium tabular-nums ${
                               m.revenue > 0
                                 ? isTop ? "text-[#156832]" : isNow ? "text-[#b85d12]" : "text-[#16384f]"
                                 : "text-[#d5d7db]"
