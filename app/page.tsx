@@ -2,6 +2,7 @@ import type { CSSProperties } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import BusXrayBanner from "./components/bus-xray-banner";
+import CategoriesCarousel from "./components/categories-carousel";
 import HeroCarousel from "./components/hero-carousel";
 import HoverCartControl from "./components/hover-cart-control";
 import SiteFooter from "./components/site-footer";
@@ -11,21 +12,23 @@ import { getFeaturedProducts } from "@/lib/products";
 const testimonios = [
   {
     nombre: "Jozwing A Siachoque C.",
-    tiempo: "Hace 2 meses",
-    comentario:
-      "Excelente servicio, buena atencion al cliente y muy buena calidad en sus productos. Venden lo que necesitas y sin errores.",
+    rol: "Transportador",
+    comentario: "Excelente servicio, buena atencion al cliente y muy buena calidad en sus productos. Venden lo que necesitas y sin errores.",
   },
   {
     nombre: "Robinson Samboni Obando",
-    tiempo: "Hace 1 mes",
-    comentario:
-      "Eficaces, buen trato y envio rapido. En mi caso encontre muy buen precio y una asesoria clara para comprar.",
+    rol: "Mecánico",
+    comentario: "Eficaces, buen trato y envio rapido. En mi caso encontre muy buen precio y una asesoria clara para comprar.",
   },
   {
     nombre: "Fabio Perez Oliveros",
-    tiempo: "Hace 6 meses",
-    comentario:
-      "Quede totalmente satisfecho con la compra. Muy recomendados por la asesoria, el producto y los tiempos de entrega.",
+    rol: "Transportador",
+    comentario: "Quede totalmente satisfecho con la compra. Muy recomendados por la asesoria, el producto y los tiempos de entrega.",
+  },
+  {
+    nombre: "Carlos Medina R.",
+    rol: "Taller especializado",
+    comentario: "Excelente calidad en todos los productos. Los repuestos llegaron a tiempo y en perfecto estado. 100% recomendados.",
   },
 ];
 
@@ -94,67 +97,40 @@ export default async function Home() {
     <main className="min-h-screen bg-[#f5f5f5] text-[#111]">
       <HeroCarousel />
 
-      {/* CATEGORÍAS */}
-      <section className="mx-auto max-w-[1440px] px-6 py-16">
-        <div className="mb-10 text-center">
-          <p className="mb-3 text-xs font-medium uppercase tracking-[0.35em] text-[#8b8d91]">
-            Explora por línea
-          </p>
-          <h2 className="text-4xl font-semibold tracking-[-0.04em] text-[#4f545a] md:text-6xl">
+      {/* 1 — CATEGORÍAS */}
+      <section className="py-16">
+        <div className="mb-8 px-6 text-center">
+          <h2 className="text-3xl font-bold text-[#ed8435] md:text-4xl">
             Categorías principales
           </h2>
-          <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-[#6e7379] md:text-base">
-            Navega las líneas principales de Unipars con una vista más equilibrada y clara para encontrar repuestos más rápido.
-          </p>
         </div>
+        <div className="mx-auto max-w-[1440px] px-10">
+          <CategoriesCarousel />
+        </div>
+      </section>
 
-        <div className="mx-auto grid max-w-[1080px] grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {categoriasData.map((categoria) => (
-            <Link
-              key={categoria.nombre}
-              href={`/categorias?categoria=${slugCategoria(categoria.nombre)}`}
-              className="group flex min-h-[236px] flex-col items-center justify-between rounded-[1rem] border border-black/8 bg-white px-5 pb-6 pt-5 text-center transition-all duration-500 hover:-translate-y-2 hover:border-[var(--hover-color)] hover:shadow-[0_0_0_1px_var(--hover-color),0_20px_34px_color-mix(in_srgb,var(--hover-color)_18%,transparent)] focus-visible:border-[var(--hover-color)] focus-visible:shadow-[0_0_0_1px_var(--hover-color),0_20px_34px_color-mix(in_srgb,var(--hover-color)_18%,transparent)]"
-              style={
-                {
-                  "--hover-color": categoria.color,
-                } as CSSProperties
-              }
-            >
-              <div className="relative flex h-[144px] w-full items-center justify-center overflow-visible transition-all duration-500 md:h-[156px]">
-                {categoria.iconoImagen ? (
-                  <div className="relative transition-all duration-500 group-hover:-translate-y-2 group-hover:scale-[1.12]">
-                    <div
-                      className="absolute left-1/2 top-1/2 h-[96px] w-[96px] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-0 blur-2xl transition-all duration-500 group-hover:opacity-100 md:h-[112px] md:w-[112px]"
-                      style={{
-                        backgroundColor: "color-mix(in srgb, var(--hover-color) 28%, transparent)",
-                      }}
-                    />
-                    <Image
-                      src={categoria.iconoImagen}
-                      alt={categoria.nombre}
-                      width={140}
-                      height={96}
-                      className="relative h-[122px] w-[174px] object-contain drop-shadow-[0_12px_22px_rgba(15,23,42,0.12)] transition-all duration-500 group-hover:drop-shadow-[0_18px_28px_rgba(15,23,42,0.18)] md:h-[132px] md:w-[188px]"
-                    />
-                  </div>
-                ) : (
-                  <span className="text-3xl text-[var(--hover-color)]">{categoria.icono}</span>
-                )}
-              </div>
-
-              <h3 className="max-w-[11rem] text-[15px] font-semibold leading-[1.08] text-[#5b6470] transition-colors duration-300 group-hover:text-[var(--hover-color)]">
-                {categoria.nombre}
-              </h3>
-            </Link>
+      {/* 2 — PROMOS CUADRADAS */}
+      <section className="mx-auto max-w-[1440px] px-6 py-10">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+          {[
+            { src: "/promo-brocha.png",   alt: "Brocha de 4\" 40% dto" },
+            { src: "/promo-cera.png",     alt: "Cera para pulir 50% dto" },
+            { src: "/promo-espatula.png", alt: "Espátula metálica 40% dto" },
+          ].map((promo) => (
+            <div key={promo.src} className="overflow-hidden rounded-2xl">
+              <Image
+                src={promo.src}
+                alt={promo.alt}
+                width={600}
+                height={600}
+                className="h-full w-full object-cover transition-transform duration-300 hover:scale-[1.02]"
+              />
+            </div>
           ))}
         </div>
       </section>
 
-      <section className="mx-auto max-w-[1440px] px-6 pb-16">
-        <BusXrayBanner />
-      </section>
-
-      <section className="mx-auto max-w-[1440px] px-6 pb-16">
+      <section className="mx-auto max-w-[1440px] px-6 py-16">
         <div className="mb-8 flex items-end justify-between gap-4">
           <div>
             <p className="mb-2 text-xs font-medium uppercase tracking-[0.35em] text-[#8b8d91]">
@@ -242,122 +218,111 @@ export default async function Home() {
         </div>
       </section>
 
-      <section className="border-y border-black/8 bg-white">
-        <div className="mx-auto max-w-[1440px] px-6 py-16">
-          <div className="mb-12 flex items-center gap-6">
-            <div className="h-px flex-1 bg-black/10" />
-            <h2 className="text-center text-2xl font-semibold tracking-[-0.04em] text-[#111] md:text-4xl">
-              Lo Que Nuestros Clientes Estan Diciendo
-            </h2>
-            <div className="h-px flex-1 bg-black/10" />
-          </div>
+      {/* 4 — BUSXRAY */}
+      <section className="mx-auto max-w-[1440px] px-6 py-16">
+        <BusXrayBanner />
+      </section>
 
-          <div className="grid gap-8 lg:grid-cols-3">
-            {testimonios.map((testimonio, index) => (
-              <article
-                key={testimonio.nombre}
-                className={`px-2 text-center lg:px-8 ${
-                  index < testimonios.length - 1
-                    ? "lg:border-r lg:border-black/10"
-                    : ""
-                }`}
-              >
-                <div className="mb-8 flex items-start justify-center gap-4">
-                  <p className="text-6xl font-semibold leading-none tracking-[-0.06em] text-[#f5b321] md:text-7xl">
-                    5.0
-                  </p>
-                  <div className="pt-2 text-left">
-                    <p className="text-[1.1rem] font-semibold leading-6 text-[#111]">
-                      {testimonio.nombre}
-                    </p>
-                    <p className="text-[0.95rem] text-[#8b8d91]">{testimonio.tiempo}</p>
-                    <p className="mt-1 text-[0.95rem] tracking-[0.18em] text-[#f5b321]">
-                      ★★★★★
+      {/* 5 — BANNERS INFORMATIVOS */}
+      <section className="mx-auto max-w-[1440px] px-6 py-10">
+        <div className="grid gap-4 md:grid-cols-2">
+          <div className="overflow-hidden rounded-2xl">
+            <Image
+              src="/banner-cobertura.png"
+              alt="Cobertura nacional Unipars"
+              width={900}
+              height={400}
+              className="h-full w-full object-cover"
+            />
+          </div>
+          <div className="overflow-hidden rounded-2xl">
+            <Image
+              src="/banner-lo-tenemos.png"
+              alt="Lo tenemos Unipars"
+              width={900}
+              height={400}
+              className="h-full w-full object-cover"
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* 6 — TESTIMONIOS */}
+      <section className="py-10">
+        <div className="mx-auto max-w-[1440px] px-6">
+          <div className="rounded-3xl bg-[#0d1b2a] px-8 py-14">
+            <div className="mb-10 text-center">
+              <p className="mb-2 text-xs font-semibold uppercase tracking-[0.35em] text-white/50">
+                Opiniones que nos impulsan
+              </p>
+              <h2 className="text-3xl font-bold text-[#ed8435] md:text-4xl">
+                Lo que dicen nuestros clientes
+              </h2>
+            </div>
+
+            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+              {testimonios.map((testimonio) => (
+                <article
+                  key={testimonio.nombre}
+                  className="flex flex-col justify-between rounded-2xl bg-white p-6"
+                >
+                  <div>
+                    <span className="text-4xl font-black leading-none text-[#ed8435]">&ldquo;</span>
+                    <p className="mt-2 text-base tracking-[0.12em] text-[#ed8435]">★★★★★</p>
+                    <p className="mt-3 text-[0.9rem] font-semibold leading-6 text-[#1f2328]">
+                      {testimonio.comentario}
                     </p>
                   </div>
-                </div>
-
-                <p className="mx-auto max-w-md text-[1.08rem] leading-9 tracking-[-0.02em] text-[#1f2328]">
-                  &ldquo;{testimonio.comentario}&rdquo;
-                </p>
-              </article>
-            ))}
+                  <div className="mt-5 flex items-center gap-3 border-t border-black/8 pt-4">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#16384f] text-sm font-bold text-white">
+                      {testimonio.nombre.charAt(0)}
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-[#16384f]">{testimonio.nombre}</p>
+                      <p className="text-xs text-[#8b8d91]">{testimonio.rol}</p>
+                    </div>
+                  </div>
+                </article>
+              ))}
+            </div>
           </div>
         </div>
       </section>
 
-      <section className="border-b border-black/8 bg-[#fcfcfb]">
-        <div className="mx-auto grid max-w-[1440px] gap-5 px-6 py-12 md:grid-cols-2 xl:grid-cols-4">
-          {beneficios.map((beneficio) => (
-            <article
-              key={beneficio.titulo}
-              className="flex min-h-[248px] flex-col items-center rounded-lg border border-black/8 bg-white px-6 py-7 text-center shadow-[0_14px_30px_rgba(15,23,42,0.08)]"
-            >
-              <div className="flex h-20 w-20 items-center justify-center rounded-full bg-[#fff8f1] shadow-[inset_0_0_0_1px_rgba(237,132,53,0.08)]">
-                <Image
-                  src={beneficio.icono}
-                  alt=""
-                  width={46}
-                  height={46}
-                  className="h-[46px] w-[46px] object-contain"
-                />
-              </div>
-              <h3 className="mt-5 max-w-[18ch] text-[1.32rem] font-semibold leading-8 tracking-[-0.04em] text-[#111]">
-                {beneficio.titulo}
-              </h3>
-              <p className="mt-3 text-[0.98rem] leading-7 text-[#7b7f85]">
-                {beneficio.descripcion}
-              </p>
-            </article>
+
+
+      {/* 9 — PROMOS VERTICALES */}
+      <section className="mx-auto max-w-[1440px] px-6 py-16">
+        <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+          {[
+            { src: "/promo-unipars.png",    alt: "Bombín para tanque Unipars 30% off" },
+            { src: "/promo-tecnomotor.png", alt: "Amortiguador Tecnimotor 30% off" },
+            { src: "/promo-autoprime.png",  alt: "Batería Autoprime 30% off" },
+            { src: "/promo-cauchos.png",    alt: "Cauchos Industriales 20% off" },
+          ].map((promo) => (
+            <div key={promo.src} className="relative aspect-[941/1672] overflow-hidden rounded-2xl">
+              <Image
+                src={promo.src}
+                alt={promo.alt}
+                fill
+                sizes="(max-width:768px) 50vw, 25vw"
+                className="object-cover object-center transition-transform duration-300 hover:scale-[1.02]"
+              />
+            </div>
           ))}
         </div>
       </section>
 
-      <section className="mx-auto max-w-[1440px] px-6 py-18">
-        <div className="mx-auto mb-12 max-w-3xl text-center">
-          <h2 className="text-3xl font-semibold tracking-[-0.04em] text-[#1f2328] md:text-5xl">
-            Explora soluciones que impulsan tu negocio
-          </h2>
-          <p className="mt-4 text-lg leading-8 text-[#7b7f85]">
-            Descubre ideas, productos y categorias listas para llevar a tu
-            carrito.
-          </p>
-        </div>
-
-        <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
-          {soluciones.map((solucion) => (
-            <article
-              key={solucion.titulo}
-              className="group overflow-hidden rounded-lg border border-black/10 bg-white shadow-[0_14px_34px_rgba(15,23,42,0.12)] transition-transform duration-300 hover:-translate-y-1"
-            >
-              <div className="relative aspect-[0.67] min-h-[480px]">
-                <Image
-                  src={solucion.imagen}
-                  alt={solucion.titulo}
-                  width={900}
-                  height={1100}
-                  className="h-full w-full object-cover object-center"
-                />
-                <div className="absolute inset-x-4 top-4 rounded-[10px] bg-white/94 px-4 py-3 text-center shadow-[0_10px_26px_rgba(15,23,42,0.18)]">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[#ed8435]">
-                    {solucion.etiqueta}
-                  </p>
-                  <p className="mt-1 text-[13px] font-semibold leading-4 text-[#2f3d49]">
-                    {solucion.titulo}
-                  </p>
-                </div>
-
-                <div className="absolute inset-x-0 bottom-0 flex justify-center p-4">
-                  <Link
-                    href={solucion.href}
-                    className="inline-flex min-w-[104px] items-center justify-center rounded-full bg-[#f59a2e] px-4 py-2 text-[11px] font-semibold text-white transition-colors duration-200 hover:bg-[#df8622]"
-                  >
-                    Ver productos
-                  </Link>
-                </div>
-              </div>
-            </article>
-          ))}
+      {/* 10 — BANNER UNIPARCEROS */}
+      <section className="mx-auto max-w-[1440px] px-6 pb-16">
+        <div className="overflow-hidden rounded-2xl">
+          <Image
+            src="/banner-uniparceros-home.png"
+            alt="Uniparceros - La red de talleres aliados de Unipars"
+            width={2560}
+            height={720}
+            className="w-full object-cover"
+          />
         </div>
       </section>
 

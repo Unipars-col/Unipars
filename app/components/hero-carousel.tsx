@@ -2,30 +2,68 @@
 
 import { useEffect, useEffectEvent, useState } from "react";
 import Image from "next/image";
-const slides = [
+import Link from "next/link";
+
+type Slide = {
+  id: number;
+  title: string;
+  titleHighlight: string;
+  description: string;
+  cta: { label: string; href: string } | null;
+  image: string;
+  textAlign: "left" | "right";
+  darkText?: boolean;
+  gradient: string;
+  rightPanel?: {
+    lines: { text: string; orange?: boolean }[];
+    cta: { label: string; href: string };
+  };
+};
+
+const slides: Slide[] = [
   {
     id: 1,
-    eyebrow: "Banner 01",
-    title: "Encuentra el repuesto que necesitas sin saber su nombre",
+    title: "UNIPARCEROS,",
+    titleHighlight: "ALIADOS EN CADA RUTA",
     description:
-      "Busca por placa, modelo o referencia y compara opciones confiables en segundos.",
-    image: "/hero-banner-transmilenio.jpg",
+      "Encuentra talleres aliados de confianza en todo el país para instalar tus repuestos con seguridad, calidad y garantía.",
+    cta: null,
+    image: "/hero-banner-transmilenio.png",
+    textAlign: "left",
+    darkText: true,
+    gradient: "",
+    rightPanel: {
+      lines: [
+        { text: "MÁS TALLERES," },
+        { text: "MÁS SOLUCIONES", orange: true },
+        { text: "EN TODO COLOMBIA." },
+      ],
+      cta: { label: "ENCUENTRA TU TALLER", href: "/servicio-de-reparacion" },
+    },
   },
   {
     id: 2,
-    eyebrow: "Banner 02",
-    title: "Compra repuestos con apoyo experto y entrega segura",
+    title: "EXPERTOS EN MANTENER TU FLOTA",
+    titleHighlight: "SIEMPRE EN MARCHA",
     description:
-      "Explora productos destacados y encuentra aliados cerca de ti para resolverlo rapido.",
-    image: "/hero-banner-2.jpg",
+      "Repuestos de calidad para maximizar el rendimiento y la vida útil de cada vehículo.",
+    cta: { label: "VER CATÁLOGO", href: "/categorias" },
+    image: "/hero-banner-2.png",
+    textAlign: "left",
+    darkText: false,
+    gradient: "",
   },
   {
     id: 3,
-    eyebrow: "Banner 03",
-    title: "Descubre ofertas, categorias y soluciones para tu vehiculo",
+    title: "REPUESTOS",
+    titleHighlight: "QUE MUEVEN TU NEGOCIO",
     description:
-      "Deja estos slides listos para reemplazar luego con tus banners finales.",
-    image: "/hero-banner-3.jpg",
+      "Soluciones confiables para el transporte masivo, de carga y de pasajeros.",
+    cta: null,
+    image: "/hero-banner-3.png",
+    textAlign: "right",
+    darkText: true,
+    gradient: "",
   },
 ];
 
@@ -79,17 +117,68 @@ export default function HeroCarousel() {
                 className="object-cover object-center"
               />
             </div>
-            <div className="absolute inset-0 bg-gradient-to-r from-black/86 via-black/42 to-black/8" />
 
-            <div className="relative mx-auto flex h-full max-w-[1440px] items-center px-6 py-12 sm:py-16 md:py-20">
-              <div className="max-w-2xl">
-                <h1 className="mb-5 text-4xl font-bold leading-tight md:text-6xl">
-                  {slide.title}
+            {slide.gradient && (
+              <div className={`absolute inset-0 ${slide.gradient}`} />
+            )}
+
+            <div className="relative mx-auto flex h-full max-w-[1440px] items-center justify-between px-8 py-12 sm:py-16 md:py-20">
+              {/* Texto principal */}
+              <div
+                className={`${slide.textAlign === "right" ? "ml-auto max-w-sm text-right md:max-w-lg" : "max-w-xl"}`}
+              >
+                <h1
+                  className={`mb-4 text-3xl font-extrabold uppercase leading-tight md:text-5xl ${
+                    slide.darkText ? "text-[#0d1b2a]" : "text-white"
+                  }`}
+                >
+                  {slide.title}{" "}
+                  <span className="whitespace-pre-line text-[#ed8435]">
+                    {slide.titleHighlight}
+                  </span>
                 </h1>
-                <p className="mb-8 max-w-xl text-base text-slate-100 md:text-lg">
+
+                <p
+                  className={`mb-8 text-sm md:text-base ${
+                    slide.darkText ? "text-[#0d1b2a]/80" : "text-slate-100"
+                  } ${slide.textAlign === "right" ? "border-l-2 border-[#ed8435] pl-3 text-left" : ""}`}
+                >
                   {slide.description}
                 </p>
+
+                {slide.cta && (
+                  <Link
+                    href={slide.cta.href}
+                    className="inline-flex items-center gap-2 rounded bg-[#ed8435] px-6 py-3 text-sm font-bold uppercase tracking-wide text-white transition-colors hover:bg-[#d4722a]"
+                  >
+                    {slide.cta.label}
+                    <span className="text-base">›</span>
+                  </Link>
+                )}
               </div>
+
+              {/* Panel derecho (solo banner mecánico) — anclado al extremo derecho */}
+              {slide.rightPanel && (
+                <div className="absolute bottom-10 right-6 hidden flex-col items-end gap-4 text-right md:flex lg:right-12">
+                  <p className="text-base font-extrabold uppercase leading-snug lg:text-lg">
+                    {slide.rightPanel.lines.map((line, i) => (
+                      <span
+                        key={i}
+                        className={`block ${line.orange ? "text-[#ed8435]" : "text-white"}`}
+                      >
+                        {line.text}
+                      </span>
+                    ))}
+                  </p>
+                  <Link
+                    href={slide.rightPanel.cta.href}
+                    className="inline-flex items-center gap-2 rounded bg-[#ed8435] px-5 py-2.5 text-sm font-bold uppercase tracking-wide text-white transition-colors hover:bg-[#d4722a]"
+                  >
+                    {slide.rightPanel.cta.label}
+                    <span className="text-base">›</span>
+                  </Link>
+                </div>
+              )}
             </div>
           </article>
         ))}

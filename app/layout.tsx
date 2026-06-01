@@ -1,5 +1,13 @@
 import type { Metadata } from "next";
+import { Poppins } from "next/font/google";
 import "./globals.css";
+
+const poppins = Poppins({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800", "900"],
+  variable: "--font-poppins",
+  display: "swap",
+});
 import { CartProvider } from "./components/cart-provider";
 import { ProductsProvider } from "./components/products-provider";
 import SiteHeader from "./components/site-header";
@@ -44,7 +52,7 @@ export default async function RootLayout({
     .join("|")}`;
 
   return (
-    <html lang="es" className="h-full antialiased" data-scroll-behavior="smooth">
+    <html lang="es" className={`h-full antialiased ${poppins.variable}`} data-scroll-behavior="smooth">
       <body className="min-h-full flex flex-col">
         <ProductsProvider initialProducts={initialProducts}>
           <CartProvider

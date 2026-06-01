@@ -293,6 +293,23 @@ export default function CategoriasPage() {
                 </button>
               </div>
             </div>
+            {/* Promo aleatoria por categoría */}
+            {(() => {
+              const promos = [
+                { src: "/promo-unipars.png",    alt: "Bombín para tanque 30% off" },
+                { src: "/promo-tecnomotor.png", alt: "Amortiguador Tecnimotor 30% off" },
+                { src: "/promo-cauchos.png",    alt: "Cauchos Industriales 20% off" },
+                { src: "/promo-autoprime.png",  alt: "Batería Autoprime 30% off" },
+              ];
+              const key = categoriaActiva ?? "default";
+              const idx = key.split("").reduce((acc, c) => acc + c.charCodeAt(0), 0) % promos.length;
+              const promo = promos[idx];
+              return (
+                <div className="overflow-hidden rounded-xl">
+                  <Image src={promo.src} alt={promo.alt} width={400} height={700} className="w-full h-auto" />
+                </div>
+              );
+            })()}
           </aside>
 
           <div className="space-y-8">
