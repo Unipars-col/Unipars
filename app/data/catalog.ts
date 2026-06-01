@@ -76,6 +76,8 @@ export const categoriasData: readonly CategoriaMeta[] = [
     nombre: "Adhesivos, lubricantes y sellantes",
     color: "#ed8435",
     icono: "⬢",
+    iconoImagen: "/category-icon-adhesivos.png",
+    bannerImagen: "/category-banner-adhesivos.png",
     bannerCopy:
       "Adhesivos, siliconas y sellantes para fijación, reparación y protección en mantenimiento automotor.",
   },
@@ -83,6 +85,8 @@ export const categoriasData: readonly CategoriaMeta[] = [
     nombre: "Ferretería",
     color: "#8a6f3f",
     icono: "◆",
+    iconoImagen: "/category-icon-ferreteria.png",
+    bannerImagen: "/category-banner-ferreteria.png",
     bannerCopy:
       "Herramientas, tornillería y accesorios de ferretería para mantenimiento, instalación y trabajo técnico.",
   },

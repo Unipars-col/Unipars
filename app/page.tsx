@@ -188,7 +188,7 @@ export default async function Home() {
       {/* 5 — BANNERS INFORMATIVOS */}
       <section className="mx-auto max-w-[1440px] px-6 py-10">
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <div className="overflow-hidden rounded-2xl">
+          <Link href="/servicio-de-reparacion" className="block overflow-hidden rounded-2xl transition-transform duration-300 hover:scale-[1.01]">
             <Image
               src="/banner-cobertura.jpg"
               alt="Cobertura nacional Unipars"
@@ -196,8 +196,8 @@ export default async function Home() {
               height={400}
               className="h-full w-full object-cover"
             />
-          </div>
-          <div className="overflow-hidden rounded-2xl">
+          </Link>
+          <Link href="/categorias" className="block overflow-hidden rounded-2xl transition-transform duration-300 hover:scale-[1.01]">
             <Image
               src="/banner-lo-tenemos.jpg"
               alt="Lo tenemos Unipars"
@@ -205,15 +205,15 @@ export default async function Home() {
               height={400}
               className="h-full w-full object-cover"
             />
-          </div>
+          </Link>
         </div>
       </section>
 
       {/* 6 — TESTIMONIOS */}
       <section className="py-10">
         <div className="mx-auto max-w-[1440px] px-6">
-          <div className="rounded-3xl bg-[#0d1b2a] px-8 py-14">
-            <div className="mb-10 text-center">
+          <div className="scroll-container-safe rounded-3xl bg-[#0d1b2a] py-14">
+            <div className="mb-10 px-8 text-center">
               <p className="mb-2 text-xs font-semibold uppercase tracking-[0.35em] text-white/50">
                 Opiniones que nos impulsan
               </p>
@@ -222,7 +222,7 @@ export default async function Home() {
               </h2>
             </div>
 
-            <div className="hscroll-md cols-4" style={{ gap: "1rem" }}>
+            <div className="hscroll-md cols-4" style={{ gap: "1rem", paddingLeft: "2rem", paddingRight: "0.5rem" }}>
               {testimonios.map((testimonio) => (
                 <article
                   key={testimonio.nombre}

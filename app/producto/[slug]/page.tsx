@@ -452,7 +452,7 @@ export default function ProductoDetallePage() {
           <p className="mb-2 text-xs font-medium uppercase tracking-[0.35em] text-[#8b8d91]">
             Relacionados
           </p>
-          <h2 className="text-3xl font-semibold uppercase tracking-[-0.04em] text-[#4f545a] md:text-5xl">
+          <h2 className="text-2xl font-semibold tracking-[-0.03em] text-[#4f545a] md:text-3xl">
             Más productos de esta categoría
           </h2>
         </div>
@@ -463,13 +463,15 @@ export default function ProductoDetallePage() {
               key={item.slug}
               className="overflow-hidden rounded-[1.75rem] border border-black/8 bg-white shadow-[0_16px_35px_rgba(15,23,42,0.05)]"
             >
-              <Image
-                src={item.imagen}
-                alt={item.nombre}
-                width={900}
-                height={700}
-                className="h-52 w-full object-cover"
-              />
+              <div className="flex h-44 items-center justify-center bg-[#fafaf9] px-6 py-4">
+                <Image
+                  src={item.imagen}
+                  alt={item.nombre}
+                  width={900}
+                  height={700}
+                  className="max-h-36 w-auto max-w-full object-contain"
+                />
+              </div>
               <div className="space-y-4 p-5">
                 <div>
                   <p className="mb-2 text-xs font-medium uppercase tracking-[0.24em] text-[#8b8d91]">

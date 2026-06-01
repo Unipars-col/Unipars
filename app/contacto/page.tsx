@@ -83,18 +83,19 @@ export default function ContactoPage() {
   return (
     <main className="min-h-screen bg-[#f7f7f6] text-[#16384f]">
       <section className="relative overflow-hidden border-b border-black/6 bg-white">
-        <div className="absolute inset-0">
+        {/* Robot — panel derecho visible solo en desktop */}
+        <div className="absolute bottom-0 right-0 top-0 hidden w-[44%] sm:block">
           <Image
             src="/contacto/banner-contacto.jpg"
-            alt="Robot de contacto de Unipars"
+            alt="Robot Unipars"
             fill
             priority
-            sizes="100vw"
-            className="object-cover object-[78%_center] md:object-right"
+            sizes="44vw"
+            className="object-cover object-left-top"
           />
+          {/* Degradado suave de izquierda a derecha para fusionar con el blanco */}
+          <div className="absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-white to-transparent" />
         </div>
-
-        <div className="absolute inset-0 bg-white/95 sm:bg-[linear-gradient(90deg,rgba(255,255,255,0.98)_0%,rgba(255,255,255,0.96)_42%,rgba(255,255,255,0.72)_60%,rgba(255,255,255,0.08)_78%,rgba(255,255,255,0)_100%)]" />
 
         <div className="relative mx-auto flex min-h-[660px] max-w-[1400px] items-center px-5 py-16 sm:px-6 lg:px-8">
           <div className="max-w-[760px]">

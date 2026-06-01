@@ -121,6 +121,14 @@ body {
   display: none;
 }
 
+/* Contenedor que tiene border-radius y necesita permitir scroll interno */
+.scroll-container-safe {
+  overflow: visible;
+}
+@media (min-width: 768px) {
+  .scroll-container-safe { overflow: hidden; }
+}
+
 /* ── Scroll lateral en mobile, grid en desktop ───────────────────── */
 .hscroll-md {
   display: flex;
