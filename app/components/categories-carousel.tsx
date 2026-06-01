@@ -67,7 +67,7 @@ export default function CategoriesCarousel() {
           <Link
             key={categoria.nombre}
             href={`/categorias?categoria=${slugCategoria(categoria.nombre)}`}
-            className="group flex w-[calc((100%-3rem)/4)] shrink-0 flex-col items-center justify-between rounded-2xl border border-black/8 bg-white px-4 pb-5 pt-6 text-center transition-all duration-300 hover:-translate-y-1 hover:border-[var(--hover-color)] hover:shadow-[0_10px_28px_color-mix(in_srgb,var(--hover-color)_18%,transparent)]"
+            className="group flex w-[calc((100%-1rem)/2)] shrink-0 flex-col items-center justify-between rounded-2xl border border-black/8 bg-white px-4 pb-5 pt-6 text-center transition-all duration-300 hover:-translate-y-1 hover:border-[var(--hover-color)] hover:shadow-[0_10px_28px_color-mix(in_srgb,var(--hover-color)_18%,transparent)] sm:w-[calc((100%-2rem)/3)] lg:w-[calc((100%-3rem)/4)]"
             style={{ "--hover-color": categoria.color } as CSSProperties}
           >
             <div className="relative flex h-[120px] w-full items-center justify-center overflow-visible">
