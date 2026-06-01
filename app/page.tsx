@@ -110,25 +110,24 @@ export default async function Home() {
       </section>
 
       {/* 2 — PROMOS CUADRADAS */}
-      <section className="mx-auto max-w-[1440px] px-6 py-10">
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-          {[
-            { src: "/promo-brocha.png",   alt: "Brocha de 4\" 40% dto" },
-            { src: "/promo-cera.png",     alt: "Cera para pulir 50% dto" },
-            { src: "/promo-espatula.png", alt: "Espátula metálica 40% dto" },
-          ].map((promo) => (
-            <div key={promo.src} className="overflow-hidden rounded-2xl">
-              <Image
-                src={promo.src}
-                alt={promo.alt}
-                width={600}
-                height={600}
-                className="h-full w-full object-cover transition-transform duration-300 hover:scale-[1.02]"
-              />
+      {(() => {
+        const promos = [
+          { src: "/promo-brocha.png",   alt: "Brocha de 4\" 40% dto" },
+          { src: "/promo-cera.png",     alt: "Cera para pulir 50% dto" },
+          { src: "/promo-espatula.png", alt: "Espátula metálica 40% dto" },
+        ];
+        return (
+          <section className="py-10">
+            <div className="hscroll-md cols-3 mx-auto max-w-[1440px]" style={{ gap: "1rem", paddingLeft: "1.5rem", paddingRight: "0.5rem" }}>
+              {promos.map((promo) => (
+                <div key={promo.src} className="overflow-hidden rounded-2xl" style={{ width: "82vw" }}>
+                  <Image src={promo.src} alt={promo.alt} width={600} height={600} className="w-full object-cover transition-transform duration-300 hover:scale-[1.02]" />
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
-      </section>
+          </section>
+        );
+      })()}
 
       <section className="mx-auto max-w-[1440px] px-6 py-16">
         <div className="mb-8 flex items-end justify-between gap-4">
@@ -149,69 +148,32 @@ export default async function Home() {
           </Link>
         </div>
 
-        <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+        <div className="hscroll-md cols-4" style={{ gap: "1rem", paddingLeft: "1.5rem", paddingRight: "0.5rem", marginLeft: "-1.5rem", marginRight: "-1.5rem" }}>
           {productos.map((producto) => (
             <article
               key={producto.nombre}
               className="overflow-hidden rounded-[1.75rem] border border-black/8 bg-white shadow-[0_16px_35px_rgba(15,23,42,0.05)] transition-transform duration-300 hover:-translate-y-1"
+              style={{ width: "72vw" }}
             >
               <div className="relative bg-white">
-                <span className="absolute left-4 top-4 z-10 rounded-lg bg-[#ed8435] px-3 py-1 text-sm font-semibold text-white">
-                  {producto.descuento}
-                </span>
+                <span className="absolute left-4 top-4 z-10 rounded-lg bg-[#ed8435] px-3 py-1 text-sm font-semibold text-white">{producto.descuento}</span>
                 <div className="flex h-52 items-center justify-center px-7 py-7">
-                  <Image
-                    src={producto.imagen}
-                    alt={producto.nombre}
-                    width={800}
-                    height={600}
-                    className="max-h-[140px] w-auto max-w-full object-contain"
-                  />
+                  <Image src={producto.imagen} alt={producto.nombre} width={800} height={600} className="max-h-[140px] w-auto max-w-full object-contain" />
                 </div>
-                <HoverCartControl
-                  id={producto.slug}
-                  nombre={producto.nombre}
-                  precio={producto.precio}
-                  imagen={producto.imagen}
-                  disabled={!producto.puedeComprar}
-                />
+                <HoverCartControl id={producto.slug} nombre={producto.nombre} precio={producto.precio} imagen={producto.imagen} disabled={!producto.puedeComprar} />
               </div>
-
               <div className="space-y-4 p-5">
                 <div>
-                  <p className="mb-2 text-xs font-medium uppercase tracking-[0.25em] text-[#8b8d91]">
-                    {producto.marca}
-                  </p>
-                  <h3 className="text-lg font-semibold leading-tight text-[#4f545a]">
-                    {producto.nombre}
-                  </h3>
+                  <p className="mb-2 text-xs font-medium uppercase tracking-[0.25em] text-[#8b8d91]">{producto.marca}</p>
+                  <h3 className="text-lg font-semibold leading-tight text-[#4f545a]">{producto.nombre}</h3>
                 </div>
-
-                <p className="line-clamp-3 text-sm leading-6 text-[#7b7f85]">
-                  {producto.descripcion}
-                </p>
-
-                <p className="text-sm font-medium text-[#6e7379]">
-                  Stock: {producto.stock ?? 0}
-                </p>
-
+                <p className="line-clamp-3 text-sm leading-6 text-[#7b7f85]">{producto.descripcion}</p>
+                <p className="text-sm font-medium text-[#6e7379]">Stock: {producto.stock ?? 0}</p>
                 <div className="border-t border-black/6 pt-4">
-                  <p className="text-sm text-[#a0a3a8] line-through">
-                    {producto.precioAnterior}
-                  </p>
-                  <p className="text-3xl font-semibold tracking-[-0.03em] text-[#ed8435]">
-                    {producto.precio}
-                  </p>
+                  <p className="text-sm text-[#a0a3a8] line-through">{producto.precioAnterior}</p>
+                  <p className="text-3xl font-semibold tracking-[-0.03em] text-[#ed8435]">{producto.precio}</p>
                 </div>
-
-                <div className="flex flex-wrap gap-3">
-                  <Link
-                    href={`/producto/${producto.slug}`}
-                    className="inline-flex rounded-full bg-[#16384f] px-5 py-3 text-sm font-semibold text-white transition-colors duration-200 hover:bg-[#0f2a3b]"
-                  >
-                    Ver producto
-                  </Link>
-                </div>
+                <Link href={`/producto/${producto.slug}`} className="inline-flex rounded-full bg-[#16384f] px-5 py-3 text-sm font-semibold text-white transition-colors duration-200 hover:bg-[#0f2a3b]">Ver producto</Link>
               </div>
             </article>
           ))}
@@ -225,10 +187,10 @@ export default async function Home() {
 
       {/* 5 — BANNERS INFORMATIVOS */}
       <section className="mx-auto max-w-[1440px] px-6 py-10">
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div className="overflow-hidden rounded-2xl">
             <Image
-              src="/banner-cobertura.png"
+              src="/banner-cobertura.jpg"
               alt="Cobertura nacional Unipars"
               width={900}
               height={400}
@@ -237,7 +199,7 @@ export default async function Home() {
           </div>
           <div className="overflow-hidden rounded-2xl">
             <Image
-              src="/banner-lo-tenemos.png"
+              src="/banner-lo-tenemos.jpg"
               alt="Lo tenemos Unipars"
               width={900}
               height={400}
@@ -260,23 +222,20 @@ export default async function Home() {
               </h2>
             </div>
 
-            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="hscroll-md cols-4" style={{ gap: "1rem" }}>
               {testimonios.map((testimonio) => (
                 <article
                   key={testimonio.nombre}
                   className="flex flex-col justify-between rounded-2xl bg-white p-6"
+                  style={{ width: "80vw" }}
                 >
                   <div>
                     <span className="text-4xl font-black leading-none text-[#ed8435]">&ldquo;</span>
                     <p className="mt-2 text-base tracking-[0.12em] text-[#ed8435]">★★★★★</p>
-                    <p className="mt-3 text-[0.9rem] font-semibold leading-6 text-[#1f2328]">
-                      {testimonio.comentario}
-                    </p>
+                    <p className="mt-3 text-[0.9rem] font-semibold leading-6 text-[#1f2328]">{testimonio.comentario}</p>
                   </div>
                   <div className="mt-5 flex items-center gap-3 border-t border-black/8 pt-4">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#16384f] text-sm font-bold text-white">
-                      {testimonio.nombre.charAt(0)}
-                    </div>
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#16384f] text-sm font-bold text-white">{testimonio.nombre.charAt(0)}</div>
                     <div>
                       <p className="text-sm font-semibold text-[#16384f]">{testimonio.nombre}</p>
                       <p className="text-xs text-[#8b8d91]">{testimonio.rol}</p>
@@ -293,19 +252,19 @@ export default async function Home() {
 
       {/* 9 — PROMOS VERTICALES */}
       <section className="mx-auto max-w-[1440px] px-6 py-16">
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+        <div className="hscroll-md cols-4" style={{ gap: "1rem", paddingLeft: "0", paddingRight: "0.5rem" }}>
           {[
             { src: "/promo-unipars.png",    alt: "Bombín para tanque Unipars 30% off" },
             { src: "/promo-tecnomotor.png", alt: "Amortiguador Tecnimotor 30% off" },
             { src: "/promo-autoprime.png",  alt: "Batería Autoprime 30% off" },
             { src: "/promo-cauchos.png",    alt: "Cauchos Industriales 20% off" },
           ].map((promo) => (
-            <div key={promo.src} className="relative aspect-[941/1672] overflow-hidden rounded-2xl">
+            <div key={promo.src} className="relative aspect-[941/1672] overflow-hidden rounded-2xl" style={{ width: "55vw" }}>
               <Image
                 src={promo.src}
                 alt={promo.alt}
                 fill
-                sizes="(max-width:768px) 50vw, 25vw"
+                sizes="(max-width:768px) 55vw, 25vw"
                 className="object-cover object-center transition-transform duration-300 hover:scale-[1.02]"
               />
             </div>

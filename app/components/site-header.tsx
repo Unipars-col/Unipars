@@ -17,8 +17,6 @@ type SiteHeaderProps = {
 
 export default function SiteHeader({ currentUser, isVendor }: SiteHeaderProps) {
   const [menuAbierto, setMenuAbierto] = useState(false);
-  const [mobileOpen, setMobileOpen] = useState(false);
-  const [mobileCatsOpen, setMobileCatsOpen] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -27,7 +25,6 @@ export default function SiteHeader({ currentUser, isVendor }: SiteHeaderProps) {
 
   const irACategoria = (categoria?: string) => {
     setMenuAbierto(false);
-    setMobileOpen(false);
     const url = categoria
       ? `/categorias?categoria=${slugCategoria(categoria)}`
       : "/categorias";
@@ -45,12 +42,8 @@ export default function SiteHeader({ currentUser, isVendor }: SiteHeaderProps) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Cierra menú mobile al cambiar de ruta
-  useEffect(() => { setMobileOpen(false); }, [pathname]);
-
   const handleSearch = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setMobileOpen(false);
     const formData = new FormData(event.currentTarget);
     const query = String(formData.get("q") || "").trim();
     const params = new URLSearchParams(searchParams.toString());
@@ -59,6 +52,8 @@ export default function SiteHeader({ currentUser, isVendor }: SiteHeaderProps) {
     if (pathname === "/categorias") { router.replace(targetUrl); return; }
     router.push(targetUrl);
   };
+
+
 
   const openVisualSearch = () => {
     window.dispatchEvent(new CustomEvent("unipars:visual-search-toggle", { detail: { isOpen: true } }));
@@ -113,28 +108,6 @@ export default function SiteHeader({ currentUser, isVendor }: SiteHeaderProps) {
             </div>
           </form>
 
-          {/* Carrito + hamburguesa (solo mobile) */}
-          <div className="flex items-center gap-2 md:hidden">
-            <Link href="/carrito"
-              className="relative inline-flex h-11 w-11 items-center justify-center rounded-full border border-[#16384f]/18 bg-[#f8f8f7] text-[#16384f]">
-              <span className="text-lg">🛒</span>
-              {totalItems > 0 && (
-                <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-[#ed8435] px-1 text-[10px] font-semibold text-white">
-                  {totalItems}
-                </span>
-              )}
-            </Link>
-            <button
-              type="button"
-              onClick={() => setMobileOpen((v) => !v)}
-              aria-label="Abrir menú"
-              className="inline-flex h-11 w-11 flex-col items-center justify-center gap-1.5 rounded-full border border-[#16384f]/18 bg-[#f8f8f7]"
-            >
-              <span className={`block h-0.5 w-5 rounded bg-[#16384f] transition-all duration-200 ${mobileOpen ? "translate-y-2 rotate-45" : ""}`} />
-              <span className={`block h-0.5 w-5 rounded bg-[#16384f] transition-all duration-200 ${mobileOpen ? "opacity-0" : ""}`} />
-              <span className={`block h-0.5 w-5 rounded bg-[#16384f] transition-all duration-200 ${mobileOpen ? "-translate-y-2 -rotate-45" : ""}`} />
-            </button>
-          </div>
         </div>
 
         {/* Fila desktop: nav + acciones */}
@@ -207,65 +180,6 @@ export default function SiteHeader({ currentUser, isVendor }: SiteHeaderProps) {
         </div>
       </div>
 
-      {/* Menú mobile */}
-      {mobileOpen && (
-        <div className="border-t border-black/8 bg-white md:hidden">
-          <nav className="px-2 py-2">
-            {/* Categoría con acordeón */}
-            <button type="button"
-              onClick={() => setMobileCatsOpen((v) => !v)}
-              className="flex w-full items-center justify-between rounded-xl px-4 py-3.5 text-[15px] font-semibold text-[#16384f] transition-colors hover:bg-[#f5f5f4]">
-              <span>Categoría</span>
-              <span className="text-xs text-[#16384f]/50">{mobileCatsOpen ? "▲" : "▼"}</span>
-            </button>
-            {mobileCatsOpen && (
-              <div className="mb-1 ml-2 flex flex-col gap-0.5 rounded-xl bg-[#f8f8f7] p-2">
-                {categorias.map((cat) => (
-                  <button key={cat} type="button" onClick={() => irACategoria(cat)}
-                    className="rounded-lg px-3 py-2.5 text-left text-sm text-[#16384f]/80 transition-colors hover:bg-white hover:text-[#ed8435]">
-                    {cat}
-                  </button>
-                ))}
-              </div>
-            )}
-            {[
-              { href: "/vender",                 label: "Vender" },
-              { href: "/quienes-somos",          label: "Quiénes somos" },
-              { href: "/servicio-de-reparacion", label: "Uniparceros" },
-              { href: "/contacto",               label: "Contacto" },
-            ].map((item) => (
-              <Link key={item.href} href={item.href}
-                className="flex items-center rounded-xl px-4 py-3.5 text-[15px] font-semibold text-[#16384f] transition-colors hover:bg-[#f5f5f4] hover:text-[#ed8435]">
-                {item.label}
-              </Link>
-            ))}
-          </nav>
-
-          <div className="border-t border-black/8 px-4 py-4">
-            {currentUser ? (
-              <div className="flex flex-col gap-2">
-                <p className="text-sm text-[#8b8d91]">Hola, <strong className="text-[#16384f]">{currentUser.fullName}</strong></p>
-                <Link href={accountHref}
-                  className="flex items-center justify-center gap-2 rounded-xl bg-[#ed8435] py-3 text-sm font-semibold text-white">
-                  <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M20 21a8 8 0 0 0-16 0" /><circle cx="12" cy="8" r="4" />
-                  </svg>
-                  Mi cuenta
-                </Link>
-                <button type="button" onClick={handleLogout}
-                  className="rounded-xl border border-[#16384f]/25 py-3 text-sm font-semibold text-[#16384f]">
-                  Salir
-                </button>
-              </div>
-            ) : (
-              <div className="flex gap-3">
-                <Link href="/registro" className="flex-1 rounded-xl bg-[#ed8435] py-3 text-center text-sm font-semibold text-white">Registro</Link>
-                <Link href="/login" className="flex-1 rounded-xl border border-[#16384f]/25 py-3 text-center text-sm font-semibold text-[#16384f]">Ingresar</Link>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
     </header>
   );
 }

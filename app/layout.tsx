@@ -14,6 +14,7 @@ import SiteHeader from "./components/site-header";
 import SupportChat from "./components/support-chat";
 import ScrollToTop from "./components/scroll-to-top";
 import PromoPopup from "./components/promo-popup";
+import MobileBottomNav from "./components/mobile-bottom-nav";
 import VisualSearchModal from "./components/visual-search-modal";
 import { getProducts } from "@/lib/products";
 import { getSessionFromCookies } from "@/lib/auth";
@@ -54,7 +55,7 @@ export default async function RootLayout({
 
   return (
     <html lang="es" className={`h-full antialiased ${poppins.variable}`} data-scroll-behavior="smooth">
-      <body className="min-h-full flex flex-col">
+      <body className="min-h-full flex flex-col pb-16 md:pb-0">
         <ProductsProvider initialProducts={initialProducts}>
           <CartProvider
             key={cartProviderKey}
@@ -74,6 +75,7 @@ export default async function RootLayout({
             <SupportChat />
             <ScrollToTop />
             <PromoPopup />
+            <MobileBottomNav />
           </CartProvider>
         </ProductsProvider>
       </body>

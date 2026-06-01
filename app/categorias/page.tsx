@@ -10,6 +10,7 @@ import {
   categoriaDesdeSlug,
   categoriaMeta,
   categorias,
+  categoriasData,
   slugCategoria,
 } from "../data/catalog";
 
@@ -104,8 +105,114 @@ export default function CategoriasPage() {
     );
   });
 
+  const volverACategorias = () => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete("categoria");
+    router.replace(`${pathname}?${params.toString()}`);
+  };
+
   return (
     <main className="min-h-screen bg-[#f5f5f5] text-[#111]">
+
+      {/* ── MOBILE: grid de categorías ─────────────────────────────────── */}
+      {!categoriaActiva && (
+        <section className="min-h-[calc(100dvh-4rem)] bg-[#f5f5f5] px-4 py-6 md:hidden">
+          <h1 className="mb-5 text-center text-xl font-bold text-[#16384f]">Categorías</h1>
+          <div className="grid grid-cols-2 gap-3">
+            {categoriasData.map((cat) => (
+              <button
+                key={cat.nombre}
+                type="button"
+                onClick={() => cambiarCategoria(cat.nombre)}
+                className="overflow-hidden rounded-2xl border border-black/6 bg-white shadow-[0_4px_16px_rgba(15,23,42,0.07)] transition-transform duration-150 active:scale-[0.97]"
+              >
+                <div className="flex h-[130px] items-center justify-center p-4">
+                  {cat.iconoImagen ? (
+                    <Image
+                      src={cat.iconoImagen}
+                      alt={cat.nombre}
+                      width={120}
+                      height={110}
+                      className="h-full w-auto max-w-full object-contain drop-shadow-md"
+                    />
+                  ) : (
+                    <span className="text-5xl drop-shadow-sm" style={{ color: cat.color }}>
+                      {cat.icono}
+                    </span>
+                  )}
+                </div>
+                <div className="border-t border-black/5 px-3 py-3">
+                  <p className="text-center text-[13px] font-semibold leading-snug text-[#16384f]">
+                    {cat.nombre}
+                  </p>
+                </div>
+              </button>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* ── MOBILE: productos de categoría seleccionada ─────────────────── */}
+      {categoriaActiva && (
+        <section className="bg-white md:hidden">
+          <div className="sticky top-[57px] z-40 border-b border-black/8 bg-white px-4 py-3">
+            <button
+              type="button"
+              onClick={volverACategorias}
+              className="mb-2 flex items-center gap-1.5 text-sm font-semibold text-[#16384f]"
+            >
+              <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="15 18 9 12 15 6" />
+              </svg>
+              Categorías
+            </button>
+            <h2 className="text-lg font-bold text-[#16384f]">{categoriaActiva}</h2>
+            <p className="text-xs text-[#8b8d91]">{productosFiltrados.length} productos</p>
+          </div>
+          <div className="grid grid-cols-2 gap-3 p-4 pb-24">
+            {productosFiltrados.map((producto) => (
+              <article
+                key={producto.slug}
+                className="overflow-hidden rounded-2xl border border-black/8 bg-white shadow-sm"
+              >
+                <div className="flex h-36 items-center justify-center bg-[#f8f8f7] p-3">
+                  <Image
+                    src={producto.imagen}
+                    alt={producto.nombre}
+                    width={500}
+                    height={400}
+                    className="max-h-[110px] w-auto max-w-full object-contain"
+                  />
+                </div>
+                <div className="p-3">
+                  <p className="mb-0.5 text-[10px] font-semibold uppercase tracking-wide text-[#8b8d91]">
+                    {producto.marca}
+                  </p>
+                  <h3 className="line-clamp-2 text-[13px] font-semibold leading-snug text-[#1f2328]">
+                    {producto.nombre}
+                  </h3>
+                  <p className="mt-1 text-[10px] text-[#a0a3a8] line-through">{producto.precioAnterior}</p>
+                  <p className="text-base font-bold text-[#ed8435]">{producto.precio}</p>
+                  <Link
+                    href={`/producto/${producto.slug}`}
+                    className="mt-2 block w-full rounded-xl bg-[#16384f] py-2 text-center text-[11px] font-semibold text-white"
+                  >
+                    Ver producto
+                  </Link>
+                </div>
+              </article>
+            ))}
+            {productosFiltrados.length === 0 && (
+              <p className="col-span-2 py-12 text-center text-sm text-[#6e7379]">
+                No hay productos en esta categoría.
+              </p>
+            )}
+          </div>
+        </section>
+      )}
+
+      {/* ── DESKTOP: layout existente ───────────────────────────────────── */}
+      <div className="hidden md:block">
       <section className="px-6 pb-4 pt-6 text-white">
         <div className="overflow-hidden rounded-[1.9rem] border border-black/8 bg-[#070b14] shadow-[0_26px_70px_rgba(0,0,0,0.16)]">
           <div className="relative aspect-[1920/500] min-h-[252px] overflow-hidden">
@@ -429,6 +536,7 @@ export default function CategoriasPage() {
           </div>
         </div>
       </section>
+      </div>{/* end hidden md:block */}
     </main>
   );
 }

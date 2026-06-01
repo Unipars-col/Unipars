@@ -133,8 +133,8 @@ export default function SupportChat() {
 
   return (
     <div
-      className="z-[100] flex flex-col items-end gap-3"
-      style={{ position: "fixed", right: "1.5rem", bottom: "1.5rem" }}
+      className="fixed right-4 z-[100] flex flex-col items-end gap-3 md:!bottom-6"
+      style={{ bottom: "72px" }}
     >
       {isOpen && (
         <div className="w-[min(92vw,380px)] overflow-hidden rounded-[1.6rem] border border-black/10 bg-white shadow-[0_24px_60px_rgba(15,23,42,0.18)]">
@@ -272,25 +272,18 @@ export default function SupportChat() {
       <button
         type="button"
         onClick={() => setIsOpen((current) => !current)}
-        className="group relative flex items-center gap-3 rounded-full border border-white/12 bg-[#16384f] px-4 py-3 text-white shadow-[0_22px_50px_rgba(22,56,79,0.38)] ring-1 ring-black/5 transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#0f2a3b]"
+        className="relative flex h-14 w-14 items-center justify-center rounded-full bg-[#16384f] shadow-[0_8px_24px_rgba(22,56,79,0.30)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_12px_32px_rgba(22,56,79,0.42)]"
       >
-        <span className="absolute -left-1 -top-1 h-3 w-3 rounded-full bg-[#43c172] shadow-[0_0_0_6px_rgba(67,193,114,0.18)]" />
-        <span className="relative flex h-11 w-11 items-center justify-center overflow-hidden rounded-full bg-white">
+        <span className="absolute right-0.5 top-0.5 h-3 w-3 rounded-full bg-[#43c172] ring-2 ring-white" />
+        <span className="relative flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-white">
           <Image
             src="/chatbot/uniparcero-icon.png"
-            alt="Uniparcero"
+            alt="Habla con Uniparcero"
             fill
-            sizes="44px"
+            sizes="40px"
             className="object-cover p-1"
           />
         </span>
-        <span className="text-left">
-          <span className="block text-[11px] font-semibold uppercase tracking-[0.2em] text-white/70">
-            Asistente
-          </span>
-          <span className="block text-sm font-semibold">Habla con Uniparcero</span>
-        </span>
-        <span className="absolute -inset-1 -z-10 rounded-full bg-[radial-gradient(circle,rgba(237,132,53,0.16),transparent_70%)] opacity-90 blur-md" />
       </button>
     </div>
   );

@@ -120,3 +120,26 @@ body {
 .scrollbar-hidden::-webkit-scrollbar {
   display: none;
 }
+
+/* ── Scroll lateral en mobile, grid en desktop ───────────────────── */
+.hscroll-md {
+  display: flex;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x mandatory;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.hscroll-md::-webkit-scrollbar { display: none; }
+.hscroll-md > * { scroll-snap-align: start; flex-shrink: 0; }
+
+@media (min-width: 768px) {
+  .hscroll-md          { display: grid; overflow-x: visible; scroll-snap-type: none; gap: 1.25rem; }
+  .hscroll-md > *      { flex-shrink: unset; width: auto !important; min-width: unset !important; }
+  .hscroll-md.cols-2   { grid-template-columns: repeat(2, 1fr); }
+  .hscroll-md.cols-3   { grid-template-columns: repeat(3, 1fr); }
+  .hscroll-md.cols-4   { grid-template-columns: repeat(4, 1fr); }
+}
+@media (min-width: 1280px) {
+  .hscroll-md.cols-4   { grid-template-columns: repeat(4, 1fr); }
+}
