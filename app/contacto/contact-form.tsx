@@ -2,7 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 
-const CONTACT_EMAIL = "commercial@unipars.com.co";
+const CONTACT_EMAIL = "comercial1@unipars.com.co";
 
 type FormState = {
   nombre: string;

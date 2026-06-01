@@ -23,8 +23,8 @@ const contactCards = [
   },
   {
     title: "Correo electronico",
-    value: "commercial@unipars.com.co",
-    href: "mailto:commercial@unipars.com.co",
+    value: "comercial1@unipars.com.co",
+    href: "mailto:comercial1@unipars.com.co",
     icon: "/contacto/correo.png",
   },
 ];

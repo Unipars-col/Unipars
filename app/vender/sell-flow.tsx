@@ -1076,7 +1076,7 @@ export default function SellFlow() {
             <p>
               Para subir muchos productos, puedes{" "}
               <a
-                href="mailto:commercial@unipars.com.co?subject=Publicador%20masivo%20Unipars"
+                href="mailto:comercial1@unipars.com.co?subject=Publicador%20masivo%20Unipars"
                 className="font-medium text-[#ed8435] hover:underline"
               >
                 ir al Publicador masivo

@@ -26,7 +26,7 @@ const footerColumns = [
         label: "Cra. 29 #10-25, Bogota, Colombia",
         href: "https://www.google.com/maps/search/?api=1&query=Cra.+29+%2310-25+Bogota+Colombia",
       },
-      { label: "commercial@unipars.com.co", href: "mailto:commercial@unipars.com.co" },
+      { label: "comercial1@unipars.com.co", href: "mailto:comercial1@unipars.com.co" },
     ],
   },
 ];
