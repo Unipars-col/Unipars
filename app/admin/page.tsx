@@ -708,6 +708,7 @@ export default function AdminPage() {
     const search = editSearch.trim().toLowerCase();
 
     return adminProducts.filter((product) => {
+      const matchesBrand = product.marca === "Unipars";
       const matchesCategory =
         editCategoryFilter === "Todas" || product.categoria === editCategoryFilter;
       const matchesSearch =
@@ -719,7 +720,7 @@ export default function AdminPage() {
         inventoryStatusFilter === "all" ||
         product.estadoInventario === inventoryStatusFilter;
 
-      return matchesCategory && matchesSearch && matchesInventory;
+      return matchesBrand && matchesCategory && matchesSearch && matchesInventory;
     });
   }, [adminProducts, editCategoryFilter, editSearch, inventoryStatusFilter]);
   const filteredOrders = useMemo(() => {
@@ -740,7 +741,8 @@ export default function AdminPage() {
     });
   }, [orderSearch, orderShippingFilter, orders]);
 
-  const productCountLabel = `${adminProducts.length} producto${adminProducts.length === 1 ? "" : "s"} en catálogo`;
+  const uniparsProducts = adminProducts.filter((p) => p.marca === "Unipars");
+  const productCountLabel = `${uniparsProducts.length} producto${uniparsProducts.length === 1 ? "" : "s"} en catálogo`;
 
   useEffect(() => {
     if (previewImageUrl?.startsWith("blob:")) {
