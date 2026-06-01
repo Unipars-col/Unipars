@@ -219,7 +219,7 @@ export default async function Home() {
       </section>
 
       {/* 4 — BUSXRAY */}
-      <section className="mx-auto max-w-[1440px] px-6 py-16">
+      <section className="mx-auto hidden max-w-[1440px] px-6 py-16 md:block">
         <BusXrayBanner />
       </section>
 
