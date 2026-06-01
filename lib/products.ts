@@ -332,11 +332,11 @@ export async function getProducts() {
   }
 }
 
-export async function getVendorProducts(vendorId: string) {
+export async function getVendorProducts(vendorId: string, brandFilter?: string) {
   if (!prisma) return [];
   try {
     const products = await prisma.product.findMany({
-      where: { vendorId },
+      where: { vendorId, ...(brandFilter ? { brand: brandFilter } : {}) },
       orderBy: [{ createdAt: "desc" }],
     });
     return products.map(toStoreProduct);

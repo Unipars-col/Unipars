@@ -16,6 +16,12 @@ export default async function ProveedorLayout({ children }: { children: ReactNod
         let vendorId: string | null = null;
         if (user.role === "ADMIN") {
           vendorId = user.id;
+          initialProducts = await getVendorProducts(vendorId, "Unipars");
+          return (
+            <VendorProductsProvider initialProducts={initialProducts}>
+              {children}
+            </VendorProductsProvider>
+          );
         } else if (prisma) {
           const solicitud = await prisma.empresaSolicitud.findFirst({
             where: { userId: user.id, estado: "APROBADA" },
