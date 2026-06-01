@@ -14,6 +14,7 @@ type Slide = {
   textAlign: "left" | "right";
   darkText?: boolean;
   gradient: string;
+  titleSize?: string;
   rightPanel?: {
     lines: { text: string; orange?: boolean }[];
     cta: { label: string; href: string };
@@ -64,6 +65,7 @@ const slides: Slide[] = [
     textAlign: "right",
     darkText: true,
     gradient: "",
+    titleSize: "text-2xl md:text-3xl lg:text-4xl",
   },
 ];
 
@@ -128,7 +130,7 @@ export default function HeroCarousel() {
                 className={`${slide.textAlign === "right" ? "ml-auto max-w-sm text-right md:max-w-lg" : "max-w-xl"}`}
               >
                 <h1
-                  className={`mb-4 text-3xl font-extrabold uppercase leading-tight md:text-5xl ${
+                  className={`mb-4 font-extrabold uppercase leading-tight ${slide.titleSize ?? "text-3xl md:text-5xl"} ${
                     slide.darkText ? "text-[#0d1b2a]" : "text-white"
                   }`}
                 >
