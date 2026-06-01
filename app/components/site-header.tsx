@@ -17,6 +17,7 @@ type SiteHeaderProps = {
 
 export default function SiteHeader({ currentUser, isVendor }: SiteHeaderProps) {
   const [menuAbierto, setMenuAbierto] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -25,6 +26,7 @@ export default function SiteHeader({ currentUser, isVendor }: SiteHeaderProps) {
 
   const irACategoria = (categoria?: string) => {
     setMenuAbierto(false);
+    setMobileOpen(false);
     const url = categoria
       ? `/categorias?categoria=${slugCategoria(categoria)}`
       : "/categorias";
@@ -38,71 +40,50 @@ export default function SiteHeader({ currentUser, isVendor }: SiteHeaderProps) {
         setMenuAbierto(false);
       }
     };
-
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // Cierra menú mobile al cambiar de ruta
+  useEffect(() => { setMobileOpen(false); }, [pathname]);
+
   const handleSearch = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-
+    setMobileOpen(false);
     const formData = new FormData(event.currentTarget);
     const query = String(formData.get("q") || "").trim();
     const params = new URLSearchParams(searchParams.toString());
-
-    if (query) {
-      params.set("q", query);
-    } else {
-      params.delete("q");
-    }
-
-    const targetUrl = params.toString()
-      ? `/categorias?${params.toString()}`
-      : "/categorias";
-
-    if (pathname === "/categorias") {
-      router.replace(targetUrl);
-      return;
-    }
-
+    if (query) { params.set("q", query); } else { params.delete("q"); }
+    const targetUrl = params.toString() ? `/categorias?${params.toString()}` : "/categorias";
+    if (pathname === "/categorias") { router.replace(targetUrl); return; }
     router.push(targetUrl);
   };
 
   const openVisualSearch = () => {
-    window.dispatchEvent(
-      new CustomEvent("unipars:visual-search-toggle", {
-        detail: { isOpen: true },
-      }),
-    );
+    window.dispatchEvent(new CustomEvent("unipars:visual-search-toggle", { detail: { isOpen: true } }));
   };
 
   const handleLogout = async () => {
-    await fetch("/api/auth/logout", {
-      method: "POST",
-    });
+    await fetch("/api/auth/logout", { method: "POST" });
     router.push("/");
     router.refresh();
   };
 
+  const accountHref = currentUser?.role === "ADMIN" ? "/admin"
+    : currentUser?.role === "MASTER" ? "/master"
+    : isVendor ? "/proveedor"
+    : "/mi-cuenta";
+
   return (
     <header className="sticky top-0 z-50 border-b border-black/8 bg-white text-[#16384f] shadow-[0_12px_30px_rgba(15,23,42,0.05)]">
       <div className="mx-auto max-w-[1600px] px-4 py-4 lg:px-5">
+
+        {/* Fila superior: logo + búsqueda + hamburguesa/acciones */}
         <div className="flex items-center gap-3">
-          <Link
-            href="/"
-            className="inline-flex shrink-0"
-            aria-label="Ir al inicio de Unipars"
-          >
+          <Link href="/" className="inline-flex shrink-0" aria-label="Ir al inicio de Unipars">
             <Image
-              src="/logo.png"
-              alt="Unipars"
-              width={3212}
-              height={1067}
-              style={{
-                width: "clamp(128px, 12vw, 150px)",
-                height: "auto",
-              }}
-              priority
+              src="/logo.png" alt="Unipars" width={3212} height={1067}
+              style={{ width: "clamp(128px, 12vw, 150px)", height: "auto" }} priority
             />
           </Link>
 
@@ -112,117 +93,84 @@ export default function SiteHeader({ currentUser, isVendor }: SiteHeaderProps) {
           >
             <input
               key={searchParams.get("q") || ""}
-              name="q"
-              type="search"
+              name="q" type="search"
               defaultValue={searchParams.get("q") || ""}
               placeholder="Buscar repuestos..."
               className="w-full min-w-0 bg-transparent px-4 text-sm text-[#16384f] outline-none placeholder:text-slate-400 md:px-5"
             />
             <div className="ml-2 flex items-center gap-2 rounded-full bg-white/88 pl-2">
-              <button
-                type="submit"
-                className="rounded-full bg-[#ed8435] px-5 py-3 text-sm font-semibold text-white transition-colors duration-200 hover:bg-[#d67024] lg:px-7"
-              >
+              <button type="submit" className="rounded-full bg-[#ed8435] px-5 py-3 text-sm font-semibold text-white transition-colors duration-200 hover:bg-[#d67024] lg:px-7">
                 Buscar
               </button>
-              <button
-                type="button"
-                onClick={openVisualSearch}
-                aria-label="Abrir búsqueda por imagen"
-                className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-[#16384f]/12 bg-white text-[#16384f] transition-colors duration-200 hover:border-[#ed8435] hover:bg-[#fff6ee] hover:text-[#ed8435]"
-              >
-                <svg
-                  aria-hidden="true"
-                  viewBox="0 0 24 24"
-                  className="h-5 w-5"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.8"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
+              <button type="button" onClick={openVisualSearch} aria-label="Búsqueda por imagen"
+                className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-[#16384f]/12 bg-white text-[#16384f] transition-colors duration-200 hover:border-[#ed8435] hover:bg-[#fff6ee] hover:text-[#ed8435]">
+                <svg aria-hidden="true" viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M14.5 4H9.5L8 6H5a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-3l-1.5-2Z" />
                   <circle cx="12" cy="12" r="3.5" />
                 </svg>
               </button>
             </div>
           </form>
+
+          {/* Carrito + hamburguesa (solo mobile) */}
+          <div className="flex items-center gap-2 md:hidden">
+            <Link href="/carrito"
+              className="relative inline-flex h-11 w-11 items-center justify-center rounded-full border border-[#16384f]/18 bg-[#f8f8f7] text-[#16384f]">
+              <span className="text-lg">🛒</span>
+              {totalItems > 0 && (
+                <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-[#ed8435] px-1 text-[10px] font-semibold text-white">
+                  {totalItems}
+                </span>
+              )}
+            </Link>
+            <button
+              type="button"
+              onClick={() => setMobileOpen((v) => !v)}
+              aria-label="Abrir menú"
+              className="inline-flex h-11 w-11 flex-col items-center justify-center gap-1.5 rounded-full border border-[#16384f]/18 bg-[#f8f8f7]"
+            >
+              <span className={`block h-0.5 w-5 rounded bg-[#16384f] transition-all duration-200 ${mobileOpen ? "translate-y-2 rotate-45" : ""}`} />
+              <span className={`block h-0.5 w-5 rounded bg-[#16384f] transition-all duration-200 ${mobileOpen ? "opacity-0" : ""}`} />
+              <span className={`block h-0.5 w-5 rounded bg-[#16384f] transition-all duration-200 ${mobileOpen ? "-translate-y-2 -rotate-45" : ""}`} />
+            </button>
+          </div>
         </div>
 
-        <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
+        {/* Fila desktop: nav + acciones */}
+        <div className="mt-3 hidden items-center justify-between gap-3 md:flex">
           <nav className="flex shrink-0 items-center gap-4 text-[13px] font-semibold tracking-[0.01em] text-[#16384f] md:gap-5 lg:text-sm xl:gap-6">
-          <div className="relative" ref={menuRef}>
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => irACategoria()}
-                className="whitespace-nowrap transition-colors duration-200 hover:text-[#ed8435]"
-              >
-                Categoría
-              </button>
-              <button
-                type="button"
-                aria-label="Abrir subcategorías"
-                onClick={() => setMenuAbierto((prev) => !prev)}
-                className="text-[10px] text-[#16384f]/55 transition-colors duration-200 hover:text-[#ed8435]"
-              >
-                {menuAbierto ? "▲" : "▼"}
-              </button>
-            </div>
-
-            {menuAbierto && (
-              <div className="absolute left-0 top-full mt-4 w-72 rounded-2xl border border-black/8 bg-white p-2 shadow-[0_18px_40px_rgba(15,23,42,0.12)]">
-                {categorias.map((categoria) => (
-                  <button
-                    key={categoria}
-                    type="button"
-                    onClick={() => irACategoria(categoria)}
-                    className="block w-full rounded-xl px-4 py-3 text-left text-sm font-medium normal-case tracking-normal text-[#16384f]/85 transition-colors duration-200 hover:bg-[#f8f8f7] hover:text-[#16384f]"
-                  >
-                    {categoria}
-                  </button>
-                ))}
+            <div className="relative" ref={menuRef}>
+              <div className="flex items-center gap-2">
+                <button type="button" onClick={() => irACategoria()}
+                  className="whitespace-nowrap transition-colors duration-200 hover:text-[#ed8435]">
+                  Categoría
+                </button>
+                <button type="button" aria-label="Subcategorías"
+                  onClick={() => setMenuAbierto((prev) => !prev)}
+                  className="text-[10px] text-[#16384f]/55 transition-colors duration-200 hover:text-[#ed8435]">
+                  {menuAbierto ? "▲" : "▼"}
+                </button>
               </div>
-            )}
-          </div>
-
-          <Link
-            href="/vender"
-            className="whitespace-nowrap transition-colors duration-200 hover:text-[#ed8435]"
-          >
-            Vender
-          </Link>
-          <Link
-            href="/quienes-somos"
-            className="whitespace-nowrap transition-colors duration-200 hover:text-[#ed8435]"
-          >
-            Quiénes somos
-          </Link>
-          {/* <Link
-            href="/tips-y-videos"
-            className="whitespace-nowrap transition-colors duration-200 hover:text-[#ed8435]"
-          >
-            Tips y videos
-          </Link> */}
-          <Link
-            href="/servicio-de-reparacion"
-            className="whitespace-nowrap transition-colors duration-200 hover:text-[#ed8435]"
-          >
-            Uniparceros
-          </Link>
-          <Link
-            href="/contacto"
-            className="whitespace-nowrap transition-colors duration-200 hover:text-[#ed8435]"
-          >
-            Contacto
-          </Link>
+              {menuAbierto && (
+                <div className="absolute left-0 top-full mt-4 w-72 rounded-2xl border border-black/8 bg-white p-2 shadow-[0_18px_40px_rgba(15,23,42,0.12)]">
+                  {categorias.map((cat) => (
+                    <button key={cat} type="button" onClick={() => irACategoria(cat)}
+                      className="block w-full rounded-xl px-4 py-3 text-left text-sm font-medium normal-case tracking-normal text-[#16384f]/85 transition-colors duration-200 hover:bg-[#f8f8f7] hover:text-[#16384f]">
+                      {cat}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+            <Link href="/vender" className="whitespace-nowrap transition-colors duration-200 hover:text-[#ed8435]">Vender</Link>
+            <Link href="/quienes-somos" className="whitespace-nowrap transition-colors duration-200 hover:text-[#ed8435]">Quiénes somos</Link>
+            <Link href="/servicio-de-reparacion" className="whitespace-nowrap transition-colors duration-200 hover:text-[#ed8435]">Uniparceros</Link>
+            <Link href="/contacto" className="whitespace-nowrap transition-colors duration-200 hover:text-[#ed8435]">Contacto</Link>
           </nav>
 
           <div className="flex shrink-0 items-center gap-2 xl:gap-3">
-            <Link
-              href="/carrito"
-              className="relative inline-flex h-11 w-11 items-center justify-center rounded-full border border-[#16384f]/18 bg-[#f8f8f7] text-[#16384f] transition-colors duration-200 hover:bg-[#16384f] hover:text-white"
-            >
+            <Link href="/carrito"
+              className="relative inline-flex h-11 w-11 items-center justify-center rounded-full border border-[#16384f]/18 bg-[#f8f8f7] text-[#16384f] transition-colors duration-200 hover:bg-[#16384f] hover:text-white">
               <span className="text-lg">🛒</span>
               {totalItems > 0 && (
                 <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-[#ed8435] px-1 text-[10px] font-semibold text-white">
@@ -235,53 +183,76 @@ export default function SiteHeader({ currentUser, isVendor }: SiteHeaderProps) {
                 <span className="hidden max-w-[96px] truncate whitespace-nowrap text-sm font-semibold text-[#16384f] lg:inline xl:max-w-none">
                   Hola, {currentUser.fullName}
                 </span>
-                <Link
-                  href={currentUser.role === "ADMIN" ? "/admin" : currentUser.role === "MASTER" ? "/master" : isVendor ? "/proveedor" : "/mi-cuenta"}
-                  className="inline-flex items-center gap-2 rounded-full bg-[#ed8435] px-3 py-2.5 text-[11px] font-semibold tracking-[0.04em] text-white transition-colors duration-200 hover:bg-[#d67024] lg:px-4 lg:text-xs xl:px-5"
-                >
-                  <svg
-                    aria-hidden="true"
-                    viewBox="0 0 24 24"
-                    className="h-4 w-4"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="1.9"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <path d="M20 21a8 8 0 0 0-16 0" />
-                    <circle cx="12" cy="8" r="4" />
+                <Link href={accountHref}
+                  className="inline-flex items-center gap-2 rounded-full bg-[#ed8435] px-3 py-2.5 text-[11px] font-semibold tracking-[0.04em] text-white transition-colors duration-200 hover:bg-[#d67024] lg:px-4 lg:text-xs xl:px-5">
+                  <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M20 21a8 8 0 0 0-16 0" /><circle cx="12" cy="8" r="4" />
                   </svg>
                   <span className="hidden lg:inline">{currentUser.fullName}</span>
                   <span className="lg:hidden">Cuenta</span>
                 </Link>
-                <button
-                  type="button"
-                  onClick={handleLogout}
-                  className="rounded-full border border-[#16384f]/25 px-3 py-2.5 text-[11px] font-semibold tracking-[0.04em] text-[#16384f] transition-colors duration-200 hover:border-[#16384f] hover:bg-[#16384f] hover:text-white lg:px-4 lg:text-xs xl:px-5"
-                >
+                <button type="button" onClick={handleLogout}
+                  className="rounded-full border border-[#16384f]/25 px-3 py-2.5 text-[11px] font-semibold tracking-[0.04em] text-[#16384f] transition-colors duration-200 hover:border-[#16384f] hover:bg-[#16384f] hover:text-white lg:px-4 lg:text-xs xl:px-5">
                   Salir
                 </button>
               </>
             ) : (
               <>
-                <Link
-                  href="/registro"
-                  className="rounded-full bg-[#ed8435] px-3 py-2.5 text-[11px] font-semibold tracking-[0.04em] text-white transition-colors duration-200 hover:bg-[#d67024] lg:px-4 lg:text-xs xl:px-5"
-                >
-                  Registro
-                </Link>
-                <Link
-                  href="/login"
-                  className="rounded-full border border-[#16384f]/25 px-3 py-2.5 text-[11px] font-semibold tracking-[0.04em] text-[#16384f] transition-colors duration-200 hover:border-[#16384f] hover:bg-[#16384f] hover:text-white lg:px-4 lg:text-xs xl:px-5"
-                >
-                  Ingresar
-                </Link>
+                <Link href="/registro" className="rounded-full bg-[#ed8435] px-3 py-2.5 text-[11px] font-semibold tracking-[0.04em] text-white transition-colors duration-200 hover:bg-[#d67024] lg:px-4 lg:text-xs xl:px-5">Registro</Link>
+                <Link href="/login" className="rounded-full border border-[#16384f]/25 px-3 py-2.5 text-[11px] font-semibold tracking-[0.04em] text-[#16384f] transition-colors duration-200 hover:border-[#16384f] hover:bg-[#16384f] hover:text-white lg:px-4 lg:text-xs xl:px-5">Ingresar</Link>
               </>
             )}
           </div>
         </div>
       </div>
+
+      {/* Menú mobile */}
+      {mobileOpen && (
+        <div className="border-t border-black/8 bg-white px-4 pb-6 pt-4 md:hidden">
+          <nav className="flex flex-col gap-1 text-[15px] font-semibold text-[#16384f]">
+            <button type="button" onClick={() => irACategoria()}
+              className="rounded-xl px-4 py-3 text-left transition-colors hover:bg-[#f8f8f7] hover:text-[#ed8435]">
+              Categoría
+            </button>
+            <div className="ml-4 grid grid-cols-2 gap-1">
+              {categorias.map((cat) => (
+                <button key={cat} type="button" onClick={() => irACategoria(cat)}
+                  className="rounded-xl px-3 py-2 text-left text-sm font-medium text-[#16384f]/70 transition-colors hover:bg-[#f8f8f7] hover:text-[#ed8435]">
+                  {cat}
+                </button>
+              ))}
+            </div>
+            <Link href="/vender" className="rounded-xl px-4 py-3 transition-colors hover:bg-[#f8f8f7] hover:text-[#ed8435]">Vender</Link>
+            <Link href="/quienes-somos" className="rounded-xl px-4 py-3 transition-colors hover:bg-[#f8f8f7] hover:text-[#ed8435]">Quiénes somos</Link>
+            <Link href="/servicio-de-reparacion" className="rounded-xl px-4 py-3 transition-colors hover:bg-[#f8f8f7] hover:text-[#ed8435]">Uniparceros</Link>
+            <Link href="/contacto" className="rounded-xl px-4 py-3 transition-colors hover:bg-[#f8f8f7] hover:text-[#ed8435]">Contacto</Link>
+          </nav>
+
+          <div className="mt-4 border-t border-black/8 pt-4">
+            {currentUser ? (
+              <div className="flex flex-col gap-2">
+                <p className="px-4 text-sm text-[#8b8d91]">Hola, <strong className="text-[#16384f]">{currentUser.fullName}</strong></p>
+                <Link href={accountHref}
+                  className="flex items-center gap-2 rounded-xl bg-[#ed8435] px-4 py-3 text-sm font-semibold text-white">
+                  <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M20 21a8 8 0 0 0-16 0" /><circle cx="12" cy="8" r="4" />
+                  </svg>
+                  Mi cuenta
+                </Link>
+                <button type="button" onClick={handleLogout}
+                  className="rounded-xl border border-[#16384f]/25 px-4 py-3 text-sm font-semibold text-[#16384f]">
+                  Salir
+                </button>
+              </div>
+            ) : (
+              <div className="flex gap-2">
+                <Link href="/registro" className="flex-1 rounded-xl bg-[#ed8435] py-3 text-center text-sm font-semibold text-white">Registro</Link>
+                <Link href="/login" className="flex-1 rounded-xl border border-[#16384f]/25 py-3 text-center text-sm font-semibold text-[#16384f]">Ingresar</Link>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </header>
   );
 }
