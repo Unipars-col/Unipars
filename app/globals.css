@@ -152,6 +152,12 @@ body {
   .hscroll-md.cols-4   { grid-template-columns: repeat(4, 1fr); }
 }
 
+/* ── Mobile nav drawer ───────────────────────────────────────────── */
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+
 /* ── Cómo funciona — pasos ───────────────────────────────────────── */
 @keyframes stepFadeUp {
   from { opacity: 0; transform: translateY(32px); }
