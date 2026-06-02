@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useEffectEvent, useState } from "react";
+import { useEffect, useEffectEvent, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -29,7 +29,7 @@ const slides: Slide[] = [
     description:
       "Encuentra talleres aliados de confianza en todo el país para instalar tus repuestos con seguridad, calidad y garantía.",
     cta: null,
-    image: "/hero-banner-transmilenio.png",
+    image: "/hero-banner-transmilenio-v2.jpg",
     textAlign: "left",
     darkText: true,
     gradient: "",
@@ -71,23 +71,62 @@ const slides: Slide[] = [
 
 const AUTO_PLAY_MS = 5000;
 
-export default function HeroCarousel() {
-  const [currentSlide, setCurrentSlide] = useState(0);
+// Array con clon del último al inicio y clon del primero al final
+// Índices: [0=clonLast, 1=slide1, 2=slide2, 3=slide3, 4=clonFirst]
+const loopSlides = [slides[slides.length - 1], ...slides, slides[0]];
+const FIRST_REAL = 1;
+const LAST_REAL = slides.length;
 
-  const advanceSlide = () => {
-    setCurrentSlide((prev) => (prev + 1) % slides.length);
+export default function HeroCarousel() {
+  const [index, setIndex] = useState(FIRST_REAL);
+  const [transition, setTransition] = useState(true);
+  const isSnapping = useRef(false);
+
+  // Índice real para los dots (0-based)
+  const dotIndex =
+    index === 0 ? slides.length - 1 :
+    index === loopSlides.length - 1 ? 0 :
+    index - 1;
+
+  const goTo = (i: number) => {
+    if (isSnapping.current) return;
+    setTransition(true);
+    setIndex(i);
   };
+
+  const advanceSlide = () => goTo(index + 1);
 
   const syncAdvanceSlide = useEffectEvent(() => {
     advanceSlide();
   });
 
-  const goToPrev = () => {
-    setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
-  };
+  const goToPrev = () => goTo(index - 1);
 
-  const goToSlide = (index: number) => {
-    setCurrentSlide(index);
+  const goToSlide = (dotIdx: number) => goTo(dotIdx + FIRST_REAL);
+
+  // Snap instantáneo cuando llega a un clon
+  const handleTransitionEnd = () => {
+    if (index === 0) {
+      isSnapping.current = true;
+      setTransition(false);
+      setIndex(LAST_REAL);
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          setTransition(true);
+          isSnapping.current = false;
+        });
+      });
+    } else if (index === loopSlides.length - 1) {
+      isSnapping.current = true;
+      setTransition(false);
+      setIndex(FIRST_REAL);
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          setTransition(true);
+          isSnapping.current = false;
+        });
+      });
+    }
   };
 
   useEffect(() => {
@@ -101,12 +140,13 @@ export default function HeroCarousel() {
   return (
     <section className="relative overflow-hidden text-white">
       <div
-        className="flex transition-transform duration-700 ease-out"
-        style={{ transform: `translateX(-${currentSlide * 100}%)` }}
+        className={transition ? "flex transition-transform duration-700 ease-out" : "flex"}
+        style={{ transform: `translateX(-${index * 100}%)` }}
+        onTransitionEnd={handleTransitionEnd}
       >
-        {slides.map((slide) => (
+        {loopSlides.map((slide, i) => (
           <article
-            key={slide.id}
+            key={i}
             className="relative aspect-[16/10] w-full shrink-0 bg-[#05070a] sm:aspect-[16/9] md:aspect-[21/8] lg:aspect-[2560/720]"
           >
             <div className="absolute inset-0">
@@ -114,7 +154,7 @@ export default function HeroCarousel() {
                 src={slide.image}
                 alt={slide.title}
                 fill
-                priority={slide.id === 1}
+                priority
                 sizes="100vw"
                 className="object-cover object-center"
               />
@@ -205,14 +245,14 @@ export default function HeroCarousel() {
       </button>
 
       <div className="absolute bottom-8 left-1/2 flex -translate-x-1/2 items-center gap-3">
-        {slides.map((slide, index) => (
+        {slides.map((slide, i) => (
           <button
             key={slide.id}
             type="button"
-            aria-label={`Ir al banner ${index + 1}`}
-            onClick={() => goToSlide(index)}
+            aria-label={`Ir al banner ${i + 1}`}
+            onClick={() => goToSlide(i)}
             className={`h-3 rounded-full transition-all duration-300 ${
-              currentSlide === index
+              dotIndex === i
                 ? "w-10 bg-[#ed8435]"
                 : "w-3 bg-white/60 hover:bg-white"
             }`}

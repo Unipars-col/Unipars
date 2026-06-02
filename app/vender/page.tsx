@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import SellFlow from "./sell-flow";
+import PopupProveedor from "./popup-proveedor";
 
 export const metadata: Metadata = {
   title: "Vender | Unipars",
@@ -8,5 +9,10 @@ export const metadata: Metadata = {
 };
 
 export default function VenderPage() {
-  return <SellFlow />;
+  return (
+    <>
+      <PopupProveedor />
+      <SellFlow />
+    </>
+  );
 }

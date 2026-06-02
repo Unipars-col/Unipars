@@ -142,7 +142,7 @@ body {
 .hscroll-md > * { scroll-snap-align: start; flex-shrink: 0; }
 
 @media (min-width: 768px) {
-  .hscroll-md          { display: grid; overflow-x: visible; scroll-snap-type: none; gap: 1.25rem; }
+  .hscroll-md          { display: grid; overflow: visible; scroll-snap-type: none; gap: 1.25rem; }
   .hscroll-md > *      { flex-shrink: unset; width: auto !important; min-width: unset !important; }
   .hscroll-md.cols-2   { grid-template-columns: repeat(2, 1fr); }
   .hscroll-md.cols-3   { grid-template-columns: repeat(3, 1fr); }
@@ -151,3 +151,78 @@ body {
 @media (min-width: 1280px) {
   .hscroll-md.cols-4   { grid-template-columns: repeat(4, 1fr); }
 }
+
+/* ── Cómo funciona — pasos ───────────────────────────────────────── */
+@keyframes stepFadeUp {
+  from { opacity: 0; transform: translateY(32px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes stepRingPulse {
+  0%, 100% { transform: scale(1.3); opacity: 0.25; }
+  50%       { transform: scale(1.6); opacity: 0;    }
+}
+@keyframes stepCircleBounce {
+  0%, 100% { transform: scale(1); }
+  50%       { transform: scale(1.08); }
+}
+
+.step-card {
+  opacity: 0;
+  animation: stepFadeUp 0.6s cubic-bezier(0.22,1,0.36,1) forwards;
+}
+.step-card:nth-child(1) { animation-delay: 0.1s; }
+.step-card:nth-child(2) { animation-delay: 0.25s; }
+.step-card:nth-child(3) { animation-delay: 0.4s; }
+.step-card:nth-child(4) { animation-delay: 0.55s; }
+
+.step-ring {
+  animation: stepRingPulse 2.4s ease-in-out infinite;
+}
+.step-card:nth-child(2) .step-ring { animation-delay: 0.6s; }
+.step-card:nth-child(3) .step-ring { animation-delay: 1.2s; }
+.step-card:nth-child(4) .step-ring { animation-delay: 1.8s; }
+
+.step-circle {
+  animation: stepCircleBounce 3s ease-in-out infinite;
+}
+.step-card:nth-child(2) .step-circle { animation-delay: 0.6s; }
+.step-card:nth-child(3) .step-circle { animation-delay: 1.2s; }
+.step-card:nth-child(4) .step-circle { animation-delay: 1.8s; }
+
+/* ── Chat button pulse ───────────────────────────────────────────── */
+@keyframes chatPulse {
+  0%, 100% { transform: scale(1);    box-shadow: 0 8px 24px rgba(22,56,79,0.30); }
+  50%       { transform: scale(1.08); box-shadow: 0 12px 36px rgba(22,56,79,0.50); }
+}
+
+/* ── Tarjetas destacadas hover ───────────────────────────────────── */
+.card-destacada {
+  border: 2px solid transparent;
+  box-shadow: 0 8px 24px rgba(15,23,42,0.07);
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+}
+.card-destacada:hover {
+  transform: translateY(-20px) scale(1.05);
+  border-color: #ed8435;
+  box-shadow: 0 40px 80px rgba(237,132,53,0.4), 0 0 0 4px rgba(237,132,53,0.15);
+}
+.card-img {
+  transition: transform 0.5s ease;
+}
+.card-destacada:hover .card-img {
+  transform: scale(1.2);
+}
+.card-marca {
+  transition: color 0.3s ease;
+}
+.card-destacada:hover .card-marca {
+  color: #ed8435;
+}
+.card-btn {
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+.card-destacada:hover .card-btn {
+  background-color: #ed8435;
+  box-shadow: 0 8px 24px rgba(237,132,53,0.45);
+}
+

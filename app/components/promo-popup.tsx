@@ -10,15 +10,11 @@ export default function PromoPopup() {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    const seen = sessionStorage.getItem(STORAGE_KEY);
-    if (!seen) {
-      const timer = setTimeout(() => setVisible(true), 1200);
-      return () => clearTimeout(timer);
-    }
+    const timer = setTimeout(() => setVisible(true), 1200);
+    return () => clearTimeout(timer);
   }, []);
 
   const close = () => {
-    sessionStorage.setItem(STORAGE_KEY, "1");
     setVisible(false);
   };
 
@@ -54,13 +50,6 @@ export default function PromoPopup() {
           />
         </Link>
 
-        <button
-          type="button"
-          onClick={close}
-          className="w-full bg-[#0d1b2a] py-3 text-center text-xs text-white/50 hover:text-white/80 transition"
-        >
-          No, gracias — cerrar
-        </button>
       </div>
     </div>
   );

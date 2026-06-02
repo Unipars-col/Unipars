@@ -57,7 +57,7 @@ export default function QuienesSomosPage() {
 
             <div className="mt-10">
               <Link 
-                href="/catalogo" 
+                href="/categorias"
                 className="inline-block bg-[#2f4f68] text-white px-8 py-4 rounded-full font-bold hover:bg-[#ed8435] transition-all shadow-lg hover:-translate-y-1"
               >
                 Explorar Catálogo

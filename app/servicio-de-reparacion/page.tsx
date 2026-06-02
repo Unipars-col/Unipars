@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import SiteFooter from "@/app/components/site-footer";
 import Buscador from "./buscador";
+import PopupAliado from "./popup-aliado";
 import { type Taller } from "./talleres-grid";
 
 export const metadata: Metadata = {
@@ -242,13 +243,14 @@ const TALLERES: Taller[] = [
 export default function UniparceroPage() {
   return (
     <main className="min-h-screen bg-[#f7f7f6] text-[#16384f]">
+      <PopupAliado />
 
       {/* ── HERO BANNER ── */}
       <section className="w-full">
         <Link href="#buscar" className="block">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="/servicio-reparacion/banner-uniparceros.jpg"
+            src="/servicio-reparacion/banner-uniparceros-v2.jpg"
             alt="Uniparceros, aliados en cada ruta — Encuentra talleres aliados de confianza en todo el país"
             className="w-full h-auto object-cover"
           />
@@ -258,20 +260,51 @@ export default function UniparceroPage() {
       <Buscador talleres={TALLERES} />
 
       {/* ── CÓMO FUNCIONA ── */}
-      <section className="bg-[#f7f7f6] py-14">
-        <div className="mx-auto max-w-[1440px] px-5 sm:px-6 lg:px-8">
-          <h2 className="mb-10 text-2xl font-bold text-[#16384f] sm:text-3xl">¿Cómo funciona?</h2>
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            {HOW_IT_WORKS.map((item) => (
-              <div key={item.step} className="flex items-start gap-4 rounded-2xl bg-white p-6 shadow-sm">
-                <div className="flex-shrink-0">{item.icon}</div>
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-wider text-[#ed8435]">
-                    Paso {item.step}
-                  </p>
-                  <h3 className="mt-1 font-bold text-[#16384f]">{item.title}</h3>
-                  <p className="mt-1 text-sm leading-5 text-gray-500">{item.desc}</p>
+      <section className="bg-white py-20">
+        <div className="mx-auto max-w-[1440px] px-5 sm:px-8 lg:px-12">
+
+          {/* Header */}
+          <div className="mb-16 text-center">
+            <p className="mb-2 text-xs font-semibold uppercase tracking-[0.35em] text-[#8b8d91]">Proceso simple</p>
+            <h2 className="text-3xl font-bold text-[#16384f] md:text-4xl">¿Cómo <span className="text-[#ed8435]">funciona?</span></h2>
+            <p className="mt-3 text-sm text-[#8b8d91]">De la búsqueda al taller en 4 pasos</p>
+          </div>
+
+          {/* Pasos */}
+          <div className="relative grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
+
+            {/* Línea conectora */}
+            <div className="absolute left-[12.5%] right-[12.5%] top-10 hidden h-0.5 bg-gradient-to-r from-[#ed8435]/20 via-[#ed8435] to-[#ed8435]/20 lg:block" />
+
+            {HOW_IT_WORKS.map((item, i) => (
+              <div key={item.step} className="step-card group relative flex flex-col items-center text-center">
+
+                {/* Círculo con número */}
+                <div className="relative z-10 mb-6">
+                  <div className="step-circle flex h-20 w-20 items-center justify-center rounded-full bg-[#ed8435] shadow-[0_8px_32px_rgba(237,132,53,0.35)] transition-transform duration-300 group-hover:scale-110">
+                    <span className="text-3xl font-black text-white">{item.step}</span>
+                  </div>
+                  {/* Anillo pulsante */}
+                  <div className="step-ring absolute inset-0 rounded-full border-4 border-[#ed8435]" />
                 </div>
+
+                {/* Ícono pequeño */}
+                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-[#fff5ec] transition-transform duration-300 group-hover:scale-110 group-hover:bg-[#ed8435]/15">
+                  {item.icon}
+                </div>
+
+                {/* Texto */}
+                <h3 className="text-lg font-bold text-[#16384f] transition-colors duration-200 group-hover:text-[#ed8435]">{item.title}</h3>
+                <p className="mt-2 text-sm leading-6 text-[#8b8d91]">{item.desc}</p>
+
+                {/* Flecha */}
+                {i < HOW_IT_WORKS.length - 1 && (
+                  <div className="absolute -right-4 top-9 z-20 hidden text-[#ed8435] lg:block">
+                    <svg className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                    </svg>
+                  </div>
+                )}
               </div>
             ))}
           </div>

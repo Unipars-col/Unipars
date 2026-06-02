@@ -136,10 +136,26 @@ export default function SiteHeader({ currentUser, isVendor }: SiteHeaderProps) {
                 </div>
               )}
             </div>
-            <Link href="/vender" className="whitespace-nowrap transition-colors duration-200 hover:text-[#ed8435]">Vender</Link>
-            <Link href="/quienes-somos" className="whitespace-nowrap transition-colors duration-200 hover:text-[#ed8435]">Quiénes somos</Link>
-            <Link href="/servicio-de-reparacion" className="whitespace-nowrap transition-colors duration-200 hover:text-[#ed8435]">Uniparceros</Link>
-            <Link href="/contacto" className="whitespace-nowrap transition-colors duration-200 hover:text-[#ed8435]">Contacto</Link>
+            {[
+              { href: "/vender", label: "Vender" },
+              { href: "/quienes-somos", label: "Quiénes somos" },
+              { href: "/servicio-de-reparacion", label: "Uniparceros" },
+              { href: "/contacto", label: "Contacto" },
+            ].map(({ href, label }) => {
+              const isActive = pathname === href || pathname.startsWith(href + "/");
+              return (
+                <Link
+                  key={href}
+                  href={href}
+                  className={`relative whitespace-nowrap transition-colors duration-200 hover:text-[#ed8435] ${isActive ? "font-semibold text-[#ed8435]" : ""}`}
+                >
+                  {label}
+                  {isActive && (
+                    <span className="absolute -bottom-1 left-0 right-0 h-0.5 rounded-full bg-[#ed8435]" />
+                  )}
+                </Link>
+              );
+            })}
           </nav>
 
           <div className="flex shrink-0 items-center gap-2 xl:gap-3">

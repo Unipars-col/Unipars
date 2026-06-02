@@ -4,7 +4,8 @@ import Link from "next/link";
 import BusXrayBanner from "./components/bus-xray-banner";
 import CategoriesCarousel from "./components/categories-carousel";
 import HeroCarousel from "./components/hero-carousel";
-import HoverCartControl from "./components/hover-cart-control";
+import FeaturedProductCard from "./components/featured-product-card";
+import PromoPopup from "./components/promo-popup";
 import SiteFooter from "./components/site-footer";
 import { categoriasData, slugCategoria } from "./data/catalog";
 import { getFeaturedProducts } from "@/lib/products";
@@ -95,11 +96,15 @@ export default async function Home() {
 
   return (
     <main className="min-h-screen bg-[#f5f5f5] text-[#111]">
+      <PromoPopup />
       <HeroCarousel />
 
       {/* 1 — CATEGORÍAS */}
-      <section className="py-16">
+      <section className="py-14">
         <div className="mb-8 px-6 text-center">
+          <p className="mb-2 text-xs font-semibold uppercase tracking-[0.35em] text-[#8b8d91]">
+            Explora por línea
+          </p>
           <h2 className="text-3xl font-bold text-[#ed8435] md:text-4xl">
             Categorías principales
           </h2>
@@ -117,8 +122,8 @@ export default async function Home() {
           { src: "/promo-espatula.png", alt: "Espátula metálica 40% dto" },
         ];
         return (
-          <section className="py-10">
-            <div className="hscroll-md cols-3 mx-auto max-w-[1440px]" style={{ gap: "1rem", paddingLeft: "1.5rem", paddingRight: "0.5rem" }}>
+          <section className="py-14">
+            <div className="hscroll-md cols-3 mx-auto max-w-[1440px]" style={{ gap: "1.5rem", paddingLeft: "1.5rem", paddingRight: "1.5rem" }}>
               {promos.map((promo) => (
                 <div key={promo.src} className="overflow-hidden rounded-2xl" style={{ width: "82vw" }}>
                   <Image src={promo.src} alt={promo.alt} width={600} height={600} className="w-full object-cover transition-transform duration-300 hover:scale-[1.02]" />
@@ -129,53 +134,31 @@ export default async function Home() {
         );
       })()}
 
-      <section className="mx-auto max-w-[1440px] px-6 py-16">
-        <div className="mb-8 flex items-end justify-between gap-4">
-          <div>
-            <p className="mb-2 text-xs font-medium uppercase tracking-[0.35em] text-[#8b8d91]">
-              Seleccionados para ti
-            </p>
-            <h2 className="text-3xl font-semibold uppercase tracking-[-0.04em] text-[#4f545a] md:text-5xl">
-              Productos destacados
-            </h2>
-          </div>
-
-          <Link
-            href="#"
-            className="hidden text-sm font-medium text-[#ed8435] transition-colors duration-200 hover:text-[#d67024] md:block"
-          >
-            Ver todos
-          </Link>
+      <section className="mx-auto max-w-[1440px] px-6 py-14" style={{ overflow: "visible" }}>
+        <div className="mb-8 text-center">
+          <p className="mb-2 text-xs font-semibold uppercase tracking-[0.35em] text-[#8b8d91]">
+            Seleccionados para ti
+          </p>
+          <h2 className="text-3xl font-bold text-[#ed8435] md:text-4xl">
+            Productos destacados
+          </h2>
         </div>
 
-        <div className="hscroll-md cols-4" style={{ gap: "1rem", paddingLeft: "1.5rem", paddingRight: "0.5rem", marginLeft: "-1.5rem", marginRight: "-1.5rem" }}>
+        <div className="hscroll-md cols-4" style={{ gap: "1.5rem", paddingLeft: "1.5rem", paddingRight: "1.5rem", marginLeft: "-1.5rem", marginRight: "-1.5rem", paddingTop: "2rem", paddingBottom: "2rem" }}>
           {productos.map((producto) => (
-            <article
-              key={producto.nombre}
-              className="overflow-hidden rounded-[1.75rem] border border-black/8 bg-white shadow-[0_16px_35px_rgba(15,23,42,0.05)] transition-transform duration-300 hover:-translate-y-1"
-              style={{ width: "72vw" }}
-            >
-              <div className="relative bg-white">
-                <span className="absolute left-4 top-4 z-10 rounded-lg bg-[#ed8435] px-3 py-1 text-sm font-semibold text-white">{producto.descuento}</span>
-                <div className="flex h-52 items-center justify-center px-7 py-7">
-                  <Image src={producto.imagen} alt={producto.nombre} width={800} height={600} className="max-h-[140px] w-auto max-w-full object-contain" />
-                </div>
-                <HoverCartControl id={producto.slug} nombre={producto.nombre} precio={producto.precio} imagen={producto.imagen} disabled={!producto.puedeComprar} />
-              </div>
-              <div className="space-y-4 p-5">
-                <div>
-                  <p className="mb-2 text-xs font-medium uppercase tracking-[0.25em] text-[#8b8d91]">{producto.marca}</p>
-                  <h3 className="text-lg font-semibold leading-tight text-[#4f545a]">{producto.nombre}</h3>
-                </div>
-                <p className="line-clamp-3 text-sm leading-6 text-[#7b7f85]">{producto.descripcion}</p>
-                <p className="text-sm font-medium text-[#6e7379]">Stock: {producto.stock ?? 0}</p>
-                <div className="border-t border-black/6 pt-4">
-                  <p className="text-sm text-[#a0a3a8] line-through">{producto.precioAnterior}</p>
-                  <p className="text-3xl font-semibold tracking-[-0.03em] text-[#ed8435]">{producto.precio}</p>
-                </div>
-                <Link href={`/producto/${producto.slug}`} className="inline-flex rounded-full bg-[#16384f] px-5 py-3 text-sm font-semibold text-white transition-colors duration-200 hover:bg-[#0f2a3b]">Ver producto</Link>
-              </div>
-            </article>
+            <FeaturedProductCard
+              key={producto.slug}
+              slug={producto.slug}
+              nombre={producto.nombre}
+              marca={producto.marca}
+              descripcion={producto.descripcion}
+              imagen={producto.imagen}
+              precio={producto.precio}
+              precioAnterior={producto.precioAnterior}
+              descuento={producto.descuento ?? ""}
+              stock={producto.stock ?? 0}
+              puedeComprar={producto.puedeComprar}
+            />
           ))}
         </div>
       </section>
@@ -186,11 +169,11 @@ export default async function Home() {
       </section>
 
       {/* 5 — BANNERS INFORMATIVOS */}
-      <section className="mx-auto max-w-[1440px] px-6 py-10">
+      <section className="mx-auto max-w-[1440px] px-6 py-14">
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <Link href="/servicio-de-reparacion" className="block overflow-hidden rounded-2xl transition-transform duration-300 hover:scale-[1.01]">
             <Image
-              src="/banner-cobertura.jpg"
+              src="/banner-cobertura-v2.jpg"
               alt="Cobertura nacional Unipars"
               width={900}
               height={400}
@@ -210,10 +193,10 @@ export default async function Home() {
       </section>
 
       {/* 6 — TESTIMONIOS */}
-      <section className="py-10">
+      <section className="py-14">
         <div className="mx-auto max-w-[1440px] px-6">
           <div className="scroll-container-safe rounded-3xl bg-[#0d1b2a] py-14">
-            <div className="mb-10 px-8 text-center">
+            <div className="mb-10 px-10 text-center">
               <p className="mb-2 text-xs font-semibold uppercase tracking-[0.35em] text-white/50">
                 Opiniones que nos impulsan
               </p>
@@ -222,13 +205,9 @@ export default async function Home() {
               </h2>
             </div>
 
-            <div className="hscroll-md cols-4" style={{ gap: "1rem", paddingLeft: "2rem", paddingRight: "0.5rem" }}>
+            <div className="px-6 md:px-10" style={{ display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", gap: "1.5rem", overflowX: "auto" }}>
               {testimonios.map((testimonio) => (
-                <article
-                  key={testimonio.nombre}
-                  className="flex flex-col justify-between rounded-2xl bg-white p-6"
-                  style={{ width: "80vw" }}
-                >
+                <article key={testimonio.nombre} className="flex flex-col justify-between rounded-2xl bg-white p-6" style={{ minWidth: "260px" }}>
                   <div>
                     <span className="text-4xl font-black leading-none text-[#ed8435]">&ldquo;</span>
                     <p className="mt-2 text-base tracking-[0.12em] text-[#ed8435]">★★★★★</p>
@@ -251,8 +230,8 @@ export default async function Home() {
 
 
       {/* 9 — PROMOS VERTICALES */}
-      <section className="mx-auto max-w-[1440px] px-6 py-16">
-        <div className="hscroll-md cols-4" style={{ gap: "1rem", paddingLeft: "0", paddingRight: "0.5rem" }}>
+      <section className="mx-auto max-w-[1440px] px-6 py-14">
+        <div className="hscroll-md cols-4" style={{ gap: "1.5rem", paddingLeft: "1.5rem", paddingRight: "1.5rem" }}>
           {[
             { src: "/promo-unipars.png",    alt: "Bombín para tanque Unipars 30% off" },
             { src: "/promo-tecnomotor.png", alt: "Amortiguador Tecnimotor 30% off" },
@@ -276,7 +255,7 @@ export default async function Home() {
       <section className="mx-auto max-w-[1440px] px-6 pb-16">
         <div className="overflow-hidden rounded-2xl">
           <Image
-            src="/banner-uniparceros-home.png"
+            src="/banner-uniparceros-home.jpg"
             alt="Uniparceros - La red de talleres aliados de Unipars"
             width={2560}
             height={720}

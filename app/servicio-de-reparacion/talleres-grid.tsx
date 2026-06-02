@@ -270,23 +270,6 @@ export default function TalleresGrid({ talleres }: { talleres: Taller[] }) {
         ))}
       </div>
 
-      {/* Trust badges */}
-      <div className="mt-10 grid grid-cols-2 gap-4 rounded-2xl bg-gray-50 p-6 lg:grid-cols-4">
-        {[
-          { icon: "⭐", title: "Talleres verificados", desc: "Proceso de verificación y visita técnica" },
-          { icon: "🏆", title: "Respaldo Unipars", desc: "Garantía en repuestos y servicios" },
-          { icon: "🔒", title: "Pagos seguros", desc: "Tus pagos protegidos al 100%" },
-          { icon: "🎧", title: "Soporte especializado", desc: "Atención al cliente profesional" },
-        ].map(({ icon, title, desc }) => (
-          <div key={title} className="flex items-start gap-3">
-            <span className="text-2xl text-[#ed8435]">{icon}</span>
-            <div>
-              <p className="text-sm font-bold text-[#16384f]">{title}</p>
-              <p className="text-xs text-gray-500">{desc}</p>
-            </div>
-          </div>
-        ))}
-      </div>
 
       {perfilAbierto && (
         <PerfilModal taller={perfilAbierto} onClose={() => setPerfilAbierto(null)} />

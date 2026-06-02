@@ -272,9 +272,13 @@ export default function SupportChat() {
       <button
         type="button"
         onClick={() => setIsOpen((current) => !current)}
-        className="relative flex h-14 w-14 items-center justify-center rounded-full bg-[#16384f] shadow-[0_8px_24px_rgba(22,56,79,0.30)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_12px_32px_rgba(22,56,79,0.42)]"
+        className="relative flex h-14 w-14 items-center justify-center rounded-full bg-[#16384f] shadow-[0_8px_24px_rgba(22,56,79,0.30)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_12px_32px_rgba(22,56,79,0.42)] animate-[chatPulse_2.5s_ease-in-out_infinite]"
       >
-        <span className="absolute right-0.5 top-0.5 h-3 w-3 rounded-full bg-[#43c172] ring-2 ring-white" />
+        {/* Ping verde animado */}
+        <span className="absolute right-0.5 top-0.5 h-3 w-3">
+          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#43c172] opacity-75" />
+          <span className="relative inline-flex h-3 w-3 rounded-full bg-[#43c172] ring-2 ring-white" />
+        </span>
         <span className="relative flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-white">
           <Image
             src="/chatbot/uniparcero-icon.png"
