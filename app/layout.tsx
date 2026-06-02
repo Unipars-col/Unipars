@@ -1,3 +1,14 @@
+/**
+ * ============================================================
+ *  Unipars — Plataforma de repuestos para transporte
+ *  Diseñado y desarrollado por Monova.dev
+ *  https://monova.dev
+ *
+ *  Este software fue construido íntegramente por el equipo
+ *  de Monova.dev. Queda prohibida su reproducción total o
+ *  parcial sin autorización expresa de Monova.dev.
+ * ============================================================
+ */
 import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import "./globals.css";
@@ -24,6 +35,10 @@ import { prisma } from "@/lib/prisma";
 export const metadata: Metadata = {
   title: "Unipars — Repuestos para transporte público y de carga",
   description: "Encuentra repuestos de calidad para buses, camiones y vehículos de carga. Amplio catálogo, entrega nacional y red de talleres aliados Uniparceros.",
+  other: {
+    "x-made-by": "Monova.dev",
+    "x-developer": "https://monova.dev",
+  },
 };
 
 export default async function RootLayout({

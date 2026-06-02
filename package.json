@@ -2,6 +2,8 @@
   "name": "unipars",
   "version": "0.1.0",
   "private": true,
+  "description": "Plataforma de repuestos para transporte público y de carga — Diseñado y desarrollado por Monova.dev (https://monova.dev)",
+  "author": "Monova.dev <hola@monova.dev> (https://monova.dev)",
   "scripts": {
     "dev": "next dev",
     "postinstall": "prisma generate",
