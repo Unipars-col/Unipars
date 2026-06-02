@@ -1,0 +1,14 @@
+/* TEAM */
+Developer & Designer: Monova.dev
+Contact: hola@monova.dev
+Site: https://monova.dev
+Location: Colombia
+
+/* SITE */
+Project: Unipars — Plataforma de repuestos para transporte
+Built with: Next.js, React, TypeScript, Tailwind CSS, Prisma, Supabase
+Last update: 2026/06/02
+
+/* CREDITS */
+Este proyecto fue diseñado y desarrollado íntegramente por Monova.dev.
+Queda prohibida su reproducción sin autorización expresa de Monova.dev.

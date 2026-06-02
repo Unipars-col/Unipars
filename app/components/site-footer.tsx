@@ -98,6 +98,7 @@ export default function SiteFooter() {
         <div className="flex flex-col gap-6 pt-8 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex flex-wrap gap-x-6 gap-y-3 text-sm text-white/52">
             <p>© 2026 Unipars. Todos los derechos reservados.</p>
+            <p>Diseñado y desarrollado por <a href="https://monova.dev" target="_blank" rel="noopener noreferrer" className="text-[#ed8435] hover:text-white transition-colors duration-200">Monova.dev</a></p>
             {legalLinks.map((item) => (
               <Link
                 key={item.label}

@@ -35,9 +35,13 @@ import { prisma } from "@/lib/prisma";
 export const metadata: Metadata = {
   title: "Unipars — Repuestos para transporte público y de carga",
   description: "Encuentra repuestos de calidad para buses, camiones y vehículos de carga. Amplio catálogo, entrega nacional y red de talleres aliados Uniparceros.",
+  authors: [{ name: "Monova.dev", url: "https://monova.dev" }],
+  generator: "Monova.dev",
+  creator: "Monova.dev",
   other: {
-    "x-made-by": "Monova.dev",
-    "x-developer": "https://monova.dev",
+    "x-made-by": "Monova.dev — https://monova.dev",
+    "x-developer": "Monova.dev",
+    "x-contact": "hola@monova.dev",
   },
 };
 
@@ -69,7 +73,7 @@ export default async function RootLayout({
     .join("|")}`;
 
   return (
-    <html lang="es" className={`h-full antialiased ${poppins.variable}`} data-scroll-behavior="smooth">
+    <html lang="es" className={`h-full antialiased ${poppins.variable}`} data-scroll-behavior="smooth" data-made-by="Monova.dev">
       <body className="min-h-full flex flex-col pb-16 md:pb-0">
         <ProductsProvider initialProducts={initialProducts}>
           <CartProvider
