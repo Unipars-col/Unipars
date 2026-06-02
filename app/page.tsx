@@ -157,7 +157,7 @@ export default async function Home() {
               precioAnterior={producto.precioAnterior}
               descuento={producto.descuento ?? ""}
               stock={producto.stock ?? 0}
-              puedeComprar={producto.puedeComprar}
+              puedeComprar={producto.puedeComprar ?? false}
             />
           ))}
         </div>
