@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useEffectEvent, useRef, useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
 
 type Slide = {
@@ -147,18 +146,27 @@ export default function HeroCarousel() {
         {loopSlides.map((slide, i) => (
           <article
             key={i}
-            className="relative aspect-[16/10] w-full shrink-0 bg-[#05070a] sm:aspect-[16/9] md:aspect-[21/8] lg:aspect-[2560/720]"
+            style={{
+              position: "relative",
+              width: "100%",
+              flexShrink: 0,
+              background: "#05070a",
+              aspectRatio: "16/5",
+            }}
           >
-            <div className="absolute inset-0">
-              <Image
-                src={slide.image}
-                alt={slide.title}
-                fill
-                priority
-                sizes="100vw"
-                className="object-cover object-center"
-              />
-            </div>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={slide.image}
+              alt={slide.title}
+              style={{
+                position: "absolute",
+                inset: 0,
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+                objectPosition: "center",
+              }}
+            />
 
             {slide.gradient && (
               <div className={`absolute inset-0 ${slide.gradient}`} />
