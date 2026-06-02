@@ -130,8 +130,17 @@ export default function MobileBottomNav() {
       )}
 
       {showMore && (
-      <div className="fixed bottom-[60px] left-0 right-0 z-50 rounded-t-2xl bg-white shadow-[0_-8px_32px_rgba(15,23,42,0.15)] md:hidden"
-        style={{ animation: "slideUp 0.25s ease-out" }}
+      <div
+        className="rounded-t-2xl bg-white md:hidden"
+        style={{
+          position: "fixed",
+          bottom: 60,
+          left: 0,
+          right: 0,
+          zIndex: 50,
+          boxShadow: "0 -8px 32px rgba(15,23,42,0.15)",
+          animation: "slideUp 0.25s ease-out",
+        }}
       >
         <div className="px-4 pb-4 pt-3">
           <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-gray-200" />
