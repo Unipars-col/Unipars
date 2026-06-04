@@ -3,12 +3,12 @@
 import { useState } from "react";
 
 const OPCIONES = [
-  { id: "voz", label: "Voz a voz", emoji: "🗣️" },
-  { id: "redes", label: "Redes sociales", emoji: "📱" },
-  { id: "google", label: "Google", emoji: "🔍" },
-  { id: "publicidad", label: "Publicidad", emoji: "📢" },
-  { id: "recomendacion", label: "Me lo recomendaron", emoji: "👥" },
-  { id: "otro", label: "Otro", emoji: "✨" },
+  "Voz a voz",
+  "Redes sociales",
+  "Google",
+  "Publicidad",
+  "Me lo recomendaron",
+  "Otro",
 ];
 
 export default function EncuestaReferido() {
@@ -17,44 +17,49 @@ export default function EncuestaReferido() {
 
   if (enviado) {
     return (
-      <div className="mt-8 flex flex-col items-center gap-2 rounded-[1.4rem] border border-green-100 bg-green-50 py-5">
-        <span className="text-2xl">🙌</span>
-        <p className="text-sm font-semibold text-green-700">¡Gracias por contarnos!</p>
+      <div className="mt-8 rounded-[1.4rem] bg-[#16384f] px-6 py-6 text-center">
+        <p className="text-lg font-bold text-white">¡Gracias por contarnos!</p>
+        <p className="mt-1 text-sm text-white/50">Tu opinión nos ayuda a crecer.</p>
       </div>
     );
   }
 
   return (
-    <div className="mt-8 rounded-[1.4rem] border border-black/8 bg-[#fafaf9] px-6 py-6">
-      <p className="text-base font-bold text-[#16384f]">¿Cómo te enteraste de nosotros?</p>
-      <p className="mt-1 text-xs text-[#8b8d91]">Tu opinión nos ayuda a mejorar.</p>
+    <div className="mt-8 rounded-[1.4rem] bg-[#0d1b2a] px-6 py-8">
+      <p className="text-center text-xs font-semibold uppercase tracking-[0.28em] text-white/30">
+        Una pregunta rápida
+      </p>
+      <p className="mt-2 text-center text-lg font-bold text-white">
+        ¿Cómo te enteraste de nosotros?
+      </p>
 
-      <div className="mt-4 flex flex-wrap gap-2">
+      <div className="mt-6 flex flex-wrap justify-center gap-2.5">
         {OPCIONES.map((op) => (
           <button
-            key={op.id}
+            key={op}
             type="button"
-            onClick={() => setSeleccion(op.id)}
-            className={`flex items-center gap-1.5 rounded-full border px-4 py-2 text-sm font-medium transition-all ${
-              seleccion === op.id
-                ? "border-[#ed8435] bg-[#ed8435] text-white shadow-sm"
-                : "border-black/10 bg-white text-[#38454f] hover:border-[#ed8435] hover:text-[#ed8435]"
+            onClick={() => setSeleccion(op)}
+            className={`rounded-full border px-5 py-2.5 text-sm font-semibold transition-all duration-200 ${
+              seleccion === op
+                ? "border-[#ed8435] bg-[#ed8435] text-white shadow-[0_4px_20px_rgba(237,132,53,0.4)]"
+                : "border-white/15 bg-white/5 text-white/70 hover:border-white/40 hover:text-white"
             }`}
           >
-            <span className="text-base leading-none">{op.emoji}</span>
-            {op.label}
+            {op}
           </button>
         ))}
       </div>
 
       {seleccion && (
-        <button
-          type="button"
-          onClick={() => setEnviado(true)}
-          className="mt-4 rounded-full bg-[#ed8435] px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#d67024]"
-        >
-          Enviar →
-        </button>
+        <div className="mt-6 text-center">
+          <button
+            type="button"
+            onClick={() => setEnviado(true)}
+            className="rounded-full bg-[#ed8435] px-8 py-3 text-sm font-bold text-white shadow-[0_4px_20px_rgba(237,132,53,0.35)] transition-all hover:bg-[#d67024] hover:shadow-[0_6px_28px_rgba(237,132,53,0.5)]"
+          >
+            Enviar respuesta
+          </button>
+        </div>
       )}
     </div>
   );
