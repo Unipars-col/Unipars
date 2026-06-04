@@ -19,7 +19,7 @@ type Equipo = {
   disponibilidad: string;
 };
 
-const EQUIPOS: Equipo[] = [
+export const EQUIPOS: Equipo[] = [
   {
     nombre: "HeavyMaq Colombia",
     logo: "HM",
@@ -149,29 +149,33 @@ function Modal({ item, onClose }: { item: Equipo; onClose: () => void }) {
   );
 }
 
-export default function MaquinariaGrid() {
+export default function MaquinariaGrid({ equipos = EQUIPOS }: { equipos?: Equipo[] }) {
   const [selected, setSelected] = useState<Equipo | null>(null);
 
   return (
     <>
       <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-        {EQUIPOS.map((eq) => (
+        {equipos.map((eq) => (
           <button
             key={eq.nombre}
             type="button"
             onClick={() => setSelected(eq)}
-            className="group flex flex-col overflow-hidden rounded-2xl border border-black/6 bg-white text-left shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-lg"
+            className="group flex flex-col rounded-2xl border border-black/6 bg-white text-left shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-lg"
           >
             {/* Foto */}
-            <div className="relative h-40 w-full overflow-hidden">
+            <div className="relative h-40 w-full overflow-hidden rounded-t-2xl">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={eq.foto} alt={eq.nombre} className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
               <span className="absolute left-3 top-3 flex items-center gap-1 rounded-full bg-amber-600 px-2 py-0.5 text-[10px] font-bold text-white">
                 ✓ EQUIPO CERTIFICADO
               </span>
+            </div>
+
+            {/* Avatar sobre la imagen */}
+            <div className="relative px-4">
               <div
-                className="absolute -bottom-5 left-3 flex h-10 w-10 items-center justify-center rounded-full border-2 border-white text-xs font-black text-white shadow-md"
+                className="-mt-5 flex h-10 w-10 items-center justify-center rounded-full border-2 border-white text-xs font-black text-white shadow-md"
                 style={{ backgroundColor: eq.color }}
               >
                 {eq.logo}
@@ -179,7 +183,7 @@ export default function MaquinariaGrid() {
             </div>
 
             {/* Contenido */}
-            <div className="flex flex-1 flex-col px-4 pb-4 pt-7">
+            <div className="flex flex-1 flex-col px-4 pb-4 pt-2">
               <div className="flex items-start justify-between gap-1">
                 <p className="font-black text-[#16384f] leading-tight">{eq.nombre}</p>
                 <div className="flex shrink-0 items-center gap-0.5">

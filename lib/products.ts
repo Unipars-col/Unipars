@@ -12,6 +12,7 @@ import {
   type ProductoEspecificacion,
   type ProductoCatalogo,
 } from "@/app/data/catalog";
+import { unstable_cache } from "next/cache";
 import { prisma } from "@/lib/prisma";
 
 type ProductRecord = {
@@ -313,23 +314,25 @@ function getFallbackProducts(): StoreProduct[] {
   }));
 }
 
+const _getProductsCached = unstable_cache(
+  async () => {
+    if (!prisma) return getFallbackProducts();
+    try {
+      const products = await prisma.product.findMany({
+        where: { active: true },
+        orderBy: [{ featured: "desc" }, { createdAt: "desc" }],
+      });
+      return products.map(toStoreProduct);
+    } catch {
+      return getFallbackProducts();
+    }
+  },
+  ["all-products"],
+  { revalidate: 60, tags: ["products"] }
+);
+
 export async function getProducts() {
-  if (!prisma) {
-    return getFallbackProducts();
-  }
-
-  try {
-    const products = await prisma.product.findMany({
-      where: {
-        active: true,
-      },
-      orderBy: [{ featured: "desc" }, { createdAt: "desc" }],
-    });
-
-    return products.map(toStoreProduct);
-  } catch {
-    return getFallbackProducts();
-  }
+  return _getProductsCached();
 }
 
 export async function getVendorProducts(vendorId: string, brandFilter?: string) {
@@ -345,12 +348,34 @@ export async function getVendorProducts(vendorId: string, brandFilter?: string) 
   }
 }
 
-export async function getFeaturedProducts() {
-  const products = await getProducts();
-  const destacados = products.filter((product) => product.destacado);
-
-  return (destacados.length > 0 ? destacados : products).slice(0, 4);
-}
+export const getFeaturedProducts = unstable_cache(
+  async () => {
+    if (!prisma) {
+      const fallback = getFallbackProducts();
+      const destacados = fallback.filter((p) => p.destacado);
+      return (destacados.length > 0 ? destacados : fallback).slice(0, 4);
+    }
+    try {
+      const featured = await prisma.product.findMany({
+        where: { active: true, featured: true },
+        orderBy: { createdAt: "desc" },
+        take: 4,
+      });
+      if (featured.length > 0) return featured.map(toStoreProduct);
+      const recent = await prisma.product.findMany({
+        where: { active: true },
+        orderBy: { createdAt: "desc" },
+        take: 4,
+      });
+      return recent.map(toStoreProduct);
+    } catch {
+      const fallback = getFallbackProducts();
+      return fallback.slice(0, 4);
+    }
+  },
+  ["featured-products"],
+  { revalidate: 60, tags: ["products"] }
+);
 
 export async function createProduct(input: ProductMutationInput, vendorId?: string) {
   if (!prisma) {

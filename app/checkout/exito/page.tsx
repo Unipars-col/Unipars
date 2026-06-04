@@ -1,4 +1,5 @@
 import Link from "next/link";
+import EncuestaReferido from "./encuesta-referido";
 
 export default async function CheckoutSuccessPage({
   searchParams,
@@ -33,6 +34,8 @@ export default async function CheckoutSuccessPage({
             <p className="mt-2 text-lg font-semibold text-[#16384f]">{params.pedido}</p>
           </div>
         )}
+
+        <EncuestaReferido />
 
         <div className="mt-8 flex flex-wrap justify-center gap-3">
           <Link

@@ -1,3 +1,4 @@
+import { revalidateTag } from "next/cache";
 import { createProduct, getProducts } from "@/lib/products";
 import { requireSellerUser } from "@/lib/admin";
 
@@ -44,7 +45,7 @@ export async function POST(request: Request) {
     await requireSellerUser();
     const body = await request.json();
     const product = await createProduct(body);
-
+    revalidateTag("products");
     return Response.json({ product }, { status: 201 });
   } catch (error) {
     return getProductErrorResponse(

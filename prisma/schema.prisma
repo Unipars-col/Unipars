@@ -260,3 +260,53 @@ model TallerSolicitud {
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
 }
+
+model ArriendoSolicitud {
+  id String @id @default(cuid())
+
+  nombreEmpresa  String
+  tiposVehiculo  String[]  @default([])
+  cantidad       String?
+  descripcion    String?
+
+  ciudad         String
+  departamento   String?
+  cobertura      String?
+
+  nombreContacto String
+  telefono       String
+  whatsapp       String?
+  correo         String?
+  disponibilidad String?
+
+  urlFoto        String?
+  estado         SolicitudEstado @default(PENDIENTE)
+  adminNotes     String?
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+}
+
+model MaquinariaSolicitud {
+  id String @id @default(cuid())
+
+  nombreEmpresa  String
+  tiposMaquinaria String[] @default([])
+  cantidad       String?
+  descripcion    String?
+
+  ciudad         String
+  departamento   String?
+  cobertura      String?
+
+  nombreContacto String
+  telefono       String
+  whatsapp       String?
+  correo         String?
+  disponibilidad String?
+
+  urlFoto        String?
+  estado         SolicitudEstado @default(PENDIENTE)
+  adminNotes     String?
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+}

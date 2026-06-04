@@ -40,7 +40,7 @@ export default function CategoriesCarousel() {
         type="button"
         onClick={() => scroll("left")}
         disabled={!canScrollLeft}
-        className="absolute -left-4 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-black/10 bg-white text-xl shadow-md transition hover:border-[#ed8435] hover:text-[#ed8435] disabled:opacity-30 disabled:cursor-default"
+        className="absolute -left-4 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-[#ed8435] text-xl text-white shadow-md transition hover:bg-[#d4722a] disabled:opacity-30 disabled:cursor-default"
         aria-label="Anterior"
       >
         ‹
@@ -51,7 +51,7 @@ export default function CategoriesCarousel() {
         type="button"
         onClick={() => scroll("right")}
         disabled={!canScrollRight}
-        className="absolute -right-4 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-black/10 bg-white text-xl shadow-md transition hover:border-[#ed8435] hover:text-[#ed8435] disabled:opacity-30 disabled:cursor-default"
+        className="absolute -right-4 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-[#ed8435] text-xl text-white shadow-md transition hover:bg-[#d4722a] disabled:opacity-30 disabled:cursor-default"
         aria-label="Siguiente"
       >
         ›

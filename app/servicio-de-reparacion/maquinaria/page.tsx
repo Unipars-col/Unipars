@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import SiteFooter from "@/app/components/site-footer";
-import MaquinariaGrid from "./maquinaria-grid";
+import BuscadorMaquinaria from "./buscador-maquinaria";
 
 export const metadata: Metadata = {
   title: "Alquiler de maquinaria pesada — Unipars",
@@ -97,14 +97,7 @@ export default function MaquinariaPage() {
         </a>
       </div>
 
-      {/* Equipos — tarjetas tipo proveedor */}
-      <section className="mx-auto max-w-[1440px] px-6 py-14 lg:px-8">
-        <div className="mb-8 flex items-baseline justify-between">
-          <h2 className="text-2xl font-bold text-[#0d1b2a]">Proveedores de maquinaria</h2>
-          <span className="text-sm text-[#6b7280]">4 proveedores encontrados</span>
-        </div>
-        <MaquinariaGrid />
-      </section>
+      <BuscadorMaquinaria />
 
       {/* Cómo funciona */}
       <section className="bg-white px-6 py-16">
@@ -129,7 +122,7 @@ export default function MaquinariaPage() {
       {/* CTA final */}
       <section
         className="px-6 py-14 text-center"
-        style={{ background: "linear-gradient(135deg, #0d1b2a 0%, #78350f 100%)" }}
+        style={{ background: "linear-gradient(135deg, #1a1a00 0%, #ca8a04 60%, #fbbf24 100%)" }}
       >
         <h2 className="mb-3 text-2xl font-bold text-white">¿Necesitas un equipo específico?</h2>
         <p className="mb-8 text-white/60">Cuéntanos tu proyecto y buscamos el equipo ideal para ti.</p>
@@ -138,15 +131,15 @@ export default function MaquinariaPage() {
             href="https://wa.me/573057249454?text=Hola%2C%20quiero%20alquilar%20maquinaria%20pesada"
             target="_blank"
             rel="noreferrer"
-            className="rounded-xl bg-amber-600 px-8 py-3.5 font-semibold text-white transition-all hover:bg-amber-700"
+            className="rounded-xl bg-green-600 px-8 py-3.5 font-semibold text-white transition-all hover:bg-green-700"
           >
             Contactar por WhatsApp
           </a>
           <Link
-            href="/servicio-de-reparacion"
+            href="/registro-maquinaria"
             className="rounded-xl border border-white/25 bg-white/10 px-8 py-3.5 font-semibold text-white transition-all hover:bg-white/20"
           >
-            Ver otros servicios
+            ¿Tienes maquinaria? Regístrala gratis →
           </Link>
         </div>
       </section>

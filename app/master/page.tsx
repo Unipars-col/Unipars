@@ -584,6 +584,193 @@ type TallerSolicitud = {
   createdAt: string;
 };
 
+type ArriendoSolicitud = {
+  id: string;
+  nombreEmpresa: string;
+  tiposVehiculo: string[];
+  cantidad?: string;
+  descripcion?: string;
+  ciudad: string;
+  departamento?: string;
+  cobertura?: string;
+  nombreContacto: string;
+  telefono: string;
+  whatsapp?: string;
+  correo?: string;
+  disponibilidad?: string;
+  estado: string;
+  adminNotes?: string;
+  createdAt: string;
+};
+
+type MaquinariaSolicitud = {
+  id: string;
+  nombreEmpresa: string;
+  tiposMaquinaria: string[];
+  cantidad?: string;
+  descripcion?: string;
+  ciudad: string;
+  departamento?: string;
+  cobertura?: string;
+  nombreContacto: string;
+  telefono: string;
+  whatsapp?: string;
+  correo?: string;
+  disponibilidad?: string;
+  estado: string;
+  adminNotes?: string;
+  createdAt: string;
+};
+
+function SolicitudFlotaList<T extends ArriendoSolicitud | MaquinariaSolicitud>({
+  items,
+  setItems,
+  apiPath,
+  accentColor,
+  tiposKey,
+}: {
+  items: T[];
+  setItems: React.Dispatch<React.SetStateAction<T[]>>;
+  apiPath: string;
+  accentColor: string;
+  tiposKey: "tiposVehiculo" | "tiposMaquinaria";
+}) {
+  const [detalle, setDetalle] = useState<T | null>(null);
+
+  async function cambiarEstado(id: string, estado: string) {
+    await fetch(apiPath, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id, estado }) });
+    setItems((prev) => prev.map((x) => x.id === id ? { ...x, estado } : x));
+    if (detalle?.id === id) setDetalle((d) => d ? { ...d, estado } : null);
+  }
+
+  if (items.length === 0) {
+    return (
+      <div className="rounded-2xl border border-dashed border-black/10 bg-white p-10 text-center">
+        <p className="text-sm text-[#8b8d91]">No hay solicitudes aún.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-3">
+      {/* Modal detalle */}
+      {detalle && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm" onClick={() => setDetalle(null)}>
+          <div className="relative w-full max-w-lg overflow-hidden rounded-2xl bg-white shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            <div className="h-1.5 w-full" style={{ backgroundColor: accentColor }} />
+            <div className="p-6">
+              <button onClick={() => setDetalle(null)} className="absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-full text-gray-400 hover:bg-gray-100">✕</button>
+
+              <div className="flex items-start gap-4">
+                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl text-lg font-black text-white shadow-lg" style={{ backgroundColor: accentColor }}>
+                  {detalle.nombreEmpresa.charAt(0)}
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-[#16384f]">{detalle.nombreEmpresa}</h3>
+                  <p className="text-sm text-[#8b8d91]">{detalle.ciudad}{detalle.departamento ? `, ${detalle.departamento}` : ""}</p>
+                  <span className={`mt-1.5 inline-block rounded-full px-2.5 py-0.5 text-[10px] font-bold ${estadoColors[detalle.estado] ?? "bg-gray-100 text-gray-500"}`}>
+                    {estadoLabel[detalle.estado] ?? detalle.estado}
+                  </span>
+                </div>
+              </div>
+
+              {detalle.descripcion && <p className="mt-4 text-sm leading-6 text-gray-500">{detalle.descripcion}</p>}
+
+              <div className="mt-5 space-y-2.5">
+                {([
+                  { label: "Contacto", value: detalle.nombreContacto },
+                  { label: "Teléfono", value: detalle.telefono },
+                  { label: "WhatsApp", value: detalle.whatsapp },
+                  { label: "Correo", value: detalle.correo },
+                  { label: "Cantidad", value: detalle.cantidad ? `${detalle.cantidad} unidades` : null },
+                  { label: "Disponibilidad", value: detalle.disponibilidad },
+                  { label: "Cobertura", value: detalle.cobertura },
+                  { label: "Registrado", value: new Date(detalle.createdAt).toLocaleDateString("es-CO", { day: "2-digit", month: "long", year: "numeric" }) },
+                ] as { label: string; value?: string | null }[]).filter((r) => r.value).map(({ label, value }) => (
+                  <div key={label} className="flex items-start gap-3 rounded-xl bg-gray-50 px-3 py-2.5">
+                    <span className="w-28 shrink-0 text-[11px] font-semibold uppercase tracking-wide text-gray-400">{label}</span>
+                    <span className="text-sm text-gray-700">{value}</span>
+                  </div>
+                ))}
+              </div>
+
+              <div className="mt-4">
+                <p className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-gray-400">Tipos</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {(detalle[tiposKey] as string[]).map((s) => (
+                    <span key={s} className="rounded-full border border-gray-200 bg-white px-3 py-1 text-xs font-medium text-[#16384f]">{s}</span>
+                  ))}
+                </div>
+              </div>
+
+              {detalle.estado === "PENDIENTE" && (
+                <div className="mt-5 flex gap-2">
+                  <button onClick={() => cambiarEstado(detalle.id, "APROBADA")} className="flex-1 rounded-xl bg-[#1f8b45] py-2.5 text-xs font-bold text-white hover:bg-[#186a36]">✓ Aprobar</button>
+                  <button onClick={() => cambiarEstado(detalle.id, "EN_REVISION")} className="flex-1 rounded-xl border border-black/10 py-2.5 text-xs font-bold text-[#4338ca] hover:bg-[#f0f0ff]">En revisión</button>
+                  <button onClick={() => cambiarEstado(detalle.id, "RECHAZADA")} className="flex-1 rounded-xl border border-red-200 py-2.5 text-xs font-bold text-red-600 hover:bg-red-50">✕ Rechazar</button>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {items.map((t) => (
+        <div key={t.id} className="overflow-hidden rounded-[2rem] border border-black/8 bg-white shadow-[0_6px_18px_rgba(15,23,42,0.04)]">
+          <div className="p-6">
+            <div className="flex flex-wrap items-start justify-between gap-4">
+              <div className="flex items-start gap-4">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl text-sm font-black text-white" style={{ backgroundColor: accentColor }}>
+                  {t.nombreEmpresa.charAt(0)}
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <p className="font-bold text-[#1f2328]">{t.nombreEmpresa}</p>
+                    <span className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold ${estadoColors[t.estado] ?? "bg-gray-100 text-gray-500"}`}>
+                      {estadoLabel[t.estado] ?? t.estado}
+                    </span>
+                  </div>
+                  <p className="text-xs text-[#8b8d91]">{t.ciudad}{t.departamento ? `, ${t.departamento}` : ""}</p>
+                  {t.descripcion && <p className="mt-1 text-xs text-[#8b8d91] line-clamp-2">{t.descripcion}</p>}
+                </div>
+              </div>
+              <p className="text-xs text-[#a2a5aa]">{new Date(t.createdAt).toLocaleDateString("es-CO")}</p>
+            </div>
+
+            <div className="mt-3 flex flex-wrap gap-1.5">
+              {(t[tiposKey] as string[]).map((s) => (
+                <span key={s} className="rounded-full border border-black/8 bg-[#fafaf9] px-2.5 py-0.5 text-xs text-[#5d6167]">{s}</span>
+              ))}
+            </div>
+
+            <div className="mt-4 flex flex-wrap gap-4 text-xs text-[#5d6167]">
+              <span>👤 {t.nombreContacto}</span>
+              <span>📞 {t.telefono}</span>
+              {t.whatsapp && <span>💬 {t.whatsapp}</span>}
+              {t.correo && <span>✉ {t.correo}</span>}
+              {t.cantidad && <span>🔢 {t.cantidad} unidades</span>}
+              {t.disponibilidad && <span>📅 {t.disponibilidad}</span>}
+              {t.cobertura && <span>📍 {t.cobertura}</span>}
+            </div>
+
+            <div className="mt-5 flex flex-wrap gap-2">
+              <button
+                onClick={() => setDetalle(t)}
+                className="rounded-xl border border-[#16384f]/20 px-5 py-2 text-xs font-bold text-[#16384f] transition-colors hover:bg-[#16384f] hover:text-white"
+              >
+                Ver detalle
+              </button>
+              <button onClick={() => cambiarEstado(t.id, "APROBADA")} className="rounded-xl bg-[#1f8b45] px-5 py-2 text-xs font-bold text-white hover:bg-[#186a36]">✓ Aprobar</button>
+              <button onClick={() => cambiarEstado(t.id, "EN_REVISION")} className="rounded-xl border border-black/10 px-5 py-2 text-xs font-bold text-[#4338ca] hover:bg-[#f0f0ff]">En revisión</button>
+              <button onClick={() => cambiarEstado(t.id, "RECHAZADA")} className="rounded-xl border border-red-200 px-5 py-2 text-xs font-bold text-red-600 hover:bg-red-50">✕ Rechazar</button>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function UniparcerosList({ talleres, setTalleres }: { talleres: TallerSolicitud[]; setTalleres: React.Dispatch<React.SetStateAction<TallerSolicitud[]>> }) {
   const [detalle, setDetalle] = useState<TallerSolicitud | null>(null);
 
@@ -715,13 +902,9 @@ function UniparcerosList({ talleres, setTalleres }: { talleres: TallerSolicitud[
               >
                 Ver taller
               </button>
-              {t.estado === "PENDIENTE" && (
-                <>
-                  <button onClick={() => cambiarEstado(t.id, "APROBADA")} className="rounded-xl bg-[#1f8b45] px-5 py-2 text-xs font-bold text-white hover:bg-[#186a36]">✓ Aprobar taller</button>
-                  <button onClick={() => cambiarEstado(t.id, "EN_REVISION")} className="rounded-xl border border-black/10 px-5 py-2 text-xs font-bold text-[#4338ca] hover:bg-[#f0f0ff]">En revisión</button>
-                  <button onClick={() => cambiarEstado(t.id, "RECHAZADA")} className="rounded-xl border border-red-200 px-5 py-2 text-xs font-bold text-red-600 hover:bg-red-50">✕ Rechazar</button>
-                </>
-              )}
+              <button onClick={() => cambiarEstado(t.id, "APROBADA")} className="rounded-xl bg-[#1f8b45] px-5 py-2 text-xs font-bold text-white hover:bg-[#186a36]">✓ Aprobar taller</button>
+              <button onClick={() => cambiarEstado(t.id, "EN_REVISION")} className="rounded-xl border border-black/10 px-5 py-2 text-xs font-bold text-[#4338ca] hover:bg-[#f0f0ff]">En revisión</button>
+              <button onClick={() => cambiarEstado(t.id, "RECHAZADA")} className="rounded-xl border border-red-200 px-5 py-2 text-xs font-bold text-red-600 hover:bg-red-50">✕ Rechazar</button>
             </div>
           </div>
         </div>
@@ -734,6 +917,9 @@ export default function MasterPage() {
   const router = useRouter();
   const [data, setData] = useState<MasterData | null>(null);
   const [talleres, setTalleres] = useState<TallerSolicitud[]>([]);
+  const [arriendos, setArriendos] = useState<ArriendoSolicitud[]>([]);
+  const [maquinarias, setMaquinarias] = useState<MaquinariaSolicitud[]>([]);
+  const [subTabUniparceros, setSubTabUniparceros] = useState<"talleres" | "arriendo" | "maquinaria">("talleres");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -746,10 +932,12 @@ export default function MasterPage() {
       const { user } = await res.json() as { user?: { role: string } };
       if (user?.role !== "MASTER") { router.replace("/login?next=/master"); return; }
 
-      const [r, rt] = await Promise.all([fetch("/api/master"), fetch("/api/aliado")]);
+      const [r, rt, ra, rm] = await Promise.all([fetch("/api/master"), fetch("/api/aliado"), fetch("/api/arriendo"), fetch("/api/maquinaria")]);
       if (!r.ok) { setError("No fue posible cargar las métricas."); setLoading(false); return; }
       setData(await r.json() as MasterData);
       if (rt.ok) setTalleres(await rt.json() as TallerSolicitud[]);
+      if (ra.ok) setArriendos(await ra.json() as ArriendoSolicitud[]);
+      if (rm.ok) setMaquinarias(await rm.json() as MaquinariaSolicitud[]);
       setLoading(false);
     })();
   }, [router]);
@@ -816,7 +1004,7 @@ export default function MasterPage() {
             {([
               { id: "activos", label: "Proveedores activos", count: allVendors.filter((v) => v.isUnipars || v.estado === "APROBADA" || v.estado === "ACTIVO").length },
               { id: "solicitudes", label: "Solicitudes", count: data.vendors.filter((v) => v.estado === "PENDIENTE" || v.estado === "EN_REVISION").length },
-              { id: "uniparceros", label: "Uniparceros", count: talleres.length },
+              { id: "uniparceros", label: "Uniparceros", count: talleres.length + arriendos.length + maquinarias.length },
             ] as const).map((tab) => (
               <button
                 key={tab.id}
@@ -838,7 +1026,55 @@ export default function MasterPage() {
 
           {/* ── UNIPARCEROS TAB ── */}
           {view === "uniparceros" && (
-            <UniparcerosList talleres={talleres} setTalleres={setTalleres} />
+            <div>
+              {/* Sub-tabs */}
+              <div className="mb-4 flex gap-2">
+                {([
+                  { id: "talleres", label: "Talleres y mecánicos", count: talleres.length, color: "#ed8435" },
+                  { id: "arriendo", label: "Arriendo de vehículos", count: arriendos.length, color: "#16a34a" },
+                  { id: "maquinaria", label: "Maquinaria pesada", count: maquinarias.length, color: "#d97706" },
+                ] as const).map((st) => (
+                  <button
+                    key={st.id}
+                    type="button"
+                    onClick={() => setSubTabUniparceros(st.id)}
+                    className={`flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition-colors border ${
+                      subTabUniparceros === st.id
+                        ? "text-white border-transparent"
+                        : "bg-white text-[#8b8d91] border-black/10 hover:text-[#16384f]"
+                    }`}
+                    style={subTabUniparceros === st.id ? { backgroundColor: st.color } : {}}
+                  >
+                    {st.label}
+                    <span className={`rounded-full px-2 py-0.5 text-[11px] font-black ${subTabUniparceros === st.id ? "bg-white/20 text-white" : "bg-[#f0f0ee] text-[#8b8d91]"}`}>
+                      {st.count}
+                    </span>
+                  </button>
+                ))}
+              </div>
+
+              {subTabUniparceros === "talleres" && (
+                <UniparcerosList talleres={talleres} setTalleres={setTalleres} />
+              )}
+              {subTabUniparceros === "arriendo" && (
+                <SolicitudFlotaList
+                  items={arriendos}
+                  setItems={setArriendos}
+                  apiPath="/api/arriendo"
+                  accentColor="#16a34a"
+                  tiposKey="tiposVehiculo"
+                />
+              )}
+              {subTabUniparceros === "maquinaria" && (
+                <SolicitudFlotaList
+                  items={maquinarias}
+                  setItems={setMaquinarias}
+                  apiPath="/api/maquinaria"
+                  accentColor="#d97706"
+                  tiposKey="tiposMaquinaria"
+                />
+              )}
+            </div>
           )}
 
           <div className="space-y-3">

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import SiteFooter from "@/app/components/site-footer";
-import FlotaGrid from "./flota-grid";
+import BuscadorArriendo from "./buscador-arriendo";
 
 export const metadata: Metadata = {
   title: "Arriendo de buses y camiones — Unipars",
@@ -102,14 +102,7 @@ export default function ArriendoPage() {
         </a>
       </div>
 
-      {/* Flota — tarjetas tipo proveedor */}
-      <section className="mx-auto max-w-[1440px] px-6 py-14 lg:px-8">
-        <div className="mb-8 flex items-baseline justify-between">
-          <h2 className="text-2xl font-bold text-[#0d1b2a]">Flota disponible</h2>
-          <span className="text-sm text-[#6b7280]">4 proveedores encontrados</span>
-        </div>
-        <FlotaGrid />
-      </section>
+      <BuscadorArriendo />
 
       {/* Cómo funciona */}
       <section className="bg-white px-6 py-16">
@@ -120,7 +113,7 @@ export default function ArriendoPage() {
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {pasos.map((p) => (
               <div key={p.n} className="text-center">
-                <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-50 text-xl font-black text-blue-600">
+                <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-green-50 text-xl font-black text-green-600">
                   {p.n}
                 </div>
                 <h3 className="mb-2 font-semibold text-[#0d1b2a]">{p.title}</h3>
@@ -143,15 +136,15 @@ export default function ArriendoPage() {
             href="https://wa.me/573057249454?text=Hola%2C%20quiero%20arrendar%20un%20vehículo"
             target="_blank"
             rel="noreferrer"
-            className="rounded-xl bg-blue-600 px-8 py-3.5 font-semibold text-white transition-all hover:bg-blue-700"
+            className="rounded-xl bg-green-600 px-8 py-3.5 font-semibold text-white transition-all hover:bg-green-700"
           >
             Contactar por WhatsApp
           </a>
           <Link
-            href="/servicio-de-reparacion"
+            href="/registro-arriendo"
             className="rounded-xl border border-white/25 bg-white/10 px-8 py-3.5 font-semibold text-white transition-all hover:bg-white/20"
           >
-            Ver otros servicios
+            ¿Tienes flota? Regístrala gratis →
           </Link>
         </div>
       </section>

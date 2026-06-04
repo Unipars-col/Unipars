@@ -70,18 +70,17 @@ const slides: Slide[] = [
 
 const AUTO_PLAY_MS = 5000;
 
-// Array con clon del último al inicio y clon del primero al final
-// Índices: [0=clonLast, 1=slide1, 2=slide2, 3=slide3, 4=clonFirst]
+// [clonLast, slide1, slide2, slide3, clonFirst]
 const loopSlides = [slides[slides.length - 1], ...slides, slides[0]];
 const FIRST_REAL = 1;
 const LAST_REAL = slides.length;
 
 export default function HeroCarousel() {
   const [index, setIndex] = useState(FIRST_REAL);
-  const [transition, setTransition] = useState(true);
+  const [animated, setAnimated] = useState(true);
+  const [paused, setPaused] = useState(false);
   const isSnapping = useRef(false);
 
-  // Índice real para los dots (0-based)
   const dotIndex =
     index === 0 ? slides.length - 1 :
     index === loopSlides.length - 1 ? 0 :
@@ -89,143 +88,126 @@ export default function HeroCarousel() {
 
   const goTo = (i: number) => {
     if (isSnapping.current) return;
-    setTransition(true);
+    setAnimated(true);
     setIndex(i);
   };
 
   const advanceSlide = () => goTo(index + 1);
-
-  const syncAdvanceSlide = useEffectEvent(() => {
-    advanceSlide();
-  });
-
+  const syncAdvanceSlide = useEffectEvent(() => { advanceSlide(); });
   const goToPrev = () => goTo(index - 1);
-
   const goToSlide = (dotIdx: number) => goTo(dotIdx + FIRST_REAL);
 
-  // Snap instantáneo cuando llega a un clon
   const handleTransitionEnd = () => {
     if (index === 0) {
       isSnapping.current = true;
-      setTransition(false);
+      setAnimated(false);
       setIndex(LAST_REAL);
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          setTransition(true);
-          isSnapping.current = false;
-        });
-      });
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        setAnimated(true);
+        isSnapping.current = false;
+      }));
     } else if (index === loopSlides.length - 1) {
       isSnapping.current = true;
-      setTransition(false);
+      setAnimated(false);
       setIndex(FIRST_REAL);
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          setTransition(true);
-          isSnapping.current = false;
-        });
-      });
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        setAnimated(true);
+        isSnapping.current = false;
+      }));
     }
   };
 
   useEffect(() => {
-    const intervalId = window.setInterval(() => {
-      syncAdvanceSlide();
-    }, AUTO_PLAY_MS);
-
-    return () => window.clearInterval(intervalId);
-  }, []);
+    if (paused) return;
+    const id = window.setInterval(() => { syncAdvanceSlide(); }, AUTO_PLAY_MS);
+    return () => window.clearInterval(id);
+  }, [paused]);
 
   return (
     <section
       className="relative text-white"
       style={{ height: "clamp(200px, 31.25vw, 540px)" }}
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
     >
-      {/* Pista del carousel — overflow recortado en su propio div para evitar bug de compositing en Safari */}
       <div className="absolute inset-0 overflow-hidden bg-[#05070a]">
-        <div
-          className={transition ? "flex h-full transition-transform duration-700 ease-out" : "flex h-full"}
-          style={{ transform: `translateX(-${index * 100}%)` }}
-          onTransitionEnd={handleTransitionEnd}
-        >
-          {loopSlides.map((slide, i) => (
-            <article
-              key={i}
-              className="relative h-full w-full shrink-0"
-            >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={slide.image}
-                alt={slide.title}
-                style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center" }}
-              />
+        {loopSlides.map((slide, i) => (
+          <article
+            key={i}
+            onTransitionEnd={i === index ? handleTransitionEnd : undefined}
+            style={{
+              position: "absolute",
+              inset: 0,
+              backgroundImage: `url(${slide.image})`,
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              transform: `translateX(${(i - index) * 100}%)`,
+              transition: animated ? "transform 700ms ease-out" : "none",
+            }}
+          >
+            {slide.gradient && (
+              <div className={`absolute inset-0 ${slide.gradient}`} />
+            )}
 
-              {slide.gradient && (
-                <div className={`absolute inset-0 ${slide.gradient}`} />
-              )}
-
-              <div className="relative mx-auto flex h-full max-w-[1440px] items-center justify-between px-8 py-12 sm:py-16 md:py-20">
-                <div
-                  className={`${slide.textAlign === "right" ? "ml-auto max-w-sm text-right md:max-w-lg" : "max-w-xl"}`}
+            <div className="relative mx-auto flex h-full max-w-[1440px] items-center justify-between px-8 py-12 sm:py-16 md:py-20">
+              <div className={slide.textAlign === "right" ? "ml-auto max-w-sm text-right md:max-w-lg" : "max-w-xl"}>
+                <h1
+                  className={`mb-4 font-extrabold uppercase leading-tight ${slide.titleSize ?? "text-3xl md:text-5xl"} ${
+                    slide.darkText ? "text-[#0d1b2a]" : "text-white"
+                  }`}
                 >
-                  <h1
-                    className={`mb-4 font-extrabold uppercase leading-tight ${slide.titleSize ?? "text-3xl md:text-5xl"} ${
-                      slide.darkText ? "text-[#0d1b2a]" : "text-white"
-                    }`}
+                  {slide.title}{" "}
+                  <span className="whitespace-pre-line text-[#ed8435]">
+                    {slide.titleHighlight}
+                  </span>
+                </h1>
+
+                <p
+                  className={`mb-8 text-sm md:text-base ${
+                    slide.darkText ? "text-[#0d1b2a]/80" : "text-slate-100"
+                  } ${slide.textAlign === "right" ? "border-l-2 border-[#ed8435] pl-3 text-left" : ""}`}
+                >
+                  {slide.description}
+                </p>
+
+                {slide.cta && (
+                  <Link
+                    href={slide.cta.href}
+                    className="inline-flex items-center gap-2 rounded bg-[#ed8435] px-6 py-3 text-sm font-bold uppercase tracking-wide text-white transition-colors hover:bg-[#d4722a]"
                   >
-                    {slide.title}{" "}
-                    <span className="whitespace-pre-line text-[#ed8435]">
-                      {slide.titleHighlight}
-                    </span>
-                  </h1>
-
-                  <p
-                    className={`mb-8 text-sm md:text-base ${
-                      slide.darkText ? "text-[#0d1b2a]/80" : "text-slate-100"
-                    } ${slide.textAlign === "right" ? "border-l-2 border-[#ed8435] pl-3 text-left" : ""}`}
-                  >
-                    {slide.description}
-                  </p>
-
-                  {slide.cta && (
-                    <Link
-                      href={slide.cta.href}
-                      className="inline-flex items-center gap-2 rounded bg-[#ed8435] px-6 py-3 text-sm font-bold uppercase tracking-wide text-white transition-colors hover:bg-[#d4722a]"
-                    >
-                      {slide.cta.label}
-                      <span className="text-base">›</span>
-                    </Link>
-                  )}
-                </div>
-
-                {slide.rightPanel && (
-                  <div className="absolute bottom-10 right-6 hidden flex-col items-end gap-4 text-right md:flex lg:right-12">
-                    <p className="text-base font-extrabold uppercase leading-snug lg:text-lg">
-                      {slide.rightPanel.lines.map((line, j) => (
-                        <span
-                          key={j}
-                          className={`block ${line.orange ? "text-[#ed8435]" : "text-white"}`}
-                        >
-                          {line.text}
-                        </span>
-                      ))}
-                    </p>
-                    <Link
-                      href={slide.rightPanel.cta.href}
-                      className="inline-flex items-center gap-2 rounded bg-[#ed8435] px-5 py-2.5 text-sm font-bold uppercase tracking-wide text-white transition-colors hover:bg-[#d4722a]"
-                    >
-                      {slide.rightPanel.cta.label}
-                      <span className="text-base">›</span>
-                    </Link>
-                  </div>
+                    {slide.cta.label}
+                    <span className="text-base">›</span>
+                  </Link>
                 )}
               </div>
-            </article>
-          ))}
-        </div>
+
+              {slide.rightPanel && (
+                <div className="absolute bottom-10 right-6 hidden flex-col items-end gap-4 text-right md:flex lg:right-12">
+                  <p className="text-base font-extrabold uppercase leading-snug lg:text-lg">
+                    {slide.rightPanel.lines.map((line, j) => (
+                      <span
+                        key={j}
+                        className={`block ${line.orange ? "text-[#ed8435]" : "text-white"}`}
+                      >
+                        {line.text}
+                      </span>
+                    ))}
+                  </p>
+                  <Link
+                    href={slide.rightPanel.cta.href}
+                    className="inline-flex items-center gap-2 rounded bg-[#ed8435] px-5 py-2.5 text-sm font-bold uppercase tracking-wide text-white transition-colors hover:bg-[#d4722a]"
+                  >
+                    {slide.rightPanel.cta.label}
+                    <span className="text-base">›</span>
+                  </Link>
+                </div>
+              )}
+            </div>
+          </article>
+        ))}
       </div>
 
-      {/* Controles — sobre las imágenes, fuera del div con overflow hidden */}
+      {/* Controles */}
       <button
         type="button"
         aria-label="Banner anterior"
@@ -252,9 +234,7 @@ export default function HeroCarousel() {
             aria-label={`Ir al banner ${i + 1}`}
             onClick={() => goToSlide(i)}
             className={`h-3 rounded-full transition-all duration-300 ${
-              dotIndex === i
-                ? "w-10 bg-[#ed8435]"
-                : "w-3 bg-white/60 hover:bg-white"
+              dotIndex === i ? "w-10 bg-[#ed8435]" : "w-3 bg-white/60 hover:bg-white"
             }`}
           />
         ))}

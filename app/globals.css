@@ -129,6 +129,18 @@ body {
   .scroll-container-safe { overflow: hidden; }
 }
 
+/* ── Scroll lateral siempre (sin grid en desktop) ───────────────── */
+.hscroll {
+  display: flex;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x mandatory;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.hscroll::-webkit-scrollbar { display: none; }
+.hscroll > * { scroll-snap-align: start; flex-shrink: 0; }
+
 /* ── Scroll lateral en mobile, grid en desktop ───────────────────── */
 .hscroll-md {
   display: flex;

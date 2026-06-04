@@ -5,33 +5,13 @@ import BusXrayBanner from "./components/bus-xray-banner";
 import CategoriesCarousel from "./components/categories-carousel";
 import HeroCarousel from "./components/hero-carousel";
 import FeaturedProductCard from "./components/featured-product-card";
+import PromoScroll from "./components/promo-scroll";
+import BannerBusquedaImagen from "./components/banner-busqueda-imagen";
 import PromoPopup from "./components/promo-popup";
 import SiteFooter from "./components/site-footer";
 import { categoriasData, slugCategoria } from "./data/catalog";
 import { getFeaturedProducts } from "@/lib/products";
 
-const testimonios = [
-  {
-    nombre: "Jozwing A Siachoque C.",
-    rol: "Transportador",
-    comentario: "Excelente servicio, buena atencion al cliente y muy buena calidad en sus productos. Venden lo que necesitas y sin errores.",
-  },
-  {
-    nombre: "Robinson Samboni Obando",
-    rol: "Mecánico",
-    comentario: "Eficaces, buen trato y envio rapido. En mi caso encontre muy buen precio y una asesoria clara para comprar.",
-  },
-  {
-    nombre: "Fabio Perez Oliveros",
-    rol: "Transportador",
-    comentario: "Quede totalmente satisfecho con la compra. Muy recomendados por la asesoria, el producto y los tiempos de entrega.",
-  },
-  {
-    nombre: "Carlos Medina R.",
-    rol: "Taller especializado",
-    comentario: "Excelente calidad en todos los productos. Los repuestos llegaron a tiempo y en perfecto estado. 100% recomendados.",
-  },
-];
 
 const beneficios = [
   {
@@ -114,22 +94,23 @@ export default async function Home() {
         </div>
       </section>
 
+      {/* 1.5 — BANNER BÚSQUEDA POR IMAGEN */}
+      <section className="mx-auto max-w-[1440px] px-6 pb-6">
+        <BannerBusquedaImagen />
+      </section>
+
       {/* 2 — PROMOS CUADRADAS */}
       {(() => {
         const promos = [
           { src: "/promo-brocha.png",   alt: "Brocha de 4\" 40% dto" },
           { src: "/promo-cera.png",     alt: "Cera para pulir 50% dto" },
           { src: "/promo-espatula.png", alt: "Espátula metálica 40% dto" },
+          { src: "/promo-brocha.png",   alt: "Brocha de 4\" 40% dto" },
+          { src: "/promo-cera.png",     alt: "Cera para pulir 50% dto" },
         ];
         return (
           <section className="py-14">
-            <div className="hscroll-md cols-3 mx-auto max-w-[1440px]" style={{ gap: "1.5rem", paddingLeft: "1.5rem", paddingRight: "1.5rem" }}>
-              {promos.map((promo) => (
-                <div key={promo.src} className="overflow-hidden rounded-2xl" style={{ width: "82vw" }}>
-                  <Image src={promo.src} alt={promo.alt} width={600} height={600} className="w-full object-cover transition-transform duration-300 hover:scale-[1.02]" />
-                </div>
-              ))}
-            </div>
+            <PromoScroll promos={promos} />
           </section>
         );
       })()}
@@ -192,40 +173,6 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* 6 — TESTIMONIOS */}
-      <section className="py-14">
-        <div className="mx-auto max-w-[1440px] px-6">
-          <div className="scroll-container-safe rounded-3xl bg-[#0d1b2a] py-14">
-            <div className="mb-10 px-10 text-center">
-              <p className="mb-2 text-xs font-semibold uppercase tracking-[0.35em] text-white/50">
-                Opiniones que nos impulsan
-              </p>
-              <h2 className="text-3xl font-bold text-[#ed8435] md:text-4xl">
-                Lo que dicen nuestros clientes
-              </h2>
-            </div>
-
-            <div className="px-6 md:px-10" style={{ display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", gap: "1.5rem", overflowX: "auto" }}>
-              {testimonios.map((testimonio) => (
-                <article key={testimonio.nombre} className="flex flex-col justify-between rounded-2xl bg-white p-6" style={{ minWidth: "260px" }}>
-                  <div>
-                    <span className="text-4xl font-black leading-none text-[#ed8435]">&ldquo;</span>
-                    <p className="mt-2 text-base tracking-[0.12em] text-[#ed8435]">★★★★★</p>
-                    <p className="mt-3 text-[0.9rem] font-semibold leading-6 text-[#1f2328]">{testimonio.comentario}</p>
-                  </div>
-                  <div className="mt-5 flex items-center gap-3 border-t border-black/8 pt-4">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#16384f] text-sm font-bold text-white">{testimonio.nombre.charAt(0)}</div>
-                    <div>
-                      <p className="text-sm font-semibold text-[#16384f]">{testimonio.nombre}</p>
-                      <p className="text-xs text-[#8b8d91]">{testimonio.rol}</p>
-                    </div>
-                  </div>
-                </article>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
 
 
 
