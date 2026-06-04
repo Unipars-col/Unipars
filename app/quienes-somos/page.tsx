@@ -1,5 +1,4 @@
 import Image from "next/image";
-import Link from "next/link";
 
 const beneficios = [
   {
@@ -24,47 +23,15 @@ export default function QuienesSomosPage() {
     <main className="min-h-screen bg-white text-[#1c2c3a]">
       
       {/* 1. BANNER PRINCIPAL */}
-      <section className="relative w-full min-h-[550px] md:min-h-[700px] flex items-center bg-[#f2f2f2] overflow-hidden">
-        
-        {/* Capa de Imagen (Robot) */}
-        <div 
-          className="absolute inset-0 z-0"
-          style={{
-            backgroundImage: `url('/robot-unipars.jpg')`,
-            backgroundRepeat: "no-repeat",
-            backgroundPosition: "right center",
-            backgroundSize: "contain", 
-          }}
+      <section className="w-full">
+        <Image
+          src="/banner-quienes-somos.jpg"
+          alt="Movilidad que avanza contigo — Unipars"
+          width={1920}
+          height={600}
+          priority
+          className="w-full object-cover"
         />
-
-        {/* Capa de Degradado */}
-        <div className="absolute inset-0 z-10 bg-gradient-to-r from-[#f2f2f2] via-[#f2f2f2]/90 to-transparent md:via-[#f2f2f2]/30" />
-
-        <div className="relative z-20 mx-auto max-w-[1280px] w-full px-6 md:px-10">
-          <div className="max-w-[700px]">
-            <p className="text-[14px] font-bold uppercase tracking-[0.25em] text-[#ed8435]">
-            </p>
-
-            <h1 className="mt-6 text-[45px] font-black leading-[1.05] tracking-[-0.03em] text-[#2f4f68] md:text-[65px] lg:text-[75px]">
-              Impulsamos <br />
-              <span className="text-[#ed8435]">el movimiento</span> <br />
-              de miles de vehículos
-            </h1>
-
-            <p className="mt-8 max-w-[500px] text-[18px] leading-relaxed text-[#4c6275] md:text-[21px]">
-              En <span className="font-bold text-[#2f4f68]">Unipars</span> conectamos calidad, tecnología y confianza para que encuentres el repuesto exacto en toda Colombia.
-            </p>
-
-            <div className="mt-10">
-              <Link 
-                href="/categorias"
-                className="inline-block bg-[#2f4f68] text-white px-8 py-4 rounded-full font-bold hover:bg-[#ed8435] transition-all shadow-lg hover:-translate-y-1"
-              >
-                Explorar Catálogo
-              </Link>
-            </div>
-          </div>
-        </div>
       </section>
 
       {/* 2. SECCIÓN DE CONTENIDO */}

@@ -138,9 +138,9 @@ export default function SiteHeader({ currentUser, isVendor }: SiteHeaderProps) {
             </div>
             {[
               { href: "/vender", label: "Vender" },
-              { href: "/quienes-somos", label: "Quiénes somos" },
+              { href: "/categorias?oferta=true", label: "Ofertas" },
               { href: "/servicio-de-reparacion", label: "Uniparceros" },
-              { href: "/contacto", label: "Contacto" },
+              { href: "/ayuda", label: "Ayuda / PQR" },
             ].map(({ href, label }) => {
               const isActive = pathname === href || pathname.startsWith(href + "/");
               return (

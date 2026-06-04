@@ -34,19 +34,24 @@ export default function CategoriasPage() {
     return { min, max };
   }, [products]);
 
+  const soloOfertas = searchParams.get("oferta") === "true";
   const categoriaActiva = categoriaDesdeSlug(searchParams.get("categoria"));
   const categoriaVisual = categoriaMeta(
     categoriaActiva ?? categorias[0],
   );
   const queryActiva = searchParams.get("q")?.trim().toLowerCase() || "";
-  const heroTitulo = categoriaActiva
-    ? categoriaVisual.nombre
-    : "Filtra por categoría y encuentra exactamente lo que necesitas.";
-  const heroDestacado = categoriaActiva ? "de alta calidad" : "";
-  const heroCopy = categoriaActiva
-    ? categoriaVisual.bannerCopy ||
-      "Explora esta línea con una vista más clara del catálogo y encuentra referencias listas para cotizar."
-    : "Construimos una sola ventana de catálogo para que explores todas las líneas de producto sin duplicar páginas ni perder claridad.";
+  const heroTitulo = soloOfertas
+    ? "Ofertas especiales"
+    : categoriaActiva
+      ? categoriaVisual.nombre
+      : "Filtra por categoría y encuentra exactamente lo que necesitas.";
+  const heroDestacado = soloOfertas ? "+35% de descuento" : categoriaActiva ? "de alta calidad" : "";
+  const heroCopy = soloOfertas
+    ? "Productos con descuentos mayores al 35%. Selección actualizada del catálogo Unipars."
+    : categoriaActiva
+      ? categoriaVisual.bannerCopy ||
+        "Explora esta línea con una vista más clara del catálogo y encuentra referencias listas para cotizar."
+      : "Construimos una sola ventana de catálogo para que explores todas las líneas de producto sin duplicar páginas ni perder claridad.";
 
   const [marcasActivas, setMarcasActivas] = useState<string[]>([]);
   const [disponibilidadActiva, setDisponibilidadActiva] = useState<string[]>([]);
@@ -96,12 +101,19 @@ export default function CategoriasPage() {
       producto.precioValor >= precioMinimo &&
       producto.precioValor <= precioMaximo;
 
+    const descuentoPct =
+      producto.precioAnteriorValor > producto.precioValor
+        ? ((producto.precioAnteriorValor - producto.precioValor) / producto.precioAnteriorValor) * 100
+        : 0;
+    const coincideOferta = !soloOfertas || descuentoPct > 35;
+
     return (
       coincideBusqueda &&
       coincideCategoria &&
       coincideMarca &&
       coincideDisponibilidad &&
-      coincidePrecio
+      coincidePrecio &&
+      coincideOferta
     );
   });
 

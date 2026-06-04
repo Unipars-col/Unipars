@@ -152,6 +152,16 @@ body {
   .hscroll-md.cols-4   { grid-template-columns: repeat(4, 1fr); }
 }
 
+/* ── Tarjeta producto destacado — ancho mobile ───────────────────── */
+.featured-card {
+  min-width: 72vw;
+}
+@media (min-width: 768px) {
+  .featured-card {
+    min-width: 0;
+  }
+}
+
 /* ── Mobile nav drawer ───────────────────────────────────────────── */
 @keyframes slideUp {
   from { transform: translateY(100%); }

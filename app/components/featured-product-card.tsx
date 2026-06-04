@@ -25,6 +25,7 @@ export default function FeaturedProductCard(props: Props) {
     <article
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
+      className="featured-card"
       style={{
         borderRadius: "1.75rem",
         background: "white",
