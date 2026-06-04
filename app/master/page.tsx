@@ -697,7 +697,7 @@ function SolicitudFlotaList<T extends ArriendoSolicitud | MaquinariaSolicitud>({
               <div className="mt-4">
                 <p className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-gray-400">Tipos</p>
                 <div className="flex flex-wrap gap-1.5">
-                  {(detalle[tiposKey] as string[]).map((s) => (
+                  {((detalle as Record<string, unknown>)[tiposKey] as string[]).map((s) => (
                     <span key={s} className="rounded-full border border-gray-200 bg-white px-3 py-1 text-xs font-medium text-[#16384f]">{s}</span>
                   ))}
                 </div>
@@ -738,7 +738,7 @@ function SolicitudFlotaList<T extends ArriendoSolicitud | MaquinariaSolicitud>({
             </div>
 
             <div className="mt-3 flex flex-wrap gap-1.5">
-              {(t[tiposKey] as string[]).map((s) => (
+              {((t as Record<string, unknown>)[tiposKey] as string[]).map((s) => (
                 <span key={s} className="rounded-full border border-black/8 bg-[#fafaf9] px-2.5 py-0.5 text-xs text-[#5d6167]">{s}</span>
               ))}
             </div>
