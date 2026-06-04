@@ -35,30 +35,8 @@ export default function CategoriesCarousel() {
 
   return (
     <div className="relative">
-      {/* Flecha izquierda */}
-      <button
-        type="button"
-        onClick={() => scroll("left")}
-        disabled={!canScrollLeft}
-        className="absolute -left-4 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-[#ed8435] text-xl text-white shadow-md transition hover:bg-[#d4722a] disabled:opacity-30 disabled:cursor-default"
-        aria-label="Anterior"
-      >
-        ‹
-      </button>
-
-      {/* Flecha derecha */}
-      <button
-        type="button"
-        onClick={() => scroll("right")}
-        disabled={!canScrollRight}
-        className="absolute -right-4 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-[#ed8435] text-xl text-white shadow-md transition hover:bg-[#d4722a] disabled:opacity-30 disabled:cursor-default"
-        aria-label="Siguiente"
-      >
-        ›
-      </button>
-
-      {/* Scroll container */}
-      <div className="overflow-hidden">
+      {/* Wrapper con overflow:hidden — impide que las cards lleguen a los botones */}
+      <div className="overflow-hidden md:mx-12">
       <div
         ref={scrollRef}
         className="scrollbar-hidden flex gap-4 overflow-x-auto pb-2"
@@ -96,6 +74,27 @@ export default function CategoriesCarousel() {
         ))}
       </div>
       </div>
+
+      {/* Botones — solo desktop, en el espacio de md:mx-12 */}
+      <button
+        type="button"
+        onClick={() => scroll("left")}
+        disabled={!canScrollLeft}
+        className="absolute left-1 top-1/2 -translate-y-1/2 hidden h-10 w-10 items-center justify-center rounded-full bg-[#ed8435] text-xl text-white shadow-md transition hover:bg-[#d4722a] disabled:opacity-30 disabled:cursor-default md:flex"
+        aria-label="Anterior"
+      >
+        ‹
+      </button>
+
+      <button
+        type="button"
+        onClick={() => scroll("right")}
+        disabled={!canScrollRight}
+        className="absolute right-1 top-1/2 -translate-y-1/2 hidden h-10 w-10 items-center justify-center rounded-full bg-[#ed8435] text-xl text-white shadow-md transition hover:bg-[#d4722a] disabled:opacity-30 disabled:cursor-default md:flex"
+        aria-label="Siguiente"
+      >
+        ›
+      </button>
     </div>
   );
 }
