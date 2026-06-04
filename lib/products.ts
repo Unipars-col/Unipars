@@ -229,6 +229,7 @@ function toStoreProduct(product: ProductRecord): StoreProduct {
     precio: formatearMoneda(product.price),
     precioAnterior: formatearMoneda(product.previousPrice),
     precioValor: product.price,
+    precioAnteriorValor: product.previousPrice,
     stock: product.stock,
     stockMinimo: product.minimumStock,
     estadoInventario,
