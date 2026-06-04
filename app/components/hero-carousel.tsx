@@ -28,7 +28,7 @@ const slides: Slide[] = [
     description:
       "Encuentra talleres aliados de confianza en todo el país para instalar tus repuestos con seguridad, calidad y garantía.",
     cta: null,
-    image: "/hero-banner-transmilenio-v2.jpg",
+    image: "/hero-banner-transmilenio-v3.jpg",
     textAlign: "left",
     darkText: true,
     gradient: "",
