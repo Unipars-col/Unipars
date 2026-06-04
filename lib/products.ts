@@ -43,6 +43,7 @@ type ProductRecord = {
 export type StoreProduct = ProductoCatalogo & {
   descripcion: string;
   destacado: boolean;
+  precioAnteriorValor: number;
 };
 
 export type InventoryMovementSummary = {
@@ -312,6 +313,7 @@ function getFallbackProducts(): StoreProduct[] {
       },
     ),
     destacado: producto.destacado ?? index < 4,
+    precioAnteriorValor: producto.precioValor,
   }));
 }
 
