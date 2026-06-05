@@ -277,8 +277,8 @@ export default function ProductoDetallePage() {
         </div>
 
         <div className="grid gap-0 xl:gap-8 xl:grid-cols-[1.1fr_0.9fr] xl:items-start">
-          {/* Columna imagen — order-1 mobile, col-1 desktop */}
-          <div className="order-1 xl:order-1 bg-white xl:rounded-[2rem] xl:border xl:border-black/8 xl:p-4 xl:shadow-[0_18px_40px_rgba(15,23,42,0.05)]">
+          {/* Columna imagen — order-1 mobile, col-1 row-1 desktop */}
+          <div className="order-1 xl:[grid-area:1/1/2/2] bg-white xl:rounded-[2rem] xl:border xl:border-black/8 xl:p-4 xl:shadow-[0_18px_40px_rgba(15,23,42,0.05)]">
             <ProductImageGallery
               key={producto.slug}
               nombre={producto.nombre}
@@ -286,7 +286,7 @@ export default function ProductoDetallePage() {
             />
           </div>
 
-          <div className="order-2 xl:order-2 xl:row-span-2 space-y-4 bg-white px-5 py-6 xl:rounded-[2rem] xl:border xl:border-black/8 xl:p-8 xl:shadow-[0_18px_40px_rgba(15,23,42,0.05)]">
+          <div className="order-2 xl:[grid-area:1/2/3/3] space-y-4 bg-white px-5 py-6 xl:rounded-[2rem] xl:border xl:border-black/8 xl:p-8 xl:shadow-[0_18px_40px_rgba(15,23,42,0.05)]">
             <div className="flex items-start justify-between gap-6">
               <div>
                 <p className="text-sm font-medium text-[#2d7af0]">

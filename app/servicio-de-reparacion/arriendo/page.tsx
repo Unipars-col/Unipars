@@ -127,7 +127,7 @@ export default function ArriendoPage() {
       {/* CTA final */}
       <section
         className="px-6 py-14 text-center"
-        style={{ background: "linear-gradient(135deg, #0d1b2a 0%, #1e3a5f 100%)" }}
+        style={{ background: "#16384f" }}
       >
         <h2 className="mb-3 text-2xl font-bold text-white">¿Listo para arrendar?</h2>
         <p className="mb-8 text-white/60">Nuestro equipo te ayuda a encontrar el vehículo ideal para tu operación.</p>

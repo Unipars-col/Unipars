@@ -4,42 +4,42 @@ import Image from "next/image";
 import Link from "next/link";
 
 const items = [
-  { text: "🔥 Aprovecha los", bold: "súper descuentos de Unipars", cta: { label: "Ver ofertas", href: "/categorias?oferta=true" } },
-  { text: "🚛 Repuestos para", bold: "transporte masivo y de carga", cta: null },
-  { text: "⚡ Los mejores precios en", bold: "repuestos originales", cta: { label: "Ver catálogo", href: "/categorias" } },
-  { text: "🛠️ Más de", bold: "364 referencias disponibles", cta: null },
-  { text: "📦 Envíos a todo", bold: "Colombia", cta: { label: "Comprar ahora", href: "/categorias" } },
-  { text: "🏆 Calidad garantizada en cada", bold: "repuesto que compras", cta: null },
+  { bg: "transparent", text: "🔥 Aprovecha los", bold: "súper descuentos de Unipars", cta: { label: "Ver ofertas", href: "/categorias?oferta=true", color: "#ed8435" } },
+  { bg: "transparent", text: "🚛 Repuestos para", bold: "transporte masivo y de carga", cta: null },
+  { bg: "transparent", text: "⚡ Los mejores precios en", bold: "repuestos originales", cta: { label: "Ver catálogo", href: "/categorias", color: "#ed8435" } },
+  { bg: "transparent", text: "🛠️ Más de", bold: "364 referencias disponibles", cta: null },
+  { bg: "transparent", text: "📦 Envíos a todo", bold: "Colombia", cta: { label: "Comprar ahora", href: "/categorias", color: "#ed8435" } },
+  { bg: "transparent", text: "🏆 Calidad garantizada en cada", bold: "repuesto que compras", cta: null },
 ];
 
 function RibbonItem({ item }: { item: typeof items[0] }) {
   return (
-    <span className="inline-flex shrink-0 items-center gap-3 px-6">
-      <Image src="/logo-white.png" alt="Unipars" width={68} height={18} className="h-[18px] w-auto shrink-0 opacity-85" />
-      <span className="whitespace-nowrap text-[13px] text-white/75">
+    <span
+      className="inline-flex shrink-0 items-center gap-3 px-7 py-2.5"
+      style={{ backgroundColor: item.bg }}
+    >
+      <Image src="/logo-white.png" alt="Unipars" width={68} height={18} className="h-[18px] w-auto shrink-0 opacity-90" />
+      <span className="whitespace-nowrap text-[13px] text-white/80">
         {item.text}{" "}
         <strong className="font-semibold text-white">{item.bold}</strong>
       </span>
       {item.cta && (
         <Link
           href={item.cta.href}
-          className="shrink-0 rounded-full bg-[#ed8435] px-3.5 py-[5px] text-[11px] font-bold text-white hover:bg-[#d97230]"
+          className="shrink-0 rounded-full px-3.5 py-[5px] text-[11px] font-bold text-white transition-opacity hover:opacity-90"
+          style={{ backgroundColor: item.cta.color }}
           onClick={(e) => e.stopPropagation()}
         >
           {item.cta.label}
         </Link>
       )}
-      <span className="mx-1 text-white/15 select-none">│</span>
     </span>
   );
 }
 
 export default function PromoRibbon() {
   return (
-    <div
-      className="overflow-hidden bg-[#16384f] py-2.5"
-      style={{ borderTop: "1px solid rgba(255,255,255,0.06)", borderBottom: "1px solid rgba(255,255,255,0.06)" }}
-    >
+    <div className="overflow-hidden bg-[#16384f]">
       <style>{`
         @keyframes ribbonScroll {
           0%   { transform: translateX(0); }
@@ -57,7 +57,6 @@ export default function PromoRibbon() {
       `}</style>
 
       <div className="ribbon-track">
-        {/* 2 copias exactas → -50% = 1 copia completa → loop perfecto */}
         {[...items, ...items].map((item, idx) => (
           <RibbonItem key={idx} item={item} />
         ))}
