@@ -130,7 +130,7 @@ export default function CategoriasPage() {
       {!categoriaActiva && (
         <section className="min-h-[calc(100dvh-4rem)] bg-[#f5f5f5] px-4 py-6 md:hidden">
           <h1 className="mb-5 text-center text-xl font-bold text-[#16384f]">Categorías</h1>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-3 pb-24">
             {categoriasData.map((cat) => (
               <button
                 key={cat.nombre}
