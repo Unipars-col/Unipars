@@ -78,14 +78,6 @@ const diagnosticRules: DiagnosticRule[] = [
     suggestions: ["Siliconas", "Sellantes", "Pegantes técnicos"],
   },
   {
-    keywords: ["ferreteria", "herramienta", "tornillo", "tuerca", "arandela", "broca"],
-    category: "Ferretería",
-    title: "La búsqueda va por ferretería",
-    reply:
-      "Si necesitas herramientas, tornillería o accesorios para instalación y mantenimiento, la categoría más práctica para empezar es Ferretería.",
-    suggestions: ["Herramientas", "Tornillería", "Accesorios"],
-  },
-  {
     keywords: ["cable", "electrico", "electrico", "corriente", "sensor", "conector"],
     category: "Línea eléctrica",
     title: "La búsqueda va por línea eléctrica",
@@ -125,7 +117,6 @@ const categoryXrayImages: Record<Categoria, string> = {
   "Línea mecanizado": "/category-xray-mecanizado.jpg",
   "Línea cauchos": "/category-xray-cauchos.jpg",
   "Adhesivos, lubricantes y sellantes": "/category-xray-cauchos.jpg",
-  "Ferretería": "/category-xray-mecanizado.jpg",
   "Línea eléctrica": "/category-xray-electrico.jpg",
 };
 

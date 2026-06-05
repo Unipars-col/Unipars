@@ -101,11 +101,16 @@ const navItems = [
   },
 ];
 
-export default function MobileBottomNav({ isLoggedIn }: { isLoggedIn?: boolean }) {
+export default function MobileBottomNav({ isLoggedIn, userRole }: { isLoggedIn?: boolean; userRole?: string | null }) {
   const pathname = usePathname();
   const router = useRouter();
   const { totalItems } = useCart();
   const [showMore, setShowMore] = useState(false);
+
+  const accountHref = userRole === "MASTER" ? "/master" : userRole === "ADMIN" ? "/admin" : "/mi-cuenta";
+  const resolvedMoreItems = moreItems.map((item) =>
+    item.label === "Cuenta" ? { ...item, href: accountHref } : item
+  );
 
   const handleLogout = async () => {
     setShowMore(false);
@@ -126,7 +131,7 @@ export default function MobileBottomNav({ isLoggedIn }: { isLoggedIn?: boolean }
     return () => window.removeEventListener("keydown", handleKey);
   }, []);
 
-  const moreIsActive = moreItems.some((i) => pathname === i.href || (i.href !== "/" && pathname.startsWith(i.href)));
+  const moreIsActive = resolvedMoreItems.some((i) => pathname === i.href || (i.href !== "/" && pathname.startsWith(i.href)));
 
   return (
     <>
@@ -154,7 +159,7 @@ export default function MobileBottomNav({ isLoggedIn }: { isLoggedIn?: boolean }
           <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-gray-200" />
           <p className="mb-3 text-[11px] font-semibold uppercase tracking-widest text-[#6e7379]">Más opciones</p>
           <div className="grid grid-cols-1 gap-1">
-            {moreItems.map((item) => {
+            {resolvedMoreItems.map((item) => {
               const isActive = pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href));
               return (
                 <Link

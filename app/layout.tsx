@@ -93,7 +93,7 @@ export default async function RootLayout({
             <VisualSearchModal />
             <SupportChat />
             <ScrollToTop />
-            <MobileBottomNav isLoggedIn={!!currentUser} />
+            <MobileBottomNav isLoggedIn={!!currentUser} userRole={currentUser?.role ?? null} />
           </CartProvider>
         </ProductsProvider>
       </body>

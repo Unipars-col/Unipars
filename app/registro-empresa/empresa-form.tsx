@@ -26,7 +26,6 @@ const CATEGORIAS = [
   "Línea mecanizado",
   "Línea cauchos",
   "Adhesivos, lubricantes y sellantes",
-  "Ferretería",
   "Línea eléctrica",
 ];
 
