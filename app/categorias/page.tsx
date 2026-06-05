@@ -20,11 +20,16 @@ const disponibilidades = [
   "Recoger en tienda",
   "Agotado",
 ] as const;
+
+const VISIBLE = 7;
+
 export default function CategoriasPage() {
   const { products } = useProducts();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const [carouselIdx, setCarouselIdx] = useState(0);
+  const maxIdx = Math.max(0, categoriasData.length - VISIBLE);
   const marcas = Array.from(new Set(products.map((product) => product.marca)));
   const priceBounds = useMemo(() => {
     const values = products.map((product) => product.precioValor);
@@ -53,10 +58,26 @@ export default function CategoriasPage() {
         "Explora esta línea con una vista más clara del catálogo y encuentra referencias listas para cotizar."
       : "Construimos una sola ventana de catálogo para que explores todas las líneas de producto sin duplicar páginas ni perder claridad.";
 
+  const [ordenActivo, setOrdenActivo] = useState<"recomendados" | "mas-vendidos" | "menor-precio">("recomendados");
   const [marcasActivas, setMarcasActivas] = useState<string[]>([]);
+  const [marcaBusqueda, setMarcaBusqueda] = useState("");
+  const [mostrarMasMarcas, setMostrarMasMarcas] = useState(false);
   const [disponibilidadActiva, setDisponibilidadActiva] = useState<string[]>([]);
   const [precioMinimo, setPrecioMinimo] = useState(priceBounds.min);
   const [precioMaximo, setPrecioMaximo] = useState(priceBounds.max);
+
+  const marcasConConteo = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const p of products) counts.set(p.marca, (counts.get(p.marca) ?? 0) + 1);
+    return Array.from(counts.entries())
+      .map(([nombre, conteo]) => ({ nombre, conteo }))
+      .sort((a, b) => b.conteo - a.conteo);
+  }, [products]);
+
+  const marcasFiltradas = marcasConConteo.filter((m) =>
+    m.nombre.toLowerCase().includes(marcaBusqueda.toLowerCase()),
+  );
+  const marcasVisibles = mostrarMasMarcas ? marcasFiltradas : marcasFiltradas.slice(0, 10);
 
   useEffect(() => {
     setPrecioMinimo(priceBounds.min);
@@ -115,6 +136,14 @@ export default function CategoriasPage() {
       coincidePrecio &&
       coincideOferta
     );
+  }).sort((a, b) => {
+    if (ordenActivo === "menor-precio") return a.precioValor - b.precioValor;
+    if (ordenActivo === "mas-vendidos") {
+      const descA = a.precioAnteriorValor > 0 ? (a.precioAnteriorValor - a.precioValor) / a.precioAnteriorValor : 0;
+      const descB = b.precioAnteriorValor > 0 ? (b.precioAnteriorValor - b.precioValor) / b.precioAnteriorValor : 0;
+      return descB - descA;
+    }
+    return 0;
   });
 
   const volverACategorias = () => {
@@ -226,7 +255,7 @@ export default function CategoriasPage() {
       {/* ── DESKTOP: layout existente ───────────────────────────────────── */}
       <div className="hidden md:block">
       <section className="px-6 pb-4 pt-6 text-white">
-        <div className="overflow-hidden rounded-[1.9rem] border border-black/8 bg-[#070b14] shadow-[0_26px_70px_rgba(0,0,0,0.16)]">
+        <div className="overflow-hidden rounded-[1.9rem] bg-[#070b14] shadow-[0_26px_70px_rgba(0,0,0,0.16)]">
           <div className="relative aspect-[1920/500] min-h-[252px] overflow-hidden">
             {categoriaVisual.bannerImagen ? (
               <Image
@@ -263,27 +292,77 @@ export default function CategoriasPage() {
             </div>
 
           </div>
+        </div>
+      </section>
 
-          <div className="bg-[#070b14] px-4 pb-6 pt-3 sm:px-6">
-            <div className="mx-auto max-w-[1760px]">
-              <div className="flex flex-wrap justify-center gap-2 px-1 pb-1">
-                {categorias.map((categoria) => (
-                  <button
-                    key={categoria}
-                    type="button"
-                    onClick={() => cambiarCategoria(categoria)}
-                    className={`shrink-0 whitespace-nowrap rounded-full border px-4 py-2 text-sm font-medium backdrop-blur-sm transition-all duration-200 ${
-                      categoriaActiva === categoria
-                        ? "border-[#ed8435] bg-[#ed8435] text-white shadow-[0_10px_24px_rgba(237,132,53,0.18)]"
-                        : "border-white/12 bg-[#141b24]/72 text-white/82 hover:border-white/24 hover:bg-[#1a2330]/78 hover:text-white"
-                    }`}
-                  >
-                    {categoria}
-                  </button>
-                ))}
+      <section className="mx-auto max-w-[1680px] px-6 pb-2 pt-3">
+        <div className="relative">
+          {/* Prev — flota sobre el borde izquierdo del carousel */}
+          <button
+            type="button"
+            onClick={() => setCarouselIdx((i) => Math.max(0, i - 1))}
+            disabled={carouselIdx === 0}
+            className="absolute -left-1 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-[#ed8435] text-white shadow-[0_6px_20px_rgba(237,132,53,0.4)] transition-all duration-200 hover:bg-[#d97230] hover:scale-105 disabled:opacity-0"
+            aria-label="Anterior"
+          >
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+          </button>
+
+          <div className="overflow-hidden rounded-[1.9rem] bg-[#f0f1f3] shadow-[0_8px_24px_rgba(0,0,0,0.07)]">
+            <div className="px-8 py-3">
+              <div className="overflow-hidden">
+                <div
+                  className="flex gap-3 transition-transform duration-300 ease-out"
+                  style={{ transform: `translateX(calc(-${carouselIdx} * (100vw - 112px) / 7))` }}
+                >
+                  {categoriasData.map((cat) => {
+                    const isActive = categoriaActiva === cat.nombre;
+                    return (
+                      <button
+                        key={cat.nombre}
+                        type="button"
+                        onClick={() => cambiarCategoria(cat.nombre)}
+                        style={{ width: "calc((100vw - 196px) / 7)", flexShrink: 0 }}
+                        className={`group flex flex-col items-center rounded-xl border bg-white px-2 pb-3 pt-3 text-center shadow-[0_3px_10px_rgba(15,23,42,0.06)] transition-all duration-200 hover:shadow-[0_6px_18px_rgba(15,23,42,0.11)] hover:-translate-y-0.5 ${
+                          isActive
+                            ? "border-[#ed8435] shadow-[0_3px_10px_rgba(237,132,53,0.15)]"
+                            : "border-black/6"
+                        }`}
+                      >
+                        <div className="flex h-14 w-full shrink-0 items-center justify-center">
+                          {cat.iconoImagen ? (
+                            <Image
+                              src={cat.iconoImagen}
+                              alt={cat.nombre}
+                              width={100}
+                              height={100}
+                              className="h-full w-auto max-w-[85%] object-contain drop-shadow-sm transition-transform duration-300 group-hover:scale-[1.07]"
+                            />
+                          ) : (
+                            <span className="text-2xl">{cat.icono}</span>
+                          )}
+                        </div>
+                        <p className={`mt-2 w-full text-[10px] font-semibold leading-[1.3] tracking-[-0.01em] ${isActive ? "text-[#ed8435]" : "text-[#33373d]"}`}>
+                          {cat.nombre}
+                        </p>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
             </div>
           </div>
+
+          {/* Next — flota sobre el borde derecho del carousel */}
+          <button
+            type="button"
+            onClick={() => setCarouselIdx((i) => Math.min(maxIdx, i + 1))}
+            disabled={carouselIdx >= maxIdx}
+            className="absolute -right-1 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-[#ed8435] text-white shadow-[0_6px_20px_rgba(237,132,53,0.4)] transition-all duration-200 hover:bg-[#d97230] hover:scale-105 disabled:opacity-0"
+            aria-label="Siguiente"
+          >
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+          </button>
         </div>
       </section>
 
@@ -305,27 +384,47 @@ export default function CategoriasPage() {
             </div>
 
             <div className="rounded-[1.75rem] border border-black/8 bg-white p-6 shadow-[0_14px_28px_rgba(15,23,42,0.05)]">
-              <h3 className="text-sm font-semibold uppercase tracking-[0.24em] text-[#16384f]">
+              <h3 className="text-sm font-bold tracking-[0.18em] uppercase text-[#16384f]">
                 Marca
               </h3>
-              <div className="mt-4 space-y-3">
-                {marcas.map((marca) => (
+              <div className="mt-4">
+                <input
+                  type="text"
+                  placeholder="Buscar por marca"
+                  value={marcaBusqueda}
+                  onChange={(e) => setMarcaBusqueda(e.target.value)}
+                  className="w-full rounded-lg border border-black/10 bg-[#f8f8f7] px-3 py-2 text-sm text-[#1f2328] placeholder:text-[#a0a3a8] focus:border-[#16384f] focus:outline-none"
+                />
+              </div>
+              <div className="mt-3 space-y-0.5">
+                {marcasVisibles.map(({ nombre, conteo }) => (
                   <label
-                    key={marca}
-                    className="flex items-center gap-3 text-sm text-[#5d6167]"
+                    key={nombre}
+                    className="flex cursor-pointer items-center gap-3 rounded-md px-1 py-1.5 text-sm text-[#3b3f45] hover:bg-[#f5f5f5]"
                   >
                     <input
                       type="checkbox"
-                      checked={marcasActivas.includes(marca)}
-                      onChange={() =>
-                        alternar(marca, marcasActivas, setMarcasActivas)
-                      }
-                      className="h-4 w-4 rounded border-slate-300 text-[#ed8435] focus:ring-[#ed8435]"
+                      checked={marcasActivas.includes(nombre)}
+                      onChange={() => alternar(nombre, marcasActivas, setMarcasActivas)}
+                      className="h-4 w-4 shrink-0 rounded border-slate-300 text-[#ed8435] accent-[#16384f] focus:ring-[#16384f]"
                     />
-                    <span>{marca}</span>
+                    <span className="flex-1">{nombre}</span>
+                    <span className="text-xs text-[#a0a3a8]">({conteo})</span>
                   </label>
                 ))}
+                {marcasFiltradas.length === 0 && (
+                  <p className="py-3 text-center text-xs text-[#a0a3a8]">Sin resultados</p>
+                )}
               </div>
+              {marcasFiltradas.length > 10 && (
+                <button
+                  type="button"
+                  onClick={() => setMostrarMasMarcas((v) => !v)}
+                  className="mt-2 text-sm font-semibold text-[#16384f] hover:text-[#ed8435] transition-colors"
+                >
+                  {mostrarMasMarcas ? "Ver menos" : "Ver más"}
+                </button>
+              )}
             </div>
 
             <div className="rounded-[1.75rem] border border-black/8 bg-white p-6 shadow-[0_14px_28px_rgba(15,23,42,0.05)]">
@@ -458,15 +557,24 @@ export default function CategoriasPage() {
                 </div>
 
                 <div className="flex flex-wrap gap-3">
-                  <button className="rounded-full bg-[#16384f] px-4 py-2 text-sm font-medium text-white">
-                    Recomendados
-                  </button>
-                  <button className="rounded-full border border-black/10 bg-[#f8f8f7] px-4 py-2 text-sm font-medium text-[#5d6167]">
-                    Más vendidos
-                  </button>
-                  <button className="rounded-full border border-black/10 bg-[#f8f8f7] px-4 py-2 text-sm font-medium text-[#5d6167]">
-                    Menor precio
-                  </button>
+                  {(["recomendados", "mas-vendidos", "menor-precio"] as const).map((op) => {
+                    const labels = { "recomendados": "Recomendados", "mas-vendidos": "Más vendidos", "menor-precio": "Menor precio" };
+                    const active = ordenActivo === op;
+                    return (
+                      <button
+                        key={op}
+                        type="button"
+                        onClick={() => setOrdenActivo(op)}
+                        className={`rounded-full px-4 py-2 text-sm font-medium transition-colors duration-150 ${
+                          active
+                            ? "bg-[#16384f] text-white"
+                            : "border border-black/10 bg-[#f8f8f7] text-[#5d6167] hover:border-[#16384f]/30 hover:text-[#16384f]"
+                        }`}
+                      >
+                        {labels[op]}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             </div>

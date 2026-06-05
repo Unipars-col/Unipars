@@ -417,7 +417,7 @@ export default function ProductoDetallePage() {
           </div>
 
           {/* Ficha técnica — order-3 mobile, col-1 row-2 desktop */}
-          <div className="order-3 xl:col-start-1">
+          <div className="order-3 xl:[grid-area:2/1/3/2]">
             <div
               id="ficha-tecnica"
               className="overflow-hidden bg-white xl:mt-0 xl:rounded-[1.6rem] xl:border xl:border-black/8"

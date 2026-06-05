@@ -11,9 +11,25 @@ const OPCIONES = [
   "Otro",
 ];
 
-export default function EncuestaReferido() {
+export default function EncuestaReferido({ orderId }: { orderId?: string }) {
   const [seleccion, setSeleccion] = useState<string | null>(null);
   const [enviado, setEnviado] = useState(false);
+  const [cargando, setCargando] = useState(false);
+
+  async function enviar() {
+    if (!seleccion) return;
+    setCargando(true);
+    try {
+      await fetch("/api/encuesta-referido", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ opcion: seleccion, orderId }),
+      });
+    } finally {
+      setCargando(false);
+      setEnviado(true);
+    }
+  }
 
   if (enviado) {
     return (
@@ -54,10 +70,11 @@ export default function EncuestaReferido() {
         <div className="mt-6 text-center">
           <button
             type="button"
-            onClick={() => setEnviado(true)}
-            className="rounded-full bg-[#ed8435] px-8 py-3 text-sm font-bold text-white shadow-[0_4px_20px_rgba(237,132,53,0.35)] transition-all hover:bg-[#d67024] hover:shadow-[0_6px_28px_rgba(237,132,53,0.5)]"
+            onClick={enviar}
+            disabled={cargando}
+            className="rounded-full bg-[#ed8435] px-8 py-3 text-sm font-bold text-white shadow-[0_4px_20px_rgba(237,132,53,0.35)] transition-all hover:bg-[#d67024] hover:shadow-[0_6px_28px_rgba(237,132,53,0.5)] disabled:opacity-60"
           >
-            Enviar respuesta
+            {cargando ? "Enviando…" : "Enviar respuesta"}
           </button>
         </div>
       )}

@@ -925,11 +925,12 @@ export default function MasterPage() {
   const [talleres, setTalleres] = useState<TallerSolicitud[]>([]);
   const [arriendos, setArriendos] = useState<ArriendoSolicitud[]>([]);
   const [maquinarias, setMaquinarias] = useState<MaquinariaSolicitud[]>([]);
+  const [encuesta, setEncuesta] = useState<{ total: number; conteo: Record<string, number> } | null>(null);
   const [subTabUniparceros, setSubTabUniparceros] = useState<"talleres" | "arriendo" | "maquinaria">("talleres");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [expandedId, setExpandedId] = useState<string | null>(null);
-  const [view, setView] = useState<"activos" | "solicitudes" | "uniparceros">("activos");
+  const [view, setView] = useState<"activos" | "solicitudes" | "uniparceros" | "encuesta">("activos");
 
   useEffect(() => {
     void (async () => {
@@ -938,12 +939,13 @@ export default function MasterPage() {
       const { user } = await res.json() as { user?: { role: string } };
       if (user?.role !== "MASTER") { router.replace("/login?next=/master"); return; }
 
-      const [r, rt, ra, rm] = await Promise.all([fetch("/api/master"), fetch("/api/aliado"), fetch("/api/arriendo"), fetch("/api/maquinaria")]);
+      const [r, rt, ra, rm, re] = await Promise.all([fetch("/api/master"), fetch("/api/aliado"), fetch("/api/arriendo"), fetch("/api/maquinaria"), fetch("/api/encuesta-referido")]);
       if (!r.ok) { setError("No fue posible cargar las métricas."); setLoading(false); return; }
       setData(await r.json() as MasterData);
       if (rt.ok) setTalleres(await rt.json() as TallerSolicitud[]);
       if (ra.ok) setArriendos(await ra.json() as ArriendoSolicitud[]);
       if (rm.ok) setMaquinarias(await rm.json() as MaquinariaSolicitud[]);
+      if (re.ok) setEncuesta(await re.json() as { total: number; conteo: Record<string, number> });
       setLoading(false);
     })();
   }, [router]);
@@ -1020,6 +1022,7 @@ export default function MasterPage() {
               { id: "activos", label: "Proveedores activos", count: allVendors.filter((v) => v.isUnipars || v.estado === "APROBADA" || v.estado === "ACTIVO").length },
               { id: "solicitudes", label: "Solicitudes", count: data.vendors.filter((v) => v.estado === "PENDIENTE" || v.estado === "EN_REVISION").length },
               { id: "uniparceros", label: "Uniparceros", count: talleres.length + arriendos.length + maquinarias.length },
+              { id: "encuesta", label: "¿Cómo nos conocieron?", count: encuesta?.total ?? 0 },
             ] as const).map((tab) => (
               <button
                 key={tab.id}
@@ -1092,8 +1095,39 @@ export default function MasterPage() {
             </div>
           )}
 
+          {/* ── ENCUESTA TAB ── */}
+          {view === "encuesta" && (
+            <div className="rounded-[1.5rem] border border-black/8 bg-white px-6 py-6 shadow-[0_6px_18px_rgba(15,23,42,0.04)]">
+              {encuesta && encuesta.total > 0 ? (
+                <>
+                  <p className="mb-5 text-sm text-[#6e7379]">{encuesta.total} respuestas totales</p>
+                  <div className="space-y-4">
+                    {Object.entries(encuesta.conteo)
+                      .sort(([, a], [, b]) => b - a)
+                      .map(([opcion, count]) => {
+                        const pct = Math.round((count / encuesta.total) * 100);
+                        return (
+                          <div key={opcion}>
+                            <div className="mb-1.5 flex items-center justify-between text-sm">
+                              <span className="font-semibold text-[#1f2328]">{opcion}</span>
+                              <span className="font-semibold text-[#16384f]">{count} <span className="font-normal text-[#8b8d91]">({pct}%)</span></span>
+                            </div>
+                            <div className="h-2.5 w-full rounded-full bg-[#f0f1f3]">
+                              <div className="h-2.5 rounded-full bg-[#ed8435] transition-all duration-500" style={{ width: `${pct}%` }} />
+                            </div>
+                          </div>
+                        );
+                      })}
+                  </div>
+                </>
+              ) : (
+                <p className="py-8 text-center text-sm text-[#8b8d91]">Aún no hay respuestas registradas.</p>
+              )}
+            </div>
+          )}
+
           <div className="space-y-3">
-            {view !== "uniparceros" && allVendors.filter((v) =>
+            {view !== "uniparceros" && view !== "encuesta" && allVendors.filter((v) =>
               view === "activos"
                 ? v.isUnipars || v.estado === "APROBADA" || v.estado === "ACTIVO"
                 : !v.isUnipars && (v.estado === "PENDIENTE" || v.estado === "EN_REVISION" || v.estado === "RECHAZADA")
