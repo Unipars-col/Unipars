@@ -277,7 +277,7 @@ export default function ProductoDetallePage() {
         </div>
 
         <div className="grid gap-8 xl:grid-cols-[1.1fr_0.9fr] xl:items-start">
-          <div className="rounded-[2rem] border border-black/8 bg-white p-4 shadow-[0_18px_40px_rgba(15,23,42,0.05)]">
+          <div className="order-2 xl:order-1 rounded-[2rem] border border-black/8 bg-white p-4 shadow-[0_18px_40px_rgba(15,23,42,0.05)]">
             <ProductImageGallery
               key={producto.slug}
               nombre={producto.nombre}
@@ -342,7 +342,7 @@ export default function ProductoDetallePage() {
             </div>
           </div>
 
-          <div className="space-y-4 rounded-[2rem] border border-black/8 bg-white p-8 shadow-[0_18px_40px_rgba(15,23,42,0.05)]">
+          <div className="order-1 xl:order-2 space-y-4 rounded-[2rem] border border-black/8 bg-white p-8 shadow-[0_18px_40px_rgba(15,23,42,0.05)]">
             <div className="flex items-start justify-between gap-6">
               <div>
                 <p className="text-sm font-medium text-[#2d7af0]">
