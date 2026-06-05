@@ -286,7 +286,7 @@ export default function ProductoDetallePage() {
             />
           </div>
 
-          <div className="order-2 xl:order-2 space-y-4 bg-white px-5 py-6 xl:rounded-[2rem] xl:border xl:border-black/8 xl:p-8 xl:shadow-[0_18px_40px_rgba(15,23,42,0.05)]">
+          <div className="order-2 xl:order-2 xl:row-span-2 space-y-4 bg-white px-5 py-6 xl:rounded-[2rem] xl:border xl:border-black/8 xl:p-8 xl:shadow-[0_18px_40px_rgba(15,23,42,0.05)]">
             <div className="flex items-start justify-between gap-6">
               <div>
                 <p className="text-sm font-medium text-[#2d7af0]">
@@ -417,7 +417,7 @@ export default function ProductoDetallePage() {
           </div>
 
           {/* Ficha técnica — order-3 mobile, col-1 row-2 desktop */}
-          <div className="order-3 xl:col-start-1 xl:row-start-2">
+          <div className="order-3 xl:col-start-1">
             <div
               id="ficha-tecnica"
               className="overflow-hidden bg-white xl:mt-0 xl:rounded-[1.6rem] xl:border xl:border-black/8"
