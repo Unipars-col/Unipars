@@ -8,6 +8,7 @@ import FeaturedProductCard from "./components/featured-product-card";
 import PromoScroll from "./components/promo-scroll";
 import BannerBusquedaImagen from "./components/banner-busqueda-imagen";
 import PromoPopup from "./components/promo-popup";
+import PromoRibbon from "./components/promo-ribbon";
 import SiteFooter from "./components/site-footer";
 import { categoriasData, slugCategoria } from "./data/catalog";
 import { getFeaturedProducts } from "@/lib/products";
@@ -78,6 +79,7 @@ export default async function Home() {
     <main className="min-h-screen bg-[#f5f5f5] text-[#111]">
       <PromoPopup />
       <HeroCarousel />
+      <PromoRibbon />
 
       {/* 1 — CATEGORÍAS */}
       <section className="py-14">
@@ -102,11 +104,11 @@ export default async function Home() {
       {/* 2 — PROMOS CUADRADAS */}
       {(() => {
         const promos = [
-          { src: "/promo-brocha.png",   alt: "Brocha de 4\" 40% dto" },
-          { src: "/promo-cera.png",     alt: "Cera para pulir 50% dto" },
-          { src: "/promo-espatula.png", alt: "Espátula metálica 40% dto" },
-          { src: "/promo-brocha.png",   alt: "Brocha de 4\" 40% dto" },
-          { src: "/promo-cera.png",     alt: "Cera para pulir 50% dto" },
+          { src: "/promo-brocha.png",   alt: "Brocha de 4\" 40% dto",       href: "/categorias" },
+          { src: "/promo-cera.png",     alt: "Cera para pulir 50% dto",      href: "/categorias" },
+          { src: "/promo-espatula.png", alt: "Espátula metálica 40% dto",    href: "/categorias" },
+          { src: "/promo-brocha.png",   alt: "Brocha de 4\" 40% dto",        href: "/categorias" },
+          { src: "/promo-cera.png",     alt: "Cera para pulir 50% dto",      href: "/categorias" },
         ];
         return (
           <section className="py-14">
@@ -175,6 +177,8 @@ export default async function Home() {
 
 
 
+
+      <PromoRibbon />
 
       {/* 9 — PROMOS VERTICALES */}
       <section className="mx-auto max-w-[1440px] px-6 py-14">

@@ -8,6 +8,7 @@ type Slide = {
   title: string;
   titleHighlight: string;
   cta: { label: string; href: string } | null;
+  href?: string;
   image: string;
   textAlign: "left" | "right";
   darkText?: boolean;
@@ -38,22 +39,22 @@ const slides: Slide[] = [
   },
   {
     id: 2,
-    title: "EXPERTOS EN MANTENER TU FLOTA",
-    titleHighlight: "SIEMPRE EN MARCHA",
-    cta: { label: "VER CATÁLOGO", href: "/categorias" },
-    image: "/hero-banner-2.png",
+    title: "",
+    titleHighlight: "",
+    cta: null,
+    href: "/categorias",
+    image: "/hero-banner-2.jpg",
     textAlign: "left",
     darkText: false,
   },
   {
     id: 3,
-    title: "REPUESTOS",
-    titleHighlight: "QUE MUEVEN TU NEGOCIO",
+    title: "",
+    titleHighlight: "",
     cta: null,
-    image: "/hero-banner-3.png",
+    image: "/hero-banner-3.jpg",
     textAlign: "right",
     darkText: true,
-    titleSize: "text-2xl md:text-3xl lg:text-4xl",
   },
 ];
 
@@ -108,6 +109,14 @@ export default function HeroCarousel() {
             loading={i === 0 ? "eager" : "lazy"}
             style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center" }}
           />
+
+          {slide.href && (
+            <Link
+              href={slide.href}
+              aria-label="Ver catálogo"
+              style={{ position: "absolute", inset: 0, zIndex: 2 }}
+            />
+          )}
 
           <div style={{ position: "relative", zIndex: 1 }} className="mx-auto flex h-full max-w-[1440px] items-center justify-between px-8 py-12 sm:py-16 md:py-20">
             <div className={slide.textAlign === "right" ? "ml-auto max-w-sm text-right md:max-w-lg" : "max-w-xl"}>

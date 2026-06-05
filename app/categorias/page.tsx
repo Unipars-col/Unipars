@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import HoverCartControl from "../components/hover-cart-control";
+import PromoRibbon from "../components/promo-ribbon";
 import { useProducts } from "../components/products-provider";
 import {
   categoriaDesdeSlug,
@@ -377,6 +378,8 @@ export default function CategoriasPage() {
           </button>
         </div>
       </section>
+
+      <PromoRibbon />
 
       <section className="mx-auto max-w-[1680px] px-6 pb-16 pt-6">
         <div className="grid gap-8 xl:grid-cols-[300px_minmax(0,1fr)]">

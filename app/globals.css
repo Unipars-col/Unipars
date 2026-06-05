@@ -260,6 +260,19 @@ body {
   50%       { transform: scale(1.08); box-shadow: 0 12px 36px rgba(22,56,79,0.50); }
 }
 
+/* ── Promo ribbon marquee ────────────────────────────────────────── */
+@keyframes ribbonScroll {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-33.333%); }
+}
+.promo-ribbon-track {
+  animation: ribbonScroll 28s linear infinite;
+  width: max-content;
+}
+.promo-ribbon-track:hover {
+  animation-play-state: paused;
+}
+
 /* ── Service cards — entrada escalonada + hover ──────────────────── */
 @keyframes serviceFadeIn {
   from { opacity: 0; transform: translateY(32px); }
