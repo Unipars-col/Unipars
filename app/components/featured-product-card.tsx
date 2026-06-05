@@ -78,7 +78,7 @@ export default function FeaturedProductCard(props: Props) {
         />
       </div>
 
-      <div style={{ position: "relative", padding: "20px", display: "flex", flexDirection: "column", gap: 12 }}>
+      <div style={{ position: "relative", padding: "20px", display: "flex", flexDirection: "column", gap: 12, minWidth: 0, overflow: "hidden" }}>
         <div>
           <p style={{
             fontSize: 11, fontWeight: 600, textTransform: "uppercase",
@@ -88,7 +88,7 @@ export default function FeaturedProductCard(props: Props) {
           }}>
             {props.marca}
           </p>
-          <h3 style={{ fontSize: 17, fontWeight: 600, lineHeight: 1.3, color: "#4f545a", margin: 0 }}>
+          <h3 style={{ fontSize: 17, fontWeight: 600, lineHeight: 1.3, color: "#4f545a", margin: 0, overflowWrap: "break-word" }}>
             {props.nombre}
           </h3>
         </div>

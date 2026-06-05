@@ -916,6 +916,12 @@ function UniparcerosList({ talleres, setTalleres }: { talleres: TallerSolicitud[
 export default function MasterPage() {
   const router = useRouter();
   const [data, setData] = useState<MasterData | null>(null);
+
+  const handleLogout = async () => {
+    await fetch("/api/auth/logout", { method: "POST" });
+    router.push("/");
+    router.refresh();
+  };
   const [talleres, setTalleres] = useState<TallerSolicitud[]>([]);
   const [arriendos, setArriendos] = useState<ArriendoSolicitud[]>([]);
   const [maquinarias, setMaquinarias] = useState<MaquinariaSolicitud[]>([]);
@@ -972,9 +978,18 @@ export default function MasterPage() {
               Visión global de proveedores
             </h1>
           </div>
-          <span className="rounded-full bg-[#16384f] px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-white">
-            Solo lectura
-          </span>
+          <div className="flex items-center gap-3">
+            <span className="rounded-full bg-[#16384f] px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-white">
+              Solo lectura
+            </span>
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="rounded-full border border-red-200 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-red-500 transition-colors hover:bg-red-50"
+            >
+              Cerrar sesión
+            </button>
+          </div>
         </div>
       </header>
 

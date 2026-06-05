@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { useCart } from "./cart-provider";
 
@@ -101,10 +101,18 @@ const navItems = [
   },
 ];
 
-export default function MobileBottomNav() {
+export default function MobileBottomNav({ isLoggedIn }: { isLoggedIn?: boolean }) {
   const pathname = usePathname();
+  const router = useRouter();
   const { totalItems } = useCart();
   const [showMore, setShowMore] = useState(false);
+
+  const handleLogout = async () => {
+    setShowMore(false);
+    await fetch("/api/auth/logout", { method: "POST" });
+    router.push("/");
+    router.refresh();
+  };
 
   useEffect(() => {
     setShowMore(false);
@@ -166,6 +174,25 @@ export default function MobileBottomNav() {
                 </Link>
               );
             })}
+            {isLoggedIn && (
+              <>
+                <div className="my-1 border-t border-black/8" />
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  className="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium text-red-500 transition-colors hover:bg-red-50"
+                >
+                  <span className="text-red-400">
+                    <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                      <polyline points="16 17 21 12 16 7" />
+                      <line x1="21" y1="12" x2="9" y2="12" />
+                    </svg>
+                  </span>
+                  Cerrar sesión
+                </button>
+              </>
+            )}
           </div>
         </div>
       </div>
