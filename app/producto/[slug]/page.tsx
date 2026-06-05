@@ -277,69 +277,13 @@ export default function ProductoDetallePage() {
         </div>
 
         <div className="grid gap-0 xl:gap-8 xl:grid-cols-[1.1fr_0.9fr] xl:items-start">
+          {/* Columna imagen — order-1 mobile, col-1 desktop */}
           <div className="order-1 xl:order-1 bg-white xl:rounded-[2rem] xl:border xl:border-black/8 xl:p-4 xl:shadow-[0_18px_40px_rgba(15,23,42,0.05)]">
             <ProductImageGallery
               key={producto.slug}
               nombre={producto.nombre}
               images={galleryImages}
             />
-
-            <div
-              id="ficha-tecnica"
-              className="mt-6 overflow-hidden rounded-[1.6rem] border border-black/8"
-            >
-              <button
-                type="button"
-                onClick={() => setFichaAbierta((actual) => !actual)}
-                className="flex w-full items-center justify-between bg-[linear-gradient(180deg,#fbfbfa_0%,#f3f3f2_100%)] px-6 py-5 text-left transition-colors duration-200 hover:bg-[#f4f4f2]"
-                aria-expanded={fichaAbierta}
-              >
-                <div>
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-[#ed8435]">
-                    Información técnica
-                  </p>
-                  <h2 className="mt-2 text-[28px] font-semibold tracking-[-0.03em] text-[#33373d]">
-                    Ficha técnica
-                  </h2>
-                  <p className="mt-2 text-sm leading-6 text-[#6e7379]">
-                    Datos clave para validar compatibilidad, uso y respaldo del producto.
-                  </p>
-                </div>
-                <span
-                  className={`inline-flex h-11 w-11 items-center justify-center rounded-full border border-black/8 bg-white text-xl text-[#4f545a] transition-transform duration-300 ${
-                    fichaAbierta ? "rotate-0" : "-rotate-180"
-                  }`}
-                >
-                  ⌃
-                </span>
-              </button>
-
-              {fichaAbierta && (
-                <div className="bg-white p-4 md:p-5">
-                  <div className="rounded-[1.4rem] border border-black/8 overflow-hidden">
-                    <div className="grid gap-px bg-black/6 md:grid-cols-[220px_minmax(0,1fr)]">
-                      {fichaTecnica.map((item) => (
-                        <div
-                          key={item.etiqueta}
-                          className="contents"
-                        >
-                          <div
-                            className="bg-[#f6f6f4] px-5 py-4 text-sm font-semibold uppercase tracking-[0.08em] text-[#5d6670]"
-                          >
-                            {item.etiqueta}
-                          </div>
-                          <div
-                            className="bg-white px-5 py-4 text-base font-medium leading-7 text-[#22262b]"
-                          >
-                            {item.valor}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
           </div>
 
           <div className="order-2 xl:order-2 space-y-4 bg-white px-5 py-6 xl:rounded-[2rem] xl:border xl:border-black/8 xl:p-8 xl:shadow-[0_18px_40px_rgba(15,23,42,0.05)]">
@@ -469,6 +413,59 @@ export default function ProductoDetallePage() {
               >
                 Ver más especificaciones
               </a>
+            </div>
+          </div>
+
+          {/* Ficha técnica — order-3 mobile, col-1 row-2 desktop */}
+          <div className="order-3 xl:col-start-1 xl:row-start-2">
+            <div
+              id="ficha-tecnica"
+              className="overflow-hidden bg-white xl:mt-0 xl:rounded-[1.6rem] xl:border xl:border-black/8"
+            >
+              <button
+                type="button"
+                onClick={() => setFichaAbierta((actual) => !actual)}
+                className="flex w-full items-center justify-between bg-[linear-gradient(180deg,#fbfbfa_0%,#f3f3f2_100%)] px-6 py-5 text-left transition-colors duration-200 hover:bg-[#f4f4f2]"
+                aria-expanded={fichaAbierta}
+              >
+                <div>
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-[#ed8435]">
+                    Información técnica
+                  </p>
+                  <h2 className="mt-2 text-[28px] font-semibold tracking-[-0.03em] text-[#33373d]">
+                    Ficha técnica
+                  </h2>
+                  <p className="mt-2 text-sm leading-6 text-[#6e7379]">
+                    Datos clave para validar compatibilidad, uso y respaldo del producto.
+                  </p>
+                </div>
+                <span
+                  className={`inline-flex h-11 w-11 items-center justify-center rounded-full border border-black/8 bg-white text-xl text-[#4f545a] transition-transform duration-300 ${
+                    fichaAbierta ? "rotate-0" : "-rotate-180"
+                  }`}
+                >
+                  ⌃
+                </span>
+              </button>
+
+              {fichaAbierta && (
+                <div className="bg-white p-4 md:p-5">
+                  <div className="rounded-[1.4rem] border border-black/8 overflow-hidden">
+                    <div className="grid gap-px bg-black/6 md:grid-cols-[220px_minmax(0,1fr)]">
+                      {fichaTecnica.map((item) => (
+                        <div key={item.etiqueta} className="contents">
+                          <div className="bg-[#f6f6f4] px-5 py-4 text-sm font-semibold uppercase tracking-[0.08em] text-[#5d6670]">
+                            {item.etiqueta}
+                          </div>
+                          <div className="bg-white px-5 py-4 text-base font-medium leading-7 text-[#22262b]">
+                            {item.valor}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
