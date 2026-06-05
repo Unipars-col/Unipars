@@ -972,22 +972,22 @@ export default function MasterPage() {
   return (
     <main className="min-h-screen bg-[#f4f5f7] text-[#1f2328]">
       {/* Header */}
-      <header className="border-b border-black/8 bg-white px-8 py-5">
-        <div className="mx-auto flex max-w-[1440px] items-center justify-between gap-4">
+      <header className="border-b border-black/8 bg-white px-4 py-4 sm:px-8 sm:py-5">
+        <div className="mx-auto flex max-w-[1440px] flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.32em] text-[#8b8d91]">Panel maestro</p>
-            <h1 className="mt-0.5 text-xl font-semibold tracking-[-0.03em] text-[#16384f]">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-[#8b8d91]">Panel maestro</p>
+            <h1 className="mt-0.5 text-lg font-semibold tracking-[-0.03em] text-[#16384f] sm:text-xl">
               Visión global de proveedores
             </h1>
           </div>
-          <div className="flex items-center gap-3">
-            <span className="rounded-full bg-[#16384f] px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-white">
+          <div className="flex items-center gap-2">
+            <span className="hidden rounded-full bg-[#16384f] px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-white sm:inline-flex">
               Solo lectura
             </span>
             <button
               type="button"
               onClick={handleLogout}
-              className="rounded-full border border-red-200 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-red-500 transition-colors hover:bg-red-50"
+              className="rounded-full border border-red-200 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.15em] text-red-500 transition-colors hover:bg-red-50"
             >
               Cerrar sesión
             </button>
@@ -995,19 +995,19 @@ export default function MasterPage() {
         </div>
       </header>
 
-      <div className="mx-auto max-w-[1440px] space-y-8 px-8 py-10">
+      <div className="mx-auto max-w-[1440px] space-y-6 px-4 py-6 sm:px-8 sm:py-10">
 
         {/* Global stat cards */}
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
           {[
             { label: "Proveedores totales", value: g.totalVendors, isCurrency: false },
             { label: "Productos en catálogo", value: g.totalProducts, isCurrency: false },
             { label: "Pedidos recibidos", value: g.totalOrders, isCurrency: false },
             { label: "Ventas confirmadas", value: g.totalSales, isCurrency: true },
           ].map((card) => (
-            <div key={card.label} className="rounded-[1.5rem] border border-black/8 bg-white px-5 py-5 shadow-[0_6px_18px_rgba(15,23,42,0.04)]">
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#8b8d91]">{card.label}</p>
-              <p className="mt-3 text-3xl font-semibold tracking-[-0.05em] text-[#16384f]">
+            <div key={card.label} className="rounded-[1.5rem] border border-black/8 bg-white px-4 py-4 shadow-[0_6px_18px_rgba(15,23,42,0.04)] sm:px-5 sm:py-5">
+              <p className="text-[10px] font-semibold uppercase leading-tight tracking-[0.12em] text-[#8b8d91] sm:tracking-[0.2em]">{card.label}</p>
+              <p className="mt-2 text-2xl font-semibold tracking-[-0.04em] text-[#16384f] sm:mt-3 sm:text-3xl">
                 {card.isCurrency ? fmt(card.value) : card.value.toLocaleString("es-CO")}
               </p>
             </div>
@@ -1017,7 +1017,7 @@ export default function MasterPage() {
         {/* Vendor cards */}
         <div>
           {/* Tabs */}
-          <div className="mb-5 flex items-center gap-1">
+          <div className="scrollbar-hidden mb-5 flex items-center gap-1 overflow-x-auto pb-1">
             {([
               { id: "activos", label: "Proveedores activos", count: allVendors.filter((v) => v.isUnipars || v.estado === "APROBADA" || v.estado === "ACTIVO").length },
               { id: "solicitudes", label: "Solicitudes", count: data.vendors.filter((v) => v.estado === "PENDIENTE" || v.estado === "EN_REVISION").length },
@@ -1028,7 +1028,7 @@ export default function MasterPage() {
                 key={tab.id}
                 type="button"
                 onClick={() => { setView(tab.id); setExpandedId(null); }}
-                className={`flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
+                className={`flex shrink-0 items-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
                   view === tab.id
                     ? tab.id === "uniparceros" ? "bg-[#ed8435] text-white" : "bg-[#16384f] text-white"
                     : "bg-white text-[#8b8d91] border border-black/10 hover:text-[#16384f]"
