@@ -8,7 +8,7 @@ export async function GET() {
 
     // Unipars como proveedor — productos sin vendorId
     const [uniparProducts, allOrders, vendorSolicitudes] = await Promise.all([
-      prisma.product.findMany({ where: { vendorId: null }, select: { id: true, brand: true } }),
+      prisma.product.findMany({ where: { vendorId: null }, select: { id: true, category: true } }),
       prisma.order.findMany({ select: { id: true, userId: true, subtotal: true, paymentStatus: true, createdAt: true, status: true } }),
       prisma.empresaSolicitud.findMany({
         orderBy: { createdAt: "desc" },
@@ -17,7 +17,7 @@ export async function GET() {
     ]);
 
     // Unipars metrics
-    const brands = Array.from(new Set(uniparProducts.map((p) => p.brand)));
+    const categorias = Array.from(new Set(uniparProducts.map((p) => p.category)));
     const uniparsTotalOrders = allOrders.length;
     const uniparsPaidOrders = allOrders.filter((o) => o.paymentStatus === "PAID");
     const uniparsTotalSales = uniparsPaidOrders.reduce((s, o) => s + o.subtotal, 0);
@@ -28,8 +28,8 @@ export async function GET() {
       tipo: "Proveedor oficial",
       estado: "ACTIVO",
       productCount: uniparProducts.length,
-      brandCount: brands.length,
-      brands,
+      brandCount: categorias.length,
+      categorias,
       orderCount: uniparsTotalOrders,
       paidOrderCount: uniparsPaidOrders.length,
       totalSales: uniparsTotalSales,

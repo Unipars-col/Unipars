@@ -1132,7 +1132,7 @@ export default function MasterPage() {
                       </div>
 
                       {(() => {
-                        const tags = v.isUnipars ? v.brands ?? [] : v.categorias ?? [];
+                        const tags = v.categorias ?? [];
                         const MAX = 8;
                         const visible = tags.slice(0, MAX);
                         const extra = tags.length - MAX;
