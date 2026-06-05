@@ -170,13 +170,13 @@ export default function BusXrayBanner() {
     [userMessage],
   );
 
-  const activeCategory = selectedCategory ?? assistantState.category;
+  const isInitialVisual = !selectedCategory && !userMessage;
+  const activeCategory = isInitialVisual ? null : (selectedCategory ?? assistantState.category);
   const activeVisual =
     categoriasData.find((category) => category.nombre === activeCategory) ??
     categoriasData[0];
-  const isInitialVisual = !selectedCategory && !userMessage;
   const heroImage = selectedCategory
-    ? categoryXrayImages[activeCategory]
+    ? categoryXrayImages[selectedCategory]
     : defaultHeroImage;
   const displayReply = !userMessage
     ? "Describe el síntoma principal de tu vehículo y el asistente te va a orientar hacia la categoría más útil, cambiando también la imagen central según la línea recomendada."
@@ -267,7 +267,7 @@ export default function BusXrayBanner() {
               {heroImage ? (
                 <Image
                   src={heroImage}
-                  alt={selectedCategory ? activeCategory : "Vista principal del sistema"}
+                  alt={selectedCategory ?? "Vista principal del sistema"}
                   fill
                   priority
                   sizes="100vw"
@@ -331,7 +331,7 @@ export default function BusXrayBanner() {
               <div className="pointer-events-none absolute inset-x-0 top-0 z-10 bg-[linear-gradient(180deg,rgba(255,255,255,0.9)_0%,rgba(255,255,255,0.76)_42%,rgba(255,255,255,0.18)_78%,rgba(255,255,255,0)_100%)] px-5 pb-7 pt-8 text-center md:px-10 lg:px-12 lg:pb-8 lg:pt-10">
                 <div className="mx-auto max-w-[760px]">
                   <h2 className="text-3xl font-semibold tracking-[-0.04em] text-[#3e4349] md:text-5xl">
-                    {selectedCategory ? activeCategory : "Habla con Uniparcero y encuentra la línea correcta"}
+                    {selectedCategory ? selectedCategory : "Habla con Uniparcero y encuentra la línea correcta"}
                   </h2>
                   <p className="mt-3 text-sm leading-7 text-[#5f666d] md:text-base">
                     {displayReply}
