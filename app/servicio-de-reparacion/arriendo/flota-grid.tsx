@@ -162,20 +162,19 @@ export default function FlotaGrid({ vehiculos = VEHICULOS }: { vehiculos?: Vehic
             onClick={() => setSelected(v)}
             className="group flex flex-col rounded-2xl border border-black/6 bg-white text-left shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-lg"
           >
-            {/* Foto */}
-            <div className="relative h-40 w-full overflow-hidden rounded-t-2xl">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={v.foto} alt={v.nombre} className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
-              <span className="absolute left-3 top-3 flex items-center gap-1 rounded-full bg-green-700 px-2 py-0.5 text-[10px] font-bold text-white">
-                ✓ FLOTA VERIFICADA
-              </span>
-            </div>
-
-            {/* Avatar sobre la imagen */}
-            <div className="px-4">
+            {/* Foto + avatar */}
+            <div className="relative">
+              <div className="relative h-40 w-full overflow-hidden rounded-t-2xl">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={v.foto} alt={v.nombre} className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+                <span className="absolute left-3 top-3 flex items-center gap-1 rounded-full bg-green-700 px-2 py-0.5 text-[10px] font-bold text-white">
+                  ✓ FLOTA VERIFICADA
+                </span>
+              </div>
+              {/* Avatar: positioned relative to outer wrapper (no overflow-hidden), centered on image bottom edge */}
               <div
-                className="-mt-5 flex h-10 w-10 items-center justify-center rounded-full border-2 border-white text-xs font-black text-white shadow-md"
+                className="absolute bottom-0 left-4 z-10 flex h-10 w-10 translate-y-1/2 items-center justify-center rounded-full border-2 border-white text-xs font-black text-white shadow-md"
                 style={{ backgroundColor: v.color }}
               >
                 {v.logo}
@@ -183,7 +182,7 @@ export default function FlotaGrid({ vehiculos = VEHICULOS }: { vehiculos?: Vehic
             </div>
 
             {/* Contenido */}
-            <div className="flex flex-1 flex-col px-4 pb-4 pt-2">
+            <div className="flex flex-1 flex-col px-4 pb-4 pt-7">
               <div className="flex items-start justify-between gap-1">
                 <p className="font-black text-[#16384f] leading-tight">{v.nombre}</p>
                 <div className="flex shrink-0 items-center gap-0.5">
