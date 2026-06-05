@@ -187,7 +187,7 @@ export default function CategoriasPage() {
                 key={producto.slug}
                 className="overflow-hidden rounded-2xl border border-black/8 bg-white shadow-sm"
               >
-                <div className="flex h-36 items-center justify-center bg-[#f8f8f7] p-3">
+                <div className="flex h-36 items-center justify-center bg-white p-3">
                   <Image
                     src={producto.imagen}
                     alt={producto.nombre}

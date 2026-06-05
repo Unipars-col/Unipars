@@ -487,7 +487,7 @@ export default function ProductoDetallePage() {
               key={item.slug}
               className="overflow-hidden rounded-[1.75rem] border border-black/8 bg-white shadow-[0_16px_35px_rgba(15,23,42,0.05)]"
             >
-              <div className="flex h-44 items-center justify-center bg-[#fafaf9] px-6 py-4">
+              <div className="flex h-44 items-center justify-center bg-white px-6 py-4">
                 <Image
                   src={item.imagen}
                   alt={item.nombre}
