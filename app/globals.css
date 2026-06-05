@@ -179,6 +179,25 @@ body {
   }
 }
 
+/* ── Categoría activa en BusXray — pop + pulso ───────────────────── */
+@keyframes cat-pop {
+  0%   { transform: scale(0.92); opacity: 0.7; }
+  55%  { transform: scale(1.14); }
+  80%  { transform: scale(1.08); }
+  100% { transform: scale(1.11); }
+}
+@keyframes cat-glow {
+  0%, 100% { box-shadow: 0 8px 22px rgba(237,132,53,0.22); }
+  50%       { box-shadow: 0 12px 30px rgba(237,132,53,0.52); }
+}
+.cat-active {
+  animation: cat-pop 0.38s cubic-bezier(0.34, 1.56, 0.64, 1) forwards,
+             cat-glow 1.8s 0.38s ease-in-out infinite;
+  transform-origin: center;
+  z-index: 10;
+  position: relative;
+}
+
 /* ── Mobile nav drawer ───────────────────────────────────────────── */
 @keyframes slideUp {
   from { transform: translateY(100%); }

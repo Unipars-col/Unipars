@@ -345,12 +345,12 @@ export default function BusXrayBanner() {
 
                   return (
                     <button
-                      key={category.nombre}
+                      key={isActive ? `active-${activeCategory}` : category.nombre}
                       type="button"
                       onClick={() => handleCategorySelect(category.nombre)}
-                      className={`flex min-h-[64px] flex-col items-center justify-center gap-1 rounded-[8px] border px-2 py-2 text-center transition-all duration-200 ${
+                      className={`flex min-h-[64px] flex-col items-center justify-center gap-1 rounded-[8px] border px-2 py-2 text-center transition-colors duration-200 ${
                         isActive
-                          ? "border-[#ed8435]/38 bg-white shadow-[0_10px_24px_rgba(237,132,53,0.12)]"
+                          ? "cat-active border-[#ed8435]/60 bg-white"
                           : "border-black/5 bg-white/72 opacity-42 backdrop-blur-[2px] hover:opacity-72"
                       }`}
                     >
@@ -436,12 +436,12 @@ export default function BusXrayBanner() {
 
                 return (
                   <button
-                    key={category.nombre}
+                    key={isActive ? `active-${activeCategory}` : category.nombre}
                     type="button"
                     onClick={() => handleCategorySelect(category.nombre)}
-                    className={`flex flex-col items-center justify-center gap-2 rounded-[8px] border px-3 py-3 text-center transition-all duration-200 ${
+                    className={`flex flex-col items-center justify-center gap-2 rounded-[8px] border px-3 py-3 text-center transition-colors duration-200 ${
                       isActive
-                        ? "border-[#ed8435]/38 bg-[#fff6ee] opacity-100 shadow-[0_10px_24px_rgba(237,132,53,0.12)]"
+                        ? "cat-active border-[#ed8435]/60 bg-[#fff6ee] opacity-100"
                         : "border-black/6 bg-[#fbfbfa] opacity-35 hover:opacity-70"
                     }`}
                   >
