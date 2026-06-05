@@ -181,21 +181,34 @@ body {
 
 /* ── Categoría activa en BusXray — pop + pulso ───────────────────── */
 @keyframes cat-pop {
-  0%   { transform: scale(0.92); opacity: 0.7; }
-  55%  { transform: scale(1.14); }
-  80%  { transform: scale(1.08); }
-  100% { transform: scale(1.11); }
+  0%   { transform: scale(0.85); opacity: 0.6; }
+  50%  { transform: scale(1.28); }
+  75%  { transform: scale(1.14); }
+  100% { transform: scale(1.2); }
 }
 @keyframes cat-glow {
-  0%, 100% { box-shadow: 0 8px 22px rgba(237,132,53,0.22); }
-  50%       { box-shadow: 0 12px 30px rgba(237,132,53,0.52); }
+  0%, 100% { box-shadow: 0 0 0 2px #ed8435, 0 12px 32px rgba(237,132,53,0.35); }
+  50%       { box-shadow: 0 0 0 4px #ed8435, 0 18px 42px rgba(237,132,53,0.70); }
+}
+@keyframes cat-ring {
+  0%   { opacity: 0.9; transform: scale(1); }
+  100% { opacity: 0;   transform: scale(1.9); }
 }
 .cat-active {
-  animation: cat-pop 0.38s cubic-bezier(0.34, 1.56, 0.64, 1) forwards,
-             cat-glow 1.8s 0.38s ease-in-out infinite;
+  animation: cat-pop 0.42s cubic-bezier(0.34, 1.56, 0.64, 1) forwards,
+             cat-glow 1.4s 0.42s ease-in-out infinite;
   transform-origin: center;
   z-index: 10;
   position: relative;
+}
+.cat-active::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  border: 2px solid #ed8435;
+  animation: cat-ring 1s 0.42s ease-out infinite;
+  pointer-events: none;
 }
 
 /* ── Mobile nav drawer ───────────────────────────────────────────── */
