@@ -1,6 +1,6 @@
 "use client";
 
-import { startTransition, useEffect, useMemo, useState } from "react";
+import { startTransition, useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -30,6 +30,18 @@ export default function CategoriasPage() {
   const searchParams = useSearchParams();
   const [carouselIdx, setCarouselIdx] = useState(0);
   const maxIdx = Math.max(0, categoriasData.length - VISIBLE);
+  const clipRef = useRef<HTMLDivElement>(null);
+  const [clipWidth, setClipWidth] = useState(0);
+  useEffect(() => {
+    const el = clipRef.current;
+    if (!el) return;
+    const obs = new ResizeObserver(([entry]) => setClipWidth(entry.contentRect.width));
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+  const GAP = 12;
+  const cardW = clipWidth > 0 ? (clipWidth - (VISIBLE - 1) * GAP) / VISIBLE : 0;
+  const step = cardW + GAP;
   const marcas = Array.from(new Set(products.map((product) => product.marca)));
   const priceBounds = useMemo(() => {
     const values = products.map((product) => product.precioValor);
@@ -310,10 +322,10 @@ export default function CategoriasPage() {
 
           <div className="overflow-hidden rounded-[1.9rem] bg-[#f0f1f3] shadow-[0_8px_24px_rgba(0,0,0,0.07)]">
             <div className="px-8 py-3">
-              <div className="overflow-hidden">
+              <div className="overflow-hidden" ref={clipRef}>
                 <div
-                  className="flex gap-3 transition-transform duration-300 ease-out"
-                  style={{ transform: `translateX(calc(-${carouselIdx} * (100vw - 112px) / 7))` }}
+                  className="flex transition-transform duration-300 ease-out"
+                  style={{ gap: `${GAP}px`, transform: `translateX(${-carouselIdx * step}px)` }}
                 >
                   {categoriasData.map((cat) => {
                     const isActive = categoriaActiva === cat.nombre;
@@ -322,7 +334,7 @@ export default function CategoriasPage() {
                         key={cat.nombre}
                         type="button"
                         onClick={() => cambiarCategoria(cat.nombre)}
-                        style={{ width: "calc((100vw - 196px) / 7)", flexShrink: 0 }}
+                        style={{ width: cardW > 0 ? `${cardW}px` : "calc((100vw - 184px) / 7)", flexShrink: 0 }}
                         className={`group flex flex-col items-center rounded-xl border bg-white px-2 pb-3 pt-3 text-center shadow-[0_3px_10px_rgba(15,23,42,0.06)] transition-all duration-200 hover:shadow-[0_6px_18px_rgba(15,23,42,0.11)] hover:-translate-y-0.5 ${
                           isActive
                             ? "border-[#ed8435] shadow-[0_3px_10px_rgba(237,132,53,0.15)]"

@@ -122,7 +122,7 @@ export default function MaquinariaPage() {
       {/* CTA final */}
       <section
         className="px-6 py-14 text-center"
-        style={{ background: "linear-gradient(135deg, #1a1a00 0%, #ca8a04 60%, #fbbf24 100%)" }}
+        style={{ background: "#e8a820" }}
       >
         <h2 className="mb-3 text-2xl font-bold text-white">¿Necesitas un equipo específico?</h2>
         <p className="mb-8 text-white/60">Cuéntanos tu proyecto y buscamos el equipo ideal para ti.</p>
