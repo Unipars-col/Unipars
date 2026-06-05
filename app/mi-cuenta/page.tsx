@@ -20,6 +20,10 @@ export default async function MiCuentaPage() {
     redirect("/login");
   }
 
+  if (user.role === "MASTER") {
+    redirect("/master");
+  }
+
   if (user.role === "CUSTOMER" && prisma) {
     const solicitud = await prisma.empresaSolicitud.findFirst({
       where: { userId: user.id, estado: "APROBADA" },
