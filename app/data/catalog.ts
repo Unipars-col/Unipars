@@ -82,15 +82,6 @@ export const categoriasData: readonly CategoriaMeta[] = [
       "Adhesivos, siliconas y sellantes para fijación, reparación y protección en mantenimiento automotor.",
   },
   {
-    nombre: "Ferretería",
-    color: "#8a6f3f",
-    icono: "◆",
-    iconoImagen: "/category-icon-ferreteria.png",
-    bannerImagen: "/category-banner-ferreteria.png",
-    bannerCopy:
-      "Herramientas, tornillería y accesorios de ferretería para mantenimiento, instalación y trabajo técnico.",
-  },
-  {
     nombre: "Línea eléctrica",
     color: "#45b86a",
     icono: "◈",
