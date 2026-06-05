@@ -1131,26 +1131,18 @@ export default function MasterPage() {
                         )}
                       </div>
 
-                      {(() => {
-                        const tags = v.categorias ?? [];
-                        const MAX = 8;
-                        const visible = tags.slice(0, MAX);
-                        const extra = tags.length - MAX;
-                        return (
-                          <div className="mt-3 flex flex-wrap gap-1.5">
-                            {visible.map((tag) => (
-                              <span key={tag} className="rounded-full border border-black/8 bg-[#fafaf9] px-2.5 py-0.5 text-xs text-[#5d6167]">
-                                {tag}
-                              </span>
-                            ))}
-                            {extra > 0 && (
-                              <span className="rounded-full border border-[#ed8435]/20 bg-[#fff6ee] px-2.5 py-0.5 text-xs font-semibold text-[#b85d12]">
-                                +{extra} más
-                              </span>
-                            )}
-                          </div>
-                        );
-                      })()}
+                      <div className="mt-3 flex flex-wrap gap-1.5">
+                        {(v.categorias ?? []).slice(0, 8).map((tag) => (
+                          <span key={tag} className="rounded-full border border-black/8 bg-[#fafaf9] px-2.5 py-0.5 text-xs text-[#5d6167]">
+                            {tag}
+                          </span>
+                        ))}
+                        {(v.categorias ?? []).length > 8 && (
+                          <span className="rounded-full border border-[#ed8435]/20 bg-[#fff6ee] px-2.5 py-0.5 text-xs font-semibold text-[#b85d12]">
+                            +{(v.categorias ?? []).length - 8} más
+                          </span>
+                        )}
+                      </div>
 
                       {v.user && (
                         <p className="mt-2 text-xs text-[#8b8d91]">
