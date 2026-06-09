@@ -16,6 +16,8 @@ type VendorMetric = {
   categorias?: string[];
   createdAt: string;
   user?: { fullName: string; email: string } | null;
+  contactEmail?: string | null;
+  contactName?: string | null;
   productCount: number;
   orderCount: number;
   paidOrderCount: number;
@@ -78,6 +80,142 @@ function InfoRow({ label, value }: { label: string; value?: string | null | bool
     <div className="flex gap-2">
       <span className="w-44 shrink-0 text-[11px] font-semibold uppercase tracking-[0.12em] text-[#a2a5aa]">{label}</span>
       <span className="text-sm text-[#1f2328]">{display}</span>
+    </div>
+  );
+}
+
+function generatePassword() {
+  const chars = "abcdefghjkmnpqrstuvwxyzABCDEFGHJKMNPQRSTUVWXYZ23456789!@#$";
+  return Array.from({ length: 12 }, () => chars[Math.floor(Math.random() * chars.length)]).join("");
+}
+
+function ManageAccountModal({
+  vendor,
+  onClose,
+  onCreated,
+}: {
+  vendor: VendorMetric;
+  onClose: () => void;
+  onCreated: (email: string) => void;
+}) {
+  const hasUser = !!vendor.user;
+  const [fullName, setFullName] = useState(vendor.user?.fullName ?? vendor.contactName ?? "");
+  const [email, setEmail] = useState(vendor.user?.email ?? vendor.contactEmail ?? "");
+  const [password, setPassword] = useState(() => generatePassword());
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+  const [done, setDone] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSaving(true);
+    setError("");
+
+    let res: Response;
+    if (hasUser) {
+      res = await fetch("/api/master/reset-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: vendor.user!.email, newPassword: password }),
+      });
+    } else {
+      res = await fetch("/api/master/create-account", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ solicitudId: vendor.id, fullName, email, password, company: vendor.nombre }),
+      });
+    }
+
+    const data = await res.json() as { ok?: boolean; error?: string };
+    setSaving(false);
+    if (!res.ok || !data.ok) { setError(data.error ?? "Error al procesar."); return; }
+    setDone(true);
+    onCreated(email);
+  };
+
+  const copyCredentials = () => {
+    void navigator.clipboard.writeText(`Usuario: ${email}\nContraseña: ${password}`);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm" onClick={onClose}>
+      <div className="relative w-full max-w-md overflow-hidden rounded-2xl bg-white shadow-2xl" onClick={(e) => e.stopPropagation()}>
+        <div className="h-1.5 w-full bg-[#16384f]" />
+        <div className="p-6">
+          <button onClick={onClose} className="absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-full text-gray-400 hover:bg-gray-100">✕</button>
+          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#8b8d91]">Panel maestro</p>
+          <h3 className="mt-1 text-lg font-bold text-[#16384f]">
+            {hasUser ? "Cambiar contraseña" : "Generar cuenta de acceso"}
+          </h3>
+          <p className="mt-1 text-sm text-[#8b8d91]">{vendor.nombre}</p>
+
+          {hasUser && (
+            <div className="mt-3 space-y-2">
+              <div className="rounded-xl bg-[#f5f5f4] px-3 py-2.5 text-xs text-[#555]">
+                Usuario actual: <span className="font-semibold text-[#16384f]">{vendor.user!.email}</span>
+              </div>
+              <div className="rounded-xl border border-[#ed8435]/30 bg-[#fff8f2] px-3 py-2.5 text-xs text-[#7a4010]">
+                La contraseña actual no puede mostrarse — está cifrada. Usa el campo de abajo para establecer una nueva y compartirla con el proveedor.
+              </div>
+            </div>
+          )}
+
+          {done ? (
+            <div className="mt-5">
+              <div className="rounded-xl bg-[#effaf2] p-4">
+                <p className="text-sm font-semibold text-[#1f6b39]">
+                  {hasUser ? "Contraseña actualizada" : "Cuenta creada exitosamente"}
+                </p>
+                <p className="mt-3 text-xs text-[#555]">Comparte estas credenciales con el proveedor:</p>
+                <div className="mt-3 space-y-2 rounded-lg bg-white p-3 font-mono text-sm">
+                  <p><span className="text-[#a2a5aa]">Usuario:</span> {email}</p>
+                  <p><span className="text-[#a2a5aa]">Contraseña:</span> {password}</p>
+                </div>
+                <button type="button" onClick={copyCredentials} className="mt-3 w-full rounded-xl bg-[#16384f] py-2.5 text-xs font-bold text-white hover:bg-[#0f2a3b]">
+                  {copied ? "Copiado ✓" : "Copiar credenciales"}
+                </button>
+              </div>
+              <button onClick={onClose} className="mt-3 w-full rounded-xl border border-black/10 py-2.5 text-xs font-semibold text-[#16384f] hover:bg-[#f5f5f4]">
+                Cerrar
+              </button>
+            </div>
+          ) : (
+            <form onSubmit={(e) => void handleSubmit(e)} className="mt-5 space-y-4">
+              {!hasUser && (
+                <>
+                  <label className="block space-y-1.5">
+                    <span className="text-xs font-semibold text-[#6e7379]">Nombre completo</span>
+                    <input value={fullName} onChange={(e) => setFullName(e.target.value)} required className="w-full rounded-xl border border-black/10 bg-[#fafaf9] px-3 py-2.5 text-sm outline-none focus:border-[#16384f]" />
+                  </label>
+                  <label className="block space-y-1.5">
+                    <span className="text-xs font-semibold text-[#6e7379]">Correo electrónico</span>
+                    <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required className="w-full rounded-xl border border-black/10 bg-[#fafaf9] px-3 py-2.5 text-sm outline-none focus:border-[#16384f]" />
+                  </label>
+                </>
+              )}
+              <label className="block space-y-1.5">
+                <span className="text-xs font-semibold text-[#6e7379]">
+                  {hasUser ? "Nueva contraseña" : "Contraseña temporal"}
+                </span>
+                <div className="flex gap-2">
+                  <input value={password} onChange={(e) => setPassword(e.target.value)} required minLength={8} className="w-full rounded-xl border border-black/10 bg-[#fafaf9] px-3 py-2.5 font-mono text-sm outline-none focus:border-[#16384f]" />
+                  <button type="button" onClick={() => setPassword(generatePassword())} className="shrink-0 rounded-xl border border-black/10 px-3 py-2 text-xs font-semibold text-[#16384f] hover:bg-[#f0f0ee]" title="Generar">↻</button>
+                </div>
+              </label>
+              {error && <p className="rounded-xl bg-[#fff1f1] px-3 py-2 text-xs font-medium text-[#c53b3b]">{error}</p>}
+              <div className="flex gap-2 pt-1">
+                <button type="button" onClick={onClose} className="flex-1 rounded-xl border border-black/10 py-2.5 text-xs font-semibold text-[#16384f] hover:bg-[#f5f5f4]">Cancelar</button>
+                <button type="submit" disabled={saving} className="flex-1 rounded-xl bg-[#16384f] py-2.5 text-xs font-bold text-white hover:bg-[#0f2a3b] disabled:opacity-50">
+                  {saving ? "Procesando..." : hasUser ? "Cambiar contraseña" : "Crear cuenta"}
+                </button>
+              </div>
+            </form>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
@@ -251,10 +389,16 @@ function VendorDetailPanel({ vendorId, isTotalpars }: { vendorId: string; isTota
 
   useEffect(() => {
     void (async () => {
-      const r = await fetch(`/api/master/${vendorId}`);
-      if (!r.ok) { setError("No se pudo cargar el detalle."); setLoading(false); return; }
-      setDetail(await r.json() as VendorDetail);
-      setLoading(false);
+      try {
+        const r = await fetch(`/api/master/${vendorId}`);
+        const data = await r.json() as VendorDetail & { error?: string };
+        if (!r.ok) { setError(data.error ?? `Error ${r.status}`); setLoading(false); return; }
+        setDetail(data);
+        setLoading(false);
+      } catch (e) {
+        setError(e instanceof Error ? e.message : "Error de red");
+        setLoading(false);
+      }
     })();
   }, [vendorId]);
 
@@ -916,6 +1060,7 @@ function UniparcerosList({ talleres, setTalleres }: { talleres: TallerSolicitud[
 export default function MasterPage() {
   const router = useRouter();
   const [data, setData] = useState<MasterData | null>(null);
+  const [createAccountFor, setCreateAccountFor] = useState<VendorMetric | null>(null);
 
   const handleLogout = async () => {
     await fetch("/api/auth/logout", { method: "POST" });
@@ -971,6 +1116,25 @@ export default function MasterPage() {
 
   return (
     <main className="min-h-screen bg-[#f4f5f7] text-[#1f2328]">
+      {createAccountFor && (
+        <ManageAccountModal
+          vendor={createAccountFor}
+          onClose={() => setCreateAccountFor(null)}
+          onCreated={(email) => {
+            setData((prev) => {
+              if (!prev) return prev;
+              return {
+                ...prev,
+                vendors: prev.vendors.map((v) =>
+                  v.id === createAccountFor.id
+                    ? { ...v, user: { fullName: createAccountFor.contactName ?? email, email } }
+                    : v,
+                ),
+              };
+            });
+          }}
+        />
+      )}
       {/* Header */}
       <header className="border-b border-black/8 bg-white px-4 py-4 sm:px-8 sm:py-5">
         <div className="mx-auto flex max-w-[1440px] flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
@@ -1178,10 +1342,23 @@ export default function MasterPage() {
                         )}
                       </div>
 
-                      {v.user && (
-                        <p className="mt-2 text-xs text-[#8b8d91]">
-                          Usuario vinculado: {v.user.fullName} — {v.user.email}
-                        </p>
+                      {!v.isTotalpars && (
+                        <div className="mt-2 flex flex-wrap items-center gap-2">
+                          {v.user ? (
+                            <p className="text-xs text-[#8b8d91]">
+                              Usuario vinculado: {v.user.fullName} — {v.user.email}
+                            </p>
+                          ) : (
+                            <span className="rounded-full bg-[#fff6ee] px-2.5 py-0.5 text-[10px] font-semibold text-[#b85d12]">Sin cuenta</span>
+                          )}
+                          <button
+                            type="button"
+                            onClick={() => setCreateAccountFor(v)}
+                            className="rounded-full bg-[#16384f] px-3 py-1 text-[10px] font-bold text-white hover:bg-[#0f2a3b]"
+                          >
+                            {v.user ? "Cambiar contraseña" : "+ Generar cuenta"}
+                          </button>
+                        </div>
                       )}
 
                       {/* Rating */}

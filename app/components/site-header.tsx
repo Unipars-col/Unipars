@@ -105,8 +105,8 @@ export default function SiteHeader({ currentUser, isVendor }: SiteHeaderProps) {
         <div className="flex items-center gap-3">
           <Link href="/" className="inline-flex shrink-0" aria-label="Ir al inicio de Totalpars">
             <Image
-              src="/logo.png" alt="Totalpars" width={8000} height={896}
-              style={{ width: "clamp(140px, 14vw, 200px)", height: "auto" }} priority
+              src="/logo-totalpars.png" alt="Totalpars" width={600} height={67}
+              style={{ width: "clamp(120px, 12vw, 180px)", height: "auto" }} priority
             />
           </Link>
 

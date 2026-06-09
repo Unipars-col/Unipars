@@ -18,7 +18,7 @@ function RibbonItem({ item }: { item: typeof items[0] }) {
       className="inline-flex shrink-0 items-center gap-3 px-7 py-2.5"
       style={{ backgroundColor: item.bg }}
     >
-      <Image src="/logo-white.png" alt="Totalpars" width={68} height={18} className="h-[18px] w-auto shrink-0 opacity-90" style={{ width: "auto" }} />
+      <Image src="/logo-totalpars.png" alt="Totalpars" width={600} height={67} className="h-[18px] w-auto shrink-0" style={{ width: "auto", filter: "brightness(0) invert(1)", opacity: 0.9 }} />
       <span className="whitespace-nowrap text-[13px] text-white/80">
         {item.text}{" "}
         <strong className="font-semibold text-white">{item.bold}</strong>

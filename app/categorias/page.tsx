@@ -270,42 +270,55 @@ export default function CategoriasPage() {
       <div className="hidden md:block">
       <section className="px-6 pb-4 pt-6 text-white">
         <div className="overflow-hidden rounded-[1.9rem] bg-[#070b14] shadow-[0_26px_70px_rgba(0,0,0,0.16)]">
-          <div className="relative aspect-[1920/500] min-h-[252px] overflow-hidden">
-            {categoriaVisual.bannerImagen ? (
+          {soloOfertas ? (
+            <div className="overflow-hidden">
               <Image
-                src={categoriaVisual.bannerImagen}
-                alt={categoriaVisual.nombre}
-                fill
+                src="/banner-ofertas.jpg"
+                alt="Ofertas del mes — Abre la caja de las mejores ofertas"
+                width={2400}
+                height={675}
                 priority
                 sizes="100vw"
-                className="object-cover object-center"
+                className="w-full h-auto block"
               />
-            ) : null}
-            <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(2,5,11,0.86)_0%,rgba(2,5,11,0.74)_20%,rgba(2,5,11,0.28)_38%,rgba(2,5,11,0.06)_58%,rgba(2,5,11,0)_100%)]" />
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_82%_54%,rgba(255,140,64,0.1),transparent_16%),radial-gradient(circle_at_76%_48%,rgba(255,255,255,0.05),transparent_22%)]" />
-            <div className="relative z-10 mx-auto flex h-full max-w-[1680px] items-center">
-              <div className="px-6 py-8 md:px-8 lg:px-10">
-                <div className="max-w-[560px]">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-[#ffb46c]/72">
-                    Catálogo Totalpars
-                  </p>
-                  <h1 className="mt-3 max-w-[13ch] text-4xl font-semibold leading-[0.95] tracking-[-0.05em] text-white md:max-w-[14ch] md:text-5xl xl:max-w-[15ch] xl:text-[4rem]">
-                    {heroTitulo}
-                    {heroDestacado ? (
-                      <>
-                        {" "}
-                        <span className="text-[#ed8435]">{heroDestacado}</span>
-                      </>
-                    ) : null}
-                  </h1>
-                  <p className="mt-4 max-w-[34rem] text-base leading-8 text-white/76">
-                    {heroCopy}
-                  </p>
+            </div>
+          ) : (
+            <div className="relative aspect-[1920/500] min-h-[252px] overflow-hidden">
+              {categoriaVisual.bannerImagen ? (
+                <Image
+                  src={categoriaVisual.bannerImagen}
+                  alt={categoriaVisual.nombre}
+                  fill
+                  priority
+                  sizes="100vw"
+                  className="object-cover object-center"
+                />
+              ) : null}
+              <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(2,5,11,0.86)_0%,rgba(2,5,11,0.74)_20%,rgba(2,5,11,0.28)_38%,rgba(2,5,11,0.06)_58%,rgba(2,5,11,0)_100%)]" />
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_82%_54%,rgba(255,140,64,0.1),transparent_16%),radial-gradient(circle_at_76%_48%,rgba(255,255,255,0.05),transparent_22%)]" />
+              <div className="relative z-10 mx-auto flex h-full max-w-[1680px] items-center">
+                <div className="px-6 py-8 md:px-8 lg:px-10">
+                  <div className="max-w-[560px]">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-[#ffb46c]/72">
+                      Catálogo Totalpars
+                    </p>
+                    <h1 className="mt-3 max-w-[13ch] text-4xl font-semibold leading-[0.95] tracking-[-0.05em] text-white md:max-w-[14ch] md:text-5xl xl:max-w-[15ch] xl:text-[4rem]">
+                      {heroTitulo}
+                      {heroDestacado ? (
+                        <>
+                          {" "}
+                          <span className="text-[#ed8435]">{heroDestacado}</span>
+                        </>
+                      ) : null}
+                    </h1>
+                    <p className="mt-4 max-w-[34rem] text-base leading-8 text-white/76">
+                      {heroCopy}
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
-
-          </div>
+          )}
         </div>
       </section>
 
@@ -531,7 +544,7 @@ export default function CategoriasPage() {
             {/* Promo aleatoria por categoría */}
             {(() => {
               const promos = [
-                { src: "/promo-totalpars.png",    alt: "Bombín para tanque 30% off" },
+                { src: "/promo-unipars.png",    alt: "Bombín para tanque 30% off" },
                 { src: "/promo-tecnomotor.png", alt: "Amortiguador Tecnimotor 30% off" },
                 { src: "/promo-cauchos.png",    alt: "Cauchos Industriales 20% off" },
                 { src: "/promo-autoprime.png",  alt: "Batería Autoprime 30% off" },
