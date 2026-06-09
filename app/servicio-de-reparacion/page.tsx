@@ -15,7 +15,7 @@ export default function ServiciosPage() {
       {/* Banner principal */}
       <div className="w-full overflow-hidden">
         <Image
-          src="/banner-servicios-unipars.jpg"
+          src="/banner-principal-nuevo.jpg"
           alt="Movilidad que avanza contigo — Unipars"
           width={1920}
           height={540}

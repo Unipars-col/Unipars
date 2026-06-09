@@ -142,7 +142,10 @@ export default function SiteHeader({ currentUser, isVendor }: SiteHeaderProps) {
               { href: "/servicio-de-reparacion", label: "Uniparceros" },
               { href: "/ayuda", label: "Ayuda / PQR" },
             ].map(({ href, label }) => {
-              const isActive = pathname === href || pathname.startsWith(href + "/");
+              const isActive =
+                href === "/categorias?oferta=true"
+                  ? pathname === "/categorias" && searchParams.get("oferta") === "true"
+                  : pathname === href || pathname.startsWith(href + "/");
               return (
                 <Link
                   key={href}

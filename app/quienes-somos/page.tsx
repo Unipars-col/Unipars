@@ -25,7 +25,7 @@ export default function QuienesSomosPage() {
       {/* 1. BANNER PRINCIPAL */}
       <section className="w-full">
         <Image
-          src="/banner-quienes-somos.jpg"
+          src="/banner-principal-nuevo.jpg"
           alt="Movilidad que avanza contigo — Unipars"
           width={1920}
           height={600}

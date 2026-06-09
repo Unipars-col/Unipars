@@ -9,6 +9,7 @@ import PromoScroll from "./components/promo-scroll";
 import BannerBusquedaImagen from "./components/banner-busqueda-imagen";
 import PromoPopup from "./components/promo-popup";
 import PromoRibbon from "./components/promo-ribbon";
+import PromoCardHover from "./components/promo-card-hover";
 import SiteFooter from "./components/site-footer";
 import { categoriasData, slugCategoria } from "./data/catalog";
 import { getFeaturedProducts } from "@/lib/products";
@@ -184,20 +185,17 @@ export default async function Home() {
       <section className="mx-auto max-w-[1440px] px-6 py-14">
         <div className="hscroll-md cols-4" style={{ gap: "1.5rem", paddingLeft: "1.5rem", paddingRight: "1.5rem" }}>
           {[
-            { src: "/promo-unipars.png",    alt: "Bombín para tanque Unipars 30% off" },
-            { src: "/promo-tecnomotor.png", alt: "Amortiguador Tecnimotor 30% off" },
-            { src: "/promo-autoprime.png",  alt: "Batería Autoprime 30% off" },
-            { src: "/promo-cauchos.png",    alt: "Cauchos Industriales 20% off" },
+            { src: "/promo-unipars.png",    alt: "Bombín para tanque Unipars 30% off",   video: "/promo-hover-unipars.mp4" },
+            { src: "/promo-tecnomotor.png", alt: "Amortiguador Tecnimotor 30% off",       video: "/promo-hover.mp4" },
+            { src: "/promo-autoprime.png",  alt: "Batería Autoprime 30% off",             video: "/promo-hover-autoprime.mp4" },
+            { src: "/promo-cauchos.png",    alt: "Cauchos Industriales 20% off",          video: "/promo-hover-tecnomotor.mp4" },
           ].map((promo) => (
-            <div key={promo.src} className="relative aspect-[941/1672] overflow-hidden rounded-2xl" style={{ width: "55vw" }}>
-              <Image
-                src={promo.src}
-                alt={promo.alt}
-                fill
-                sizes="(max-width:768px) 55vw, 25vw"
-                className="object-cover object-center transition-transform duration-300 hover:scale-[1.02]"
-              />
-            </div>
+            <PromoCardHover
+              key={promo.src}
+              src={promo.src}
+              alt={promo.alt}
+              videoSrc={promo.video ?? undefined}
+            />
           ))}
         </div>
       </section>

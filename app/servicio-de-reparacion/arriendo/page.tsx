@@ -81,8 +81,8 @@ export default function ArriendoPage() {
       {/* Banner */}
       <div className="w-full overflow-hidden">
         <Image
-          src="/banner-arriendo-vehiculos.png"
-          alt="Movemos tu operación — Arriendo de vehículos Unipars"
+          src="/banner-arriendo-vehiculos.jpg"
+          alt="Movemos tu carga de principio a fin — Arriendo de vehículos Unipars"
           width={1920}
           height={540}
           className="w-full object-cover"
@@ -90,17 +90,6 @@ export default function ArriendoPage() {
         />
       </div>
 
-      {/* CTA rápido */}
-      <div className="flex justify-center border-b border-black/6 bg-white py-5">
-        <a
-          href="https://wa.me/573057249454?text=Hola%2C%20quiero%20información%20sobre%20arriendo%20de%20vehículos"
-          target="_blank"
-          rel="noreferrer"
-          className="inline-flex items-center gap-2 rounded-xl bg-green-600 px-8 py-3 font-semibold text-white transition-all hover:bg-green-700 hover:shadow-lg"
-        >
-          Solicitar cotización por WhatsApp ›
-        </a>
-      </div>
 
       <BuscadorArriendo />
 

@@ -75,7 +75,7 @@ export default function MaquinariaPage() {
       {/* Banner */}
       <div className="w-full overflow-hidden">
         <Image
-          src="/banner-maquinaria-pesada.png"
+          src="/banner-maquinaria-pesada.jpg"
           alt="Maquinaria pesada — Alquiler Unipars"
           width={1920}
           height={540}
@@ -84,20 +84,7 @@ export default function MaquinariaPage() {
         />
       </div>
 
-      {/* CTA rápido */}
-      <div className="flex justify-center border-b border-black/6 bg-white py-5">
-        <a
-          href="https://wa.me/573057249454?text=Hola%2C%20quiero%20información%20sobre%20alquiler%20de%20maquinaria%20pesada"
-          target="_blank"
-          rel="noreferrer"
-          className="inline-flex items-center gap-2 rounded-xl px-8 py-3 font-semibold text-white transition-all hover:shadow-lg"
-          style={{ backgroundColor: "#d97706" }}
-        >
-          Solicitar cotización por WhatsApp ›
-        </a>
-      </div>
-
-      <BuscadorMaquinaria />
+<BuscadorMaquinaria />
 
       {/* Cómo funciona */}
       <section className="bg-white px-6 py-16">
