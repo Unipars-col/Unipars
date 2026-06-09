@@ -188,6 +188,7 @@ export default function CategoriasPage() {
                       width={120}
                       height={110}
                       className="h-full w-auto max-w-full object-contain drop-shadow-md"
+                      style={{ width: "auto" }}
                     />
                   ) : (
                     <span className="text-5xl drop-shadow-sm" style={{ color: cat.color }}>
@@ -350,6 +351,7 @@ export default function CategoriasPage() {
                               width={100}
                               height={100}
                               className="h-full w-auto max-w-[85%] object-contain drop-shadow-sm transition-transform duration-300 group-hover:scale-[1.07]"
+                              style={{ width: "auto" }}
                             />
                           ) : (
                             <span className="text-2xl">{cat.icono}</span>

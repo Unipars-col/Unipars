@@ -441,7 +441,7 @@ export default function BusXrayBanner() {
                         <Image
                           src={category.iconoImagen}
                           alt={category.nombre}
-                          width={54}
+                          width={48}
                           height={36}
                           sizes="64px"
                           className="h-9 w-12 object-contain"

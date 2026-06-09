@@ -1,4 +1,3 @@
-import type { CSSProperties } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import BusXrayBanner from "./components/bus-xray-banner";
@@ -11,7 +10,7 @@ import PromoPopup from "./components/promo-popup";
 import PromoRibbon from "./components/promo-ribbon";
 import PromoCardHover from "./components/promo-card-hover";
 import SiteFooter from "./components/site-footer";
-import { categoriasData, slugCategoria } from "./data/catalog";
+import { slugCategoria } from "./data/catalog";
 import { getFeaturedProducts } from "@/lib/products";
 
 
@@ -208,6 +207,7 @@ export default async function Home() {
             alt="Uniparceros - La red de talleres aliados de Unipars"
             width={2560}
             height={720}
+            loading="eager"
             className="w-full object-cover"
           />
         </div>

@@ -59,7 +59,7 @@ export default function CategoriesCarousel() {
                     src={categoria.iconoImagen}
                     alt={categoria.nombre}
                     width={120}
-                    height={90}
+                    height={96}
                     className="relative h-[96px] w-[120px] object-contain drop-shadow-[0_10px_18px_rgba(15,23,42,0.13)]"
                   />
                 </div>

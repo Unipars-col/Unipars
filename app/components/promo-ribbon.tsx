@@ -18,7 +18,7 @@ function RibbonItem({ item }: { item: typeof items[0] }) {
       className="inline-flex shrink-0 items-center gap-3 px-7 py-2.5"
       style={{ backgroundColor: item.bg }}
     >
-      <Image src="/logo-white.png" alt="Unipars" width={68} height={18} className="h-[18px] w-auto shrink-0 opacity-90" />
+      <Image src="/logo-white.png" alt="Unipars" width={68} height={18} className="h-[18px] w-auto shrink-0 opacity-90" style={{ width: "auto" }} />
       <span className="whitespace-nowrap text-[13px] text-white/80">
         {item.text}{" "}
         <strong className="font-semibold text-white">{item.bold}</strong>
@@ -58,7 +58,7 @@ export default function PromoRibbon() {
 
       <div className="ribbon-track">
         {[...items, ...items].map((item, idx) => (
-          <RibbonItem key={idx} item={item} />
+          <RibbonItem key={`${idx}-${item.bold}`} item={item} />
         ))}
       </div>
     </div>
