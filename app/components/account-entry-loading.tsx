@@ -19,8 +19,8 @@ export default function AccountEntryLoading({
           <div className="absolute h-[176px] w-[176px] rounded-full bg-[radial-gradient(circle,_rgba(237,132,53,0.18)_0%,_rgba(237,132,53,0)_70%)] animate-[ping_2.4s_ease-out_infinite]" />
           <div className="relative rounded-full bg-white p-5 shadow-[0_18px_45px_rgba(15,23,42,0.12)] animate-[pulse_1.8s_ease-in-out_infinite]">
             <Image
-              src="/unipars-loader-logo.png"
-              alt="Logo de Unipars"
+              src="/totalpars-loader-logo.png"
+              alt="Logo de Totalpars"
               width={132}
               height={132}
               priority
@@ -30,7 +30,7 @@ export default function AccountEntryLoading({
         </div>
 
         <p className="mt-8 text-[11px] font-semibold uppercase tracking-[0.34em] text-[#ed8435]">
-          Unipars
+          Totalpars
         </p>
         <h2 className="mt-3 text-3xl font-semibold tracking-[-0.03em] text-[#16384f]">
           {message}

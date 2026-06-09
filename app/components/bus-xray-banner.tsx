@@ -389,7 +389,7 @@ export default function BusXrayBanner() {
                   </div>
                   <div>
                     <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[#7f8790]">
-                      Asistente Unipars
+                      Asistente Totalpars
                     </p>
                     <h3 className="mt-1 text-[1.5rem] font-semibold leading-[0.96] tracking-[-0.05em] text-[#16384f]">
                       Que tiene tu vehiculo?

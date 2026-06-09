@@ -4,9 +4,9 @@ import HelpCategories from "./help-categories";
 import SiteFooter from "../components/site-footer";
 
 export const metadata: Metadata = {
-  title: "Centro de ayuda — Unipars",
+  title: "Centro de ayuda — Totalpars",
   description:
-    "Encuentra respuestas rápidas sobre repuestos, talleres, proveedores y seguridad en Unipars.",
+    "Encuentra respuestas rápidas sobre repuestos, talleres, proveedores y seguridad en Totalpars.",
 };
 
 const categories = [
@@ -84,7 +84,7 @@ const categories = [
 const faqs = [
   {
     id: "buscar-repuesto",
-    q: "¿Cómo busco un repuesto en Unipars?",
+    q: "¿Cómo busco un repuesto en Totalpars?",
     a: "Usa la barra de búsqueda en la parte superior o navega por categorías. Puedes filtrar por marca, tipo de vehículo o línea de producto. También puedes usar la búsqueda visual para subir una foto del repuesto.",
     tags: "buscar repuesto catálogo",
     categories: ["compradores"],
@@ -119,7 +119,7 @@ const faqs = [
   },
   {
     id: "comision",
-    q: "¿Qué comisión cobra Unipars?",
+    q: "¿Qué comisión cobra Totalpars?",
     a: "La comisión varía según el volumen de ventas y el tipo de proveedor. Los planes van desde 5% hasta 12% por transacción. Consulta los planes detallados en la sección 'Vender' o contacta a nuestro equipo comercial.",
     tags: "comisión tarifa costo",
     categories: ["proveedores", "pagos"],
@@ -155,14 +155,14 @@ const faqs = [
   {
     id: "garantias",
     q: "¿Cómo funcionan las garantías?",
-    a: "Todos los productos publicados en Unipars tienen garantía mínima de 3 meses. Si el repuesto presenta defectos de fabricación dentro del periodo de garantía, el proveedor está obligado a reponerlo sin costo adicional.",
+    a: "Todos los productos publicados en Totalpars tienen garantía mínima de 3 meses. Si el repuesto presenta defectos de fabricación dentro del periodo de garantía, el proveedor está obligado a reponerlo sin costo adicional.",
     tags: "garantía devolución defecto",
     categories: ["seguridad", "compradores"],
   },
   {
     id: "reportar-problema",
     q: "¿Cómo reporto un problema con un pedido o proveedor?",
-    a: "Desde tu cuenta en 'Mi cuenta' puedes abrir un caso de soporte adjuntando evidencias. También puedes escribirnos al WhatsApp (57) 305 724 9454 o al correo comercial1@unipars.com.co. Atendemos de lunes a sábado.",
+    a: "Desde tu cuenta en 'Mi cuenta' puedes abrir un caso de soporte adjuntando evidencias. También puedes escribirnos al WhatsApp (57) 305 724 9454 o al correo comercial1@totalpars.com.co. Atendemos de lunes a sábado.",
     tags: "problema reporte soporte reclamo",
     categories: ["seguridad", "compradores"],
   },
@@ -178,7 +178,7 @@ export default function AyudaPage() {
           ¿En qué podemos ayudarte?
         </h1>
         <p className="mb-8 text-base text-white/65">
-          Encuentra respuestas rápidas sobre repuestos, talleres, proveedores y seguridad en Unipars.
+          Encuentra respuestas rápidas sobre repuestos, talleres, proveedores y seguridad en Totalpars.
         </p>
         <HelpSearch faqs={faqs} />
       </section>

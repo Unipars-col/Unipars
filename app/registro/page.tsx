@@ -154,7 +154,7 @@ export default function RegistroPage() {
 
         <div className="mt-6">
           <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[#ed8435]">
-            Unipars
+            Totalpars
           </p>
           <h1 className="mt-2 text-3xl font-bold text-[#16384f] md:text-4xl">
             Crear cuenta

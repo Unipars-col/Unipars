@@ -2,8 +2,8 @@ import ImageSearchClient from "./image-search-client";
 import { getProducts } from "@/lib/products";
 
 export const metadata = {
-  title: "Buscar por imagen | Unipars",
-  description: "Búsqueda visual de repuestos por imagen en Unipars.",
+  title: "Buscar por imagen | Totalpars",
+  description: "Búsqueda visual de repuestos por imagen en Totalpars.",
 };
 
 export default async function BuscarPorImagenPage() {

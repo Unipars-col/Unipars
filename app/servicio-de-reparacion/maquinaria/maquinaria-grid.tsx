@@ -116,7 +116,7 @@ function Modal({ item, onClose }: { item: Equipo; onClose: () => void }) {
               <span className="text-xs text-gray-400">({item.reviews})</span>
             </div>
           </div>
-          <p className="mt-1 text-xs font-semibold text-amber-600">✦ Proveedor Certificado Unipars</p>
+          <p className="mt-1 text-xs font-semibold text-amber-600">✦ Proveedor Certificado Totalpars</p>
           <p className="mt-3 text-sm leading-6 text-gray-500">{item.descripcion}</p>
           <div className="mt-4 space-y-2">
             {[
@@ -137,7 +137,7 @@ function Modal({ item, onClose }: { item: Equipo; onClose: () => void }) {
             ))}
           </div>
           <a
-            href={`https://wa.me/57${item.telefono}?text=Hola,%20vi%20su%20maquinaria%20en%20Unipars%20y%20quisiera%20cotizar`}
+            href={`https://wa.me/57${item.telefono}?text=Hola,%20vi%20su%20maquinaria%20en%20Totalpars%20y%20quisiera%20cotizar`}
             target="_blank" rel="noreferrer"
             className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-amber-600 py-3 text-sm font-bold text-white transition-colors hover:bg-amber-700"
           >
@@ -192,7 +192,7 @@ export default function MaquinariaGrid({ equipos = EQUIPOS }: { equipos?: Equipo
                 </div>
               </div>
               <p className="mt-0.5 text-xs text-gray-400">({eq.reviews} reseñas)</p>
-              <p className="mt-1 text-xs font-semibold text-amber-600">✦ Proveedor Certificado Unipars</p>
+              <p className="mt-1 text-xs font-semibold text-amber-600">✦ Proveedor Certificado Totalpars</p>
 
               <div className="mt-3 flex flex-wrap gap-1.5">
                 {eq.tipos.map((t) => (

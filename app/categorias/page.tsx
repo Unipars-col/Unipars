@@ -65,7 +65,7 @@ export default function CategoriasPage() {
       : "Filtra por categoría y encuentra exactamente lo que necesitas.";
   const heroDestacado = soloOfertas ? "+35% de descuento" : categoriaActiva ? "de alta calidad" : "";
   const heroCopy = soloOfertas
-    ? "Productos con descuentos mayores al 35%. Selección actualizada del catálogo Unipars."
+    ? "Productos con descuentos mayores al 35%. Selección actualizada del catálogo Totalpars."
     : categoriaActiva
       ? categoriaVisual.bannerCopy ||
         "Explora esta línea con una vista más clara del catálogo y encuentra referencias listas para cotizar."
@@ -287,7 +287,7 @@ export default function CategoriasPage() {
               <div className="px-6 py-8 md:px-8 lg:px-10">
                 <div className="max-w-[560px]">
                   <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-[#ffb46c]/72">
-                    Catálogo Unipars
+                    Catálogo Totalpars
                   </p>
                   <h1 className="mt-3 max-w-[13ch] text-4xl font-semibold leading-[0.95] tracking-[-0.05em] text-white md:max-w-[14ch] md:text-5xl xl:max-w-[15ch] xl:text-[4rem]">
                     {heroTitulo}
@@ -531,7 +531,7 @@ export default function CategoriasPage() {
             {/* Promo aleatoria por categoría */}
             {(() => {
               const promos = [
-                { src: "/promo-unipars.png",    alt: "Bombín para tanque 30% off" },
+                { src: "/promo-totalpars.png",    alt: "Bombín para tanque 30% off" },
                 { src: "/promo-tecnomotor.png", alt: "Amortiguador Tecnimotor 30% off" },
                 { src: "/promo-cauchos.png",    alt: "Cauchos Industriales 20% off" },
                 { src: "/promo-autoprime.png",  alt: "Batería Autoprime 30% off" },

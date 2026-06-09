@@ -3,8 +3,8 @@ import MaquinariaForm from "./maquinaria-form";
 import SiteFooter from "@/app/components/site-footer";
 
 export const metadata: Metadata = {
-  title: "Registra tu maquinaria | Unipars",
-  description: "Ofrece tu maquinaria pesada en alquiler a través de la red Unipars.",
+  title: "Registra tu maquinaria | Totalpars",
+  description: "Ofrece tu maquinaria pesada en alquiler a través de la red Totalpars.",
 };
 
 export default function RegistroMaquinariaPage() {

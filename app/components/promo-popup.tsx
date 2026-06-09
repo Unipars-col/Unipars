@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 
-const STORAGE_KEY = "unipars_promo_popup_seen";
+const STORAGE_KEY = "totalpars_promo_popup_seen";
 
 export default function PromoPopup() {
   const [visible, setVisible] = useState(false);

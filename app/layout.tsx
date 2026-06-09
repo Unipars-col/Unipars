@@ -1,6 +1,6 @@
 /**
  * ============================================================
- *  Unipars — Plataforma de repuestos para transporte
+ *  Totalpars — Plataforma de repuestos para transporte
  *  Diseñado y desarrollado por Monova.dev
  *  https://monova.dev
  *
@@ -33,7 +33,7 @@ import { getCartItemsForUser } from "@/lib/cart";
 import { prisma } from "@/lib/prisma";
 
 export const metadata: Metadata = {
-  title: "Unipars — Repuestos para transporte público y de carga",
+  title: "Totalpars — Repuestos para transporte público y de carga",
   description: "Encuentra repuestos de calidad para buses, camiones y vehículos de carga. Amplio catálogo, entrega nacional y red de talleres aliados Uniparceros.",
   authors: [{ name: "Monova.dev", url: "https://monova.dev" }],
   generator: "Monova.dev",

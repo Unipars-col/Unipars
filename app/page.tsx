@@ -157,7 +157,7 @@ export default async function Home() {
           <Link href="/servicio-de-reparacion" className="block overflow-hidden rounded-2xl transition-transform duration-300 hover:scale-[1.01]">
             <Image
               src="/banner-cobertura-v2.jpg"
-              alt="Cobertura nacional Unipars"
+              alt="Cobertura nacional Totalpars"
               width={900}
               height={400}
               className="h-full w-full object-cover"
@@ -166,7 +166,7 @@ export default async function Home() {
           <Link href="/categorias" className="block overflow-hidden rounded-2xl transition-transform duration-300 hover:scale-[1.01]">
             <Image
               src="/banner-lo-tenemos.jpg"
-              alt="Lo tenemos Unipars"
+              alt="Lo tenemos Totalpars"
               width={900}
               height={400}
               className="h-full w-full object-cover"
@@ -184,7 +184,7 @@ export default async function Home() {
       <section className="mx-auto max-w-[1440px] px-6 py-14">
         <div className="hscroll-md cols-4" style={{ gap: "1.5rem", paddingLeft: "1.5rem", paddingRight: "1.5rem" }}>
           {[
-            { src: "/promo-unipars.png",    alt: "Bombín para tanque Unipars 30% off",   video: "/promo-hover-unipars.mp4" },
+            { src: "/promo-totalpars.png",    alt: "Bombín para tanque Totalpars 30% off",   video: "/promo-hover-totalpars.mp4" },
             { src: "/promo-tecnomotor.png", alt: "Amortiguador Tecnimotor 30% off",       video: "/promo-hover.mp4" },
             { src: "/promo-autoprime.png",  alt: "Batería Autoprime 30% off",             video: "/promo-hover-autoprime.mp4" },
             { src: "/promo-cauchos.png",    alt: "Cauchos Industriales 20% off",          video: "/promo-hover-tecnomotor.mp4" },
@@ -204,7 +204,7 @@ export default async function Home() {
         <div className="overflow-hidden rounded-2xl">
           <Image
             src="/banner-uniparceros-home.jpg"
-            alt="Uniparceros - La red de talleres aliados de Unipars"
+            alt="Uniparceros - La red de talleres aliados de Totalpars"
             width={2560}
             height={720}
             loading="eager"

@@ -4,8 +4,8 @@ import Link from "next/link";
 import ContactForm from "./contact-form";
 
 export const metadata: Metadata = {
-  title: "Contacto | Unipars",
-  description: "Canales de contacto, ubicacion y formulario de atencion de Unipars.",
+  title: "Contacto | Totalpars",
+  description: "Canales de contacto, ubicacion y formulario de atencion de Totalpars.",
 };
 
 const contactCards = [
@@ -23,8 +23,8 @@ const contactCards = [
   },
   {
     title: "Correo electronico",
-    value: "comercial1@unipars.com.co",
-    href: "mailto:comercial1@unipars.com.co",
+    value: "comercial1@totalpars.com.co",
+    href: "mailto:comercial1@totalpars.com.co",
     icon: "/contacto/correo.png",
   },
 ];
@@ -37,17 +37,17 @@ const socialLinks = [
   },
   {
     name: "Facebook",
-    href: "https://www.facebook.com/UniparsColombia?locale=es_LA",
+    href: "https://www.facebook.com/TotalparsColombia?locale=es_LA",
     icon: "/contacto/facebook.png",
   },
   {
     name: "Instagram",
-    href: "https://www.instagram.com/unipars_colombia/",
+    href: "https://www.instagram.com/totalpars_colombia/",
     icon: "/contacto/instagram.png",
   },
   {
     name: "LinkedIn",
-    href: "https://www.linkedin.com/company/unipars-colombia/?viewAsMember=true",
+    href: "https://www.linkedin.com/company/totalpars-colombia/?viewAsMember=true",
     icon: "/contacto/linkedin.png",
   },
 ];
@@ -87,7 +87,7 @@ export default function ContactoPage() {
         <div className="absolute bottom-0 right-0 top-0 hidden w-[44%] sm:block">
           <Image
             src="/contacto/banner-contacto.jpg"
-            alt="Robot Unipars"
+            alt="Robot Totalpars"
             fill
             priority
             sizes="44vw"
@@ -183,7 +183,7 @@ export default function ContactoPage() {
 
             <div className="aspect-[1.02/1] min-h-[340px]">
               <iframe
-                title="Mapa Unipars"
+                title="Mapa Totalpars"
                 src="https://www.google.com/maps?q=Cra.%2029%20%2310-25%2C%20Bogota%2C%20Colombia&z=16&output=embed"
                 className="h-full w-full border-0"
                 loading="lazy"

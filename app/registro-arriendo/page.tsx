@@ -3,8 +3,8 @@ import ArriendoForm from "./arriendo-form";
 import SiteFooter from "@/app/components/site-footer";
 
 export const metadata: Metadata = {
-  title: "Registra tu flota | Unipars",
-  description: "Ofrece tus vehículos en arriendo a través de la red Unipars.",
+  title: "Registra tu flota | Totalpars",
+  description: "Ofrece tus vehículos en arriendo a través de la red Totalpars.",
 };
 
 export default function RegistroArriendoPage() {

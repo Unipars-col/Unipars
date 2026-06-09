@@ -5,7 +5,7 @@ import SiteFooter from "@/app/components/site-footer";
 import BuscadorArriendo from "./buscador-arriendo";
 
 export const metadata: Metadata = {
-  title: "Arriendo de buses y camiones — Unipars",
+  title: "Arriendo de buses y camiones — Totalpars",
   description: "Arrienda buses urbanos, intermunicipales y camiones de carga en todo Colombia. Flota verificada, con o sin conductor.",
 };
 
@@ -82,7 +82,7 @@ export default function ArriendoPage() {
       <div className="w-full overflow-hidden">
         <Image
           src="/banner-arriendo-vehiculos.jpg"
-          alt="Movemos tu carga de principio a fin — Arriendo de vehículos Unipars"
+          alt="Movemos tu carga de principio a fin — Arriendo de vehículos Totalpars"
           width={1920}
           height={540}
           className="w-full object-cover"

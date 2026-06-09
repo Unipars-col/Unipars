@@ -6,7 +6,7 @@ export async function GET() {
     await requireMasterUser();
     if (!prisma) return Response.json({ error: "DB no configurada." }, { status: 500 });
 
-    // Unipars como proveedor — productos sin vendorId
+    // Totalpars como proveedor — productos sin vendorId
     const [uniparProducts, allOrders, vendorSolicitudes] = await Promise.all([
       prisma.product.findMany({ where: { vendorId: null }, select: { id: true, category: true } }),
       prisma.order.findMany({ select: { id: true, userId: true, subtotal: true, paymentStatus: true, createdAt: true, status: true } }),
@@ -16,24 +16,24 @@ export async function GET() {
       }),
     ]);
 
-    // Unipars metrics
+    // Totalpars metrics
     const categorias = Array.from(new Set(uniparProducts.map((p) => p.category)));
-    const uniparsTotalOrders = allOrders.length;
-    const uniparsPaidOrders = allOrders.filter((o) => o.paymentStatus === "PAID");
-    const uniparsTotalSales = uniparsPaidOrders.reduce((s, o) => s + o.subtotal, 0);
+    const totalparsTotalOrders = allOrders.length;
+    const totalparsPaidOrders = allOrders.filter((o) => o.paymentStatus === "PAID");
+    const totalparsTotalSales = totalparsPaidOrders.reduce((s, o) => s + o.subtotal, 0);
 
     const unipar = {
-      id: "unipars",
-      nombre: "Unipars Colombia",
+      id: "totalpars",
+      nombre: "Totalpars Colombia",
       tipo: "Proveedor oficial",
       estado: "ACTIVO",
       productCount: uniparProducts.length,
       brandCount: categorias.length,
       categorias,
-      orderCount: uniparsTotalOrders,
-      paidOrderCount: uniparsPaidOrders.length,
-      totalSales: uniparsTotalSales,
-      isUnipars: true,
+      orderCount: totalparsTotalOrders,
+      paidOrderCount: totalparsPaidOrders.length,
+      totalSales: totalparsTotalSales,
+      isTotalpars: true,
     };
 
     // Vendor metrics por empresa
@@ -53,7 +53,7 @@ export async function GET() {
             orderCount: 0,
             paidOrderCount: 0,
             totalSales: 0,
-            isUnipars: false,
+            isTotalpars: false,
             calificacion: s.calificacion,
           };
         }
@@ -85,7 +85,7 @@ export async function GET() {
           orderCount: vendorOrders.length,
           paidOrderCount: paidOrders.length,
           totalSales: paidOrders.reduce((sum, o) => sum + o.subtotal, 0),
-          isUnipars: false,
+          isTotalpars: false,
           calificacion: s.calificacion,
         };
       }),
@@ -103,7 +103,7 @@ export async function GET() {
         totalOrders,
         totalSales,
       },
-      unipars: unipar,
+      totalpars: unipar,
       vendors,
     });
   } catch (error) {

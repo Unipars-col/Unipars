@@ -6,7 +6,7 @@ import PopupAliado from "./popup-aliado";
 import { type Taller } from "./talleres-grid";
 
 export const metadata: Metadata = {
-  title: "Uniparceros — Aliados en cada ruta | Unipars",
+  title: "Uniparceros — Aliados en cada ruta | Totalpars",
   description: "Red de talleres mecánicos aliados. Encuentra el taller de confianza más cercano para frenos, motor, pintura, suspensión y más.",
 };
 
@@ -335,7 +335,7 @@ export default function UniparceroPage() {
                 {[
                   { icon: "◎", label: "Más visibilidad" },
                   { icon: "★", label: "Más clientes" },
-                  { icon: "✓", label: "Respaldo Unipars" },
+                  { icon: "✓", label: "Respaldo Totalpars" },
                   { icon: "▲", label: "Capacitaciones" },
                 ].map(({ icon, label }) => (
                   <div key={label} className="flex flex-col items-center gap-1">
@@ -367,7 +367,7 @@ export default function UniparceroPage() {
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/servicio-reparacion/logos.png"
-            alt="Marcas aliadas de Unipars"
+            alt="Marcas aliadas de Totalpars"
             className="mx-auto h-auto w-full max-w-4xl object-contain"
           />
         </div>

@@ -7,7 +7,7 @@ export default function BannerBusquedaImagen() {
     <button
       type="button"
       className="w-full cursor-pointer"
-      onClick={() => window.dispatchEvent(new CustomEvent("unipars:visual-search-toggle", { detail: { isOpen: true } }))}
+      onClick={() => window.dispatchEvent(new CustomEvent("totalpars:visual-search-toggle", { detail: { isOpen: true } }))}
     >
       <Image
         src="/banner-busqueda-imagen.png"

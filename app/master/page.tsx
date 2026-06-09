@@ -20,7 +20,7 @@ type VendorMetric = {
   orderCount: number;
   paidOrderCount: number;
   totalSales: number;
-  isUnipars: boolean;
+  isTotalpars: boolean;
   brands?: string[];
   calificacion?: number | null;
 };
@@ -47,7 +47,7 @@ type GlobalStats = { totalVendors: number; totalProducts: number; totalOrders: n
 
 type MasterData = {
   global: GlobalStats;
-  unipars: VendorMetric;
+  totalpars: VendorMetric;
   vendors: VendorMetric[];
 };
 
@@ -139,7 +139,7 @@ function AdminNotesBox({ vendorId, initial }: { vendorId: string; initial?: stri
           className="w-full resize-none bg-transparent px-4 py-3 text-sm leading-6 text-[#1f2328] outline-none placeholder:text-[#c5c7cb]"
         />
         <div className="flex items-center justify-between border-t border-[#f0f0ee] px-4 py-2.5">
-          <p className="text-[10px] text-[#c5c7cb]">Solo visible para el equipo Unipars</p>
+          <p className="text-[10px] text-[#c5c7cb]">Solo visible para el equipo Totalpars</p>
           <button
             type="button"
             disabled={saving || !text.trim()}
@@ -243,7 +243,7 @@ function StarRating({ vendorId, initial }: { vendorId: string; initial: number |
 
 type DetailTab = "productos" | "ventas" | "informacion";
 
-function VendorDetailPanel({ vendorId, isUnipars }: { vendorId: string; isUnipars: boolean }) {
+function VendorDetailPanel({ vendorId, isTotalpars }: { vendorId: string; isTotalpars: boolean }) {
   const [detail, setDetail] = useState<VendorDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -266,7 +266,7 @@ function VendorDetailPanel({ vendorId, isUnipars }: { vendorId: string; isUnipar
   const allTabs: { id: DetailTab; label: string }[] = [
     { id: "ventas", label: "Ventas" },
     { id: "productos", label: "Métricas de productos" },
-    ...(isUnipars ? [] : [{ id: "informacion" as DetailTab, label: "Información" }]),
+    ...(isTotalpars ? [] : [{ id: "informacion" as DetailTab, label: "Información" }]),
   ];
 
   return (
@@ -489,7 +489,7 @@ function VendorDetailPanel({ vendorId, isUnipars }: { vendorId: string; isUnipar
         )}
 
         {/* ══ INFORMACIÓN ═════════════════════════════════════ */}
-        {tab === "informacion" && !isUnipars && s && (
+        {tab === "informacion" && !isTotalpars && s && (
           <div className="grid gap-5 lg:grid-cols-3">
             {/* Datos empresa */}
             <div className="rounded-2xl border border-black/7 bg-white p-5 shadow-[0_3px_10px_rgba(15,23,42,0.04)]">
@@ -557,7 +557,7 @@ function VendorDetailPanel({ vendorId, isUnipars }: { vendorId: string; isUnipar
       </div>
 
       {/* Nota interna — visible en todas las pestañas, solo para vendors externos */}
-      {!isUnipars && s && (
+      {!isTotalpars && s && (
         <AdminNotesBox vendorId={vendorId} initial={s.adminNotes as string | null} />
       )}
     </div>
@@ -966,7 +966,7 @@ export default function MasterPage() {
     );
   }
 
-  const allVendors: VendorMetric[] = [data.unipars, ...data.vendors];
+  const allVendors: VendorMetric[] = [data.totalpars, ...data.vendors];
   const g = data.global;
 
   return (
@@ -1019,7 +1019,7 @@ export default function MasterPage() {
           {/* Tabs */}
           <div className="scrollbar-hidden mb-5 flex items-center gap-1 overflow-x-auto pb-1">
             {([
-              { id: "activos", label: "Proveedores activos", count: allVendors.filter((v) => v.isUnipars || v.estado === "APROBADA" || v.estado === "ACTIVO").length },
+              { id: "activos", label: "Proveedores activos", count: allVendors.filter((v) => v.isTotalpars || v.estado === "APROBADA" || v.estado === "ACTIVO").length },
               { id: "solicitudes", label: "Solicitudes", count: data.vendors.filter((v) => v.estado === "PENDIENTE" || v.estado === "EN_REVISION").length },
               { id: "uniparceros", label: "Uniparceros", count: talleres.length + arriendos.length + maquinarias.length },
               { id: "encuesta", label: "¿Cómo nos conocieron?", count: encuesta?.total ?? 0 },
@@ -1129,26 +1129,26 @@ export default function MasterPage() {
           <div className="space-y-3">
             {view !== "uniparceros" && view !== "encuesta" && allVendors.filter((v) =>
               view === "activos"
-                ? v.isUnipars || v.estado === "APROBADA" || v.estado === "ACTIVO"
-                : !v.isUnipars && (v.estado === "PENDIENTE" || v.estado === "EN_REVISION" || v.estado === "RECHAZADA")
+                ? v.isTotalpars || v.estado === "APROBADA" || v.estado === "ACTIVO"
+                : !v.isTotalpars && (v.estado === "PENDIENTE" || v.estado === "EN_REVISION" || v.estado === "RECHAZADA")
             ).map((v) => {
               const isExpanded = expandedId === v.id;
               return (
                 <div
                   key={v.id}
-                  className={`overflow-hidden rounded-[2rem] border bg-white shadow-[0_6px_18px_rgba(15,23,42,0.04)] transition-shadow duration-200 ${v.isUnipars ? "border-[#16384f]/20" : "border-black/8"} ${isExpanded ? "shadow-[0_12px_32px_rgba(15,23,42,0.10)]" : ""}`}
+                  className={`overflow-hidden rounded-[2rem] border bg-white shadow-[0_6px_18px_rgba(15,23,42,0.04)] transition-shadow duration-200 ${v.isTotalpars ? "border-[#16384f]/20" : "border-black/8"} ${isExpanded ? "shadow-[0_12px_32px_rgba(15,23,42,0.10)]" : ""}`}
                 >
                   <div className="grid gap-6 p-6 md:grid-cols-[1fr_auto]">
                     {/* Left */}
                     <div>
                       <div className="flex flex-wrap items-center gap-3">
-                        <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-bold text-white ${v.isUnipars ? "bg-[#ed8435]" : "bg-[#16384f]"}`}>
+                        <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-bold text-white ${v.isTotalpars ? "bg-[#ed8435]" : "bg-[#16384f]"}`}>
                           {v.nombre.charAt(0)}
                         </div>
                         <div>
                           <div className="flex items-center gap-2">
                             <p className="font-semibold text-[#1f2328]">{v.nombre}</p>
-                            {v.isUnipars && (
+                            {v.isTotalpars && (
                               <span className="rounded-full bg-[#ed8435] px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.18em] text-white">
                                 Oficial
                               </span>
@@ -1156,7 +1156,7 @@ export default function MasterPage() {
                           </div>
                           <p className="text-xs text-[#8b8d91]">{v.tipo}{v.ciudad ? ` · ${v.ciudad}` : ""}</p>
                         </div>
-                        {v.isUnipars ? (
+                        {v.isTotalpars ? (
                           <span className={`rounded-full px-3 py-1 text-xs font-semibold ${estadoColors[v.estado] ?? "bg-[#f5f5f4] text-[#6e7379]"}`}>
                             {estadoLabel[v.estado] ?? v.estado}
                           </span>
@@ -1185,7 +1185,7 @@ export default function MasterPage() {
                       )}
 
                       {/* Rating */}
-                      {!v.isUnipars && (
+                      {!v.isTotalpars && (
                         <div className="mt-2 flex items-center gap-2">
                           <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#a2a5aa]">Calificación</span>
                           <StarRating vendorId={v.id} initial={v.calificacion} />
@@ -1226,7 +1226,7 @@ export default function MasterPage() {
                   </div>
 
                   {/* Progress bar */}
-                  {!v.isUnipars && g.totalSales > 0 && !isExpanded && (
+                  {!v.isTotalpars && g.totalSales > 0 && !isExpanded && (
                     <div className="border-t border-black/5 px-6 py-3">
                       <div className="flex items-center gap-3">
                         <p className="w-28 shrink-0 text-xs text-[#8b8d91]">
@@ -1243,7 +1243,7 @@ export default function MasterPage() {
                   )}
 
                   {/* Expanded detail */}
-                  {isExpanded && <VendorDetailPanel vendorId={v.id} isUnipars={v.isUnipars} />}
+                  {isExpanded && <VendorDetailPanel vendorId={v.id} isTotalpars={v.isTotalpars} />}
                 </div>
               );
             })}

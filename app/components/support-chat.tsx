@@ -27,7 +27,7 @@ const initialMessage: ChatMessage = {
   id: "welcome",
   role: "assistant",
   content:
-    "Hola, soy el asistente de Unipars. Puedo ayudarte a encontrar repuestos, categorías, disponibilidad y orientarte sobre envíos o pagos.",
+    "Hola, soy el asistente de Totalpars. Puedo ayudarte a encontrar repuestos, categorías, disponibilidad y orientarte sobre envíos o pagos.",
 };
 
 export default function SupportChat() {
@@ -120,10 +120,10 @@ export default function SupportChat() {
       }
     };
 
-    window.addEventListener("unipars:visual-search-toggle", handleVisualSearchToggle);
+    window.addEventListener("totalpars:visual-search-toggle", handleVisualSearchToggle);
 
     return () => {
-      window.removeEventListener("unipars:visual-search-toggle", handleVisualSearchToggle);
+      window.removeEventListener("totalpars:visual-search-toggle", handleVisualSearchToggle);
     };
   }, []);
 
@@ -152,7 +152,7 @@ export default function SupportChat() {
                 </div>
                 <div className="min-w-0 pt-0.5">
                   <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[#7f8790]">
-                    Asistente Unipars
+                    Asistente Totalpars
                   </p>
                   <h3 className="mt-1 text-[1.55rem] font-semibold leading-[0.95] tracking-[-0.05em] text-[#16384f]">
                     Habla con Uniparcero

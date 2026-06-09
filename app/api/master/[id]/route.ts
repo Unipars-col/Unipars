@@ -7,9 +7,9 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
     if (!prisma) return Response.json({ error: "DB no configurada." }, { status: 500 });
 
     const { id } = await params;
-    const isUnipars = id === "unipars";
+    const isTotalpars = id === "totalpars";
 
-    if (isUnipars) {
+    if (isTotalpars) {
       const products = await prisma.product.findMany({
         where: { vendorId: null },
         select: { id: true, name: true, brand: true, category: true, slug: true },
@@ -71,7 +71,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     if (!prisma) return Response.json({ error: "DB no configurada." }, { status: 500 });
 
     const { id } = await params;
-    if (id === "unipars") return Response.json({ error: "Unipars no calificable." }, { status: 400 });
+    if (id === "totalpars") return Response.json({ error: "Totalpars no calificable." }, { status: 400 });
 
     const body = await req.json() as { calificacion?: number; estado?: string; adminNotes?: string };
 

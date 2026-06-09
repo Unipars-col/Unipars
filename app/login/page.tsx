@@ -16,8 +16,8 @@ type ToastState = {
   message: string;
 } | null;
 
-const GUEST_CART_STORAGE_KEY = "unipars-cart";
-const GUEST_CART_SYNC_KEY = "unipars-cart-synced-user";
+const GUEST_CART_STORAGE_KEY = "totalpars-cart";
+const GUEST_CART_SYNC_KEY = "totalpars-cart-synced-user";
 
 const initialState: LoginFormState = {
   email: "",
@@ -359,8 +359,8 @@ export default function LoginPage() {
             className={`flex justify-center ${logoAnimationKey > 0 ? "logo-error-bump" : ""}`}
           >
             <Image
-              src="/login-unipars-logo.png"
-              alt="Logo de Unipars"
+              src="/login-totalpars-logo.png"
+              alt="Logo de Totalpars"
               width={168}
               height={168}
               priority

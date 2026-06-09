@@ -698,36 +698,36 @@ export default function EmpresaForm() {
             {step === 7 && (
               <div className="space-y-4">
                 <p className="text-sm leading-6 text-[#555]">
-                  Para activar tu perfil vendedor en Unipars debes aceptar las siguientes condiciones:
+                  Para activar tu perfil vendedor en Totalpars debes aceptar las siguientes condiciones:
                 </p>
                 {[
                   {
                     id: "aceptaTerminos",
                     val: aceptaTerminos,
                     set: setAceptaTerminos,
-                    label: "Acepto los Términos y Condiciones Generales de Unipars",
-                    desc: "He leído y acepto los Términos y Condiciones de Unipars. Entiendo que la plataforma actúa como intermediaria entre compradores y vendedores del sector automotriz. Me comprometo a publicar información veraz, cumplir con las obligaciones de calidad, legalidad, garantías y disponibilidad de los productos, y respetar las conductas establecidas en la plataforma. Acepto que Unipars podrá suspender o cancelar mi cuenta ante fraude, incumplimientos o reclamaciones reiteradas.",
+                    label: "Acepto los Términos y Condiciones Generales de Totalpars",
+                    desc: "He leído y acepto los Términos y Condiciones de Totalpars. Entiendo que la plataforma actúa como intermediaria entre compradores y vendedores del sector automotriz. Me comprometo a publicar información veraz, cumplir con las obligaciones de calidad, legalidad, garantías y disponibilidad de los productos, y respetar las conductas establecidas en la plataforma. Acepto que Totalpars podrá suspender o cancelar mi cuenta ante fraude, incumplimientos o reclamaciones reiteradas.",
                   },
                   {
                     id: "aceptaComisiones",
                     val: aceptaComisiones,
                     set: setAceptaComisiones,
                     label: "💰 Acepto la Política de Pagos y Comisiones del Marketplace",
-                    desc: "Entiendo y acepto que Unipars cobrará una comisión del 14% sobre el valor total de cada venta realizada a través de la plataforma. La comisión será descontada automáticamente antes de la transferencia de fondos al vendedor o facturada según el modelo operativo implementado. Acepto que podrán aplicarse retenciones legales e impuestos según la normatividad colombiana vigente.",
+                    desc: "Entiendo y acepto que Totalpars cobrará una comisión del 14% sobre el valor total de cada venta realizada a través de la plataforma. La comisión será descontada automáticamente antes de la transferencia de fondos al vendedor o facturada según el modelo operativo implementado. Acepto que podrán aplicarse retenciones legales e impuestos según la normatividad colombiana vigente.",
                   },
                   {
                     id: "autorizaDatos",
                     val: autorizaDatos,
                     set: setAutorizaDatos,
                     label: "🔒 Autorizo el Tratamiento de Datos Personales y Empresariales",
-                    desc: "Autorizo libre y expresamente a Unipars para recolectar, almacenar, procesar y utilizar mis datos personales y empresariales con fines de creación de cuenta, validación documental, prevención de fraude, gestión de pagos y comunicaciones comerciales autorizadas. Unipars protegerá la información conforme a la legislación colombiana de protección de datos. Los titulares podrán ejercer derechos de consulta, actualización y supresión en cualquier momento.",
+                    desc: "Autorizo libre y expresamente a Totalpars para recolectar, almacenar, procesar y utilizar mis datos personales y empresariales con fines de creación de cuenta, validación documental, prevención de fraude, gestión de pagos y comunicaciones comerciales autorizadas. Totalpars protegerá la información conforme a la legislación colombiana de protección de datos. Los titulares podrán ejercer derechos de consulta, actualización y supresión en cualquier momento.",
                   },
                   {
                     id: "autorizaValidacion",
                     val: autorizaValidacion,
                     set: setAutorizaValidacion,
                     label: "📄 Autorizo la Validación Documental y Política Antifraude",
-                    desc: "Autorizo a Unipars para verificar la autenticidad, vigencia y validez de los documentos suministrados: documento de identidad, RUT, cámara de comercio, certificados bancarios y demás soportes requeridos. Entiendo que la activación de mi perfil vendedor está sujeta al resultado satisfactorio de estas verificaciones, y que Unipars podrá solicitar documentación adicional o suspender operaciones sospechosas para proteger la plataforma.",
+                    desc: "Autorizo a Totalpars para verificar la autenticidad, vigencia y validez de los documentos suministrados: documento de identidad, RUT, cámara de comercio, certificados bancarios y demás soportes requeridos. Entiendo que la activación de mi perfil vendedor está sujeta al resultado satisfactorio de estas verificaciones, y que Totalpars podrá solicitar documentación adicional o suspender operaciones sospechosas para proteger la plataforma.",
                   },
                   {
                     id: "aceptaResponsabilidad",

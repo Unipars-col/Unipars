@@ -5,7 +5,7 @@ import SiteFooter from "@/app/components/site-footer";
 import BuscadorMaquinaria from "./buscador-maquinaria";
 
 export const metadata: Metadata = {
-  title: "Alquiler de maquinaria pesada — Unipars",
+  title: "Alquiler de maquinaria pesada — Totalpars",
   description: "Alquila retroexcavadoras, grúas, compactadoras y más. Equipos certificados con o sin operador en Colombia.",
 };
 
@@ -76,7 +76,7 @@ export default function MaquinariaPage() {
       <div className="w-full overflow-hidden">
         <Image
           src="/banner-maquinaria-pesada.jpg"
-          alt="Maquinaria pesada — Alquiler Unipars"
+          alt="Maquinaria pesada — Alquiler Totalpars"
           width={1920}
           height={540}
           className="w-full object-cover"

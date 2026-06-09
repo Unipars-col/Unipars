@@ -2,7 +2,7 @@ import Link from "next/link";
 
 const topLinks = [
   { label: "Quiénes somos", href: "/quienes-somos" },
-  { label: "Vender en Unipars", href: "/vender" },
+  { label: "Vender en Totalpars", href: "/vender" },
   { label: "Servicio de reparación", href: "/servicio-de-reparacion" },
   { label: "Categorías", href: "/categorias" },
   { label: "Tips y videos", href: "/tips-y-videos" },
@@ -10,8 +10,8 @@ const topLinks = [
   { label: "Política de privacidad", href: "/contacto" },
   { label: "Términos del servicio", href: "/contacto" },
   { label: "WhatsApp", href: "https://wa.me/573057249454" },
-  { label: "Instagram", href: "https://www.instagram.com/unipars_colombia/" },
-  { label: "Facebook", href: "https://www.facebook.com/UniparsColombia?locale=es_LA" },
+  { label: "Instagram", href: "https://www.instagram.com/totalpars_colombia/" },
+  { label: "Facebook", href: "https://www.facebook.com/TotalparsColombia?locale=es_LA" },
 ];
 
 export default function SiteFooter() {
@@ -37,10 +37,10 @@ export default function SiteFooter() {
         {/* Copyright y dirección */}
         <div className="mt-3 space-y-0.5">
           <p className="text-xs text-white/32">
-            Copyright © 2026 Unipars Colombia S.A.S
+            Copyright © 2026 Totalpars Colombia S.A.S
           </p>
           <p className="text-xs text-white/32">
-            Cra. 29 #10-25, Bogotá D.C., Colombia · (601) 286-70-87 · comercial1@unipars.com.co
+            Cra. 29 #10-25, Bogotá D.C., Colombia · (601) 286-70-87 · comercial1@totalpars.com.co
           </p>
         </div>
 

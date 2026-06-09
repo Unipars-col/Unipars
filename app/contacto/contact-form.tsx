@@ -2,7 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 
-const CONTACT_EMAIL = "comercial1@unipars.com.co";
+const CONTACT_EMAIL = "comercial1@totalpars.com.co";
 
 type FormState = {
   nombre: string;
@@ -35,7 +35,7 @@ export default function ContactForm() {
     ].join("\n");
 
     const mailtoUrl = `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(
-      "Solicitud de contacto desde unipars.com.co",
+      "Solicitud de contacto desde totalpars.com.co",
     )}&body=${encodeURIComponent(body)}`;
 
     window.location.href = mailtoUrl;

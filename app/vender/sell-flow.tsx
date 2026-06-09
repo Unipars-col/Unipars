@@ -82,7 +82,7 @@ const initialProductForm: ProductFormState = {
   referenciasAlternas: "",
   categoria: categorias[0],
   nombre: "",
-  marca: "Unipars",
+  marca: "Totalpars",
   precioValor: "",
   precioAnteriorValor: "",
   stock: "0",
@@ -215,7 +215,7 @@ export default function SellFlow() {
 
   const openVisualSearch = () => {
     window.dispatchEvent(
-      new CustomEvent("unipars:visual-search-toggle", {
+      new CustomEvent("totalpars:visual-search-toggle", {
         detail: { isOpen: true },
       }),
     );
@@ -429,7 +429,7 @@ export default function SellFlow() {
               Crea tu cuenta de empresa
             </h2>
             <p className="mt-3 text-sm leading-6 text-[#555]">
-              Para vender en Unipars necesitas registrarte con tu empresa. Es gratis y solo toma unos minutos.
+              Para vender en Totalpars necesitas registrarte con tu empresa. Es gratis y solo toma unos minutos.
             </p>
             <div className="mt-6 flex flex-col gap-3">
               <a
@@ -464,7 +464,7 @@ export default function SellFlow() {
             Ya tienes sesión iniciada
           </h2>
           <p className="mt-3 text-sm leading-6 text-[#555]">
-            Tu cuenta ya está activa como proveedor en Unipars. Gestiona tus productos, inventario y pedidos desde tu panel.
+            Tu cuenta ya está activa como proveedor en Totalpars. Gestiona tus productos, inventario y pedidos desde tu panel.
           </p>
           <div className="mt-6">
             <a
@@ -1076,7 +1076,7 @@ export default function SellFlow() {
             <p>
               Para subir muchos productos, puedes{" "}
               <a
-                href="mailto:comercial1@unipars.com.co?subject=Publicador%20masivo%20Unipars"
+                href="mailto:comercial1@totalpars.com.co?subject=Publicador%20masivo%20Totalpars"
                 className="font-medium text-[#ed8435] hover:underline"
               >
                 ir al Publicador masivo
@@ -1087,7 +1087,7 @@ export default function SellFlow() {
       </section>
 
       <p className="fixed bottom-5 left-0 right-0 px-5 text-center text-xs text-[#8a8a8a]">
-        Asegurate de que tu publicacion cumpla con las politicas comerciales de Unipars.
+        Asegurate de que tu publicacion cumpla con las politicas comerciales de Totalpars.
       </p>
     </main>
   );

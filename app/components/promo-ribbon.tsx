@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 const items = [
-  { bg: "transparent", text: "🔥 Aprovecha los", bold: "súper descuentos de Unipars", cta: { label: "Ver ofertas", href: "/categorias?oferta=true", color: "#ed8435" } },
+  { bg: "transparent", text: "🔥 Aprovecha los", bold: "súper descuentos de Totalpars", cta: { label: "Ver ofertas", href: "/categorias?oferta=true", color: "#ed8435" } },
   { bg: "transparent", text: "🚛 Repuestos para", bold: "transporte masivo y de carga", cta: null },
   { bg: "transparent", text: "⚡ Los mejores precios en", bold: "repuestos originales", cta: { label: "Ver catálogo", href: "/categorias", color: "#ed8435" } },
   { bg: "transparent", text: "🛠️ Más de", bold: "364 referencias disponibles", cta: null },
@@ -18,7 +18,7 @@ function RibbonItem({ item }: { item: typeof items[0] }) {
       className="inline-flex shrink-0 items-center gap-3 px-7 py-2.5"
       style={{ backgroundColor: item.bg }}
     >
-      <Image src="/logo-white.png" alt="Unipars" width={68} height={18} className="h-[18px] w-auto shrink-0 opacity-90" style={{ width: "auto" }} />
+      <Image src="/logo-white.png" alt="Totalpars" width={68} height={18} className="h-[18px] w-auto shrink-0 opacity-90" style={{ width: "auto" }} />
       <span className="whitespace-nowrap text-[13px] text-white/80">
         {item.text}{" "}
         <strong className="font-semibold text-white">{item.bold}</strong>

@@ -2,9 +2,9 @@ import { mediaHubItems } from "../data/media-hub";
 import MediaShowcase from "./media-showcase";
 
 export const metadata = {
-  title: "Tips y videos | Unipars",
+  title: "Tips y videos | Totalpars",
   description:
-    "Hub de contenido de Unipars con videos, tips y piezas útiles para orientar la compra.",
+    "Hub de contenido de Totalpars con videos, tips y piezas útiles para orientar la compra.",
 };
 
 export default function TipsYVideosPage() {

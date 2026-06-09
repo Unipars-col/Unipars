@@ -3,7 +3,7 @@ import AliadorForm from "./aliado-form";
 import SiteFooter from "@/app/components/site-footer";
 
 export const metadata: Metadata = {
-  title: "Únete a Uniparceros | Unipars",
+  title: "Únete a Uniparceros | Totalpars",
   description: "Registra tu taller mecánico y únete a nuestra red de aliados de confianza.",
 };
 
@@ -20,10 +20,10 @@ export default function RegistroAliadoPage() {
             Únete a nuestra red de talleres aliados
           </h1>
           <p className="mt-3 text-gray-400">
-            Regístrate gratis. Recibe más clientes, visibilidad y respaldo de Unipars.
+            Regístrate gratis. Recibe más clientes, visibilidad y respaldo de Totalpars.
           </p>
           <div className="mt-6 flex flex-wrap justify-center gap-5 text-sm">
-            {["Más visibilidad", "Más clientes", "Respaldo Unipars", "Capacitaciones"].map((b) => (
+            {["Más visibilidad", "Más clientes", "Respaldo Totalpars", "Capacitaciones"].map((b) => (
               <span key={b} className="flex items-center gap-1.5 text-gray-300">
                 <span className="text-[#ed8435]">✓</span> {b}
               </span>

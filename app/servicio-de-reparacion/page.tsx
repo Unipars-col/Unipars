@@ -4,8 +4,8 @@ import SiteFooter from "@/app/components/site-footer";
 import ServiceCards from "./service-cards";
 
 export const metadata: Metadata = {
-  title: "Servicios Unipars — Talleres, Arriendo y Maquinaria",
-  description: "Encuentra talleres aliados, arrienda buses y camiones o alquila maquinaria pesada con Unipars.",
+  title: "Servicios Totalpars — Talleres, Arriendo y Maquinaria",
+  description: "Encuentra talleres aliados, arrienda buses y camiones o alquila maquinaria pesada con Totalpars.",
 };
 
 export default function ServiciosPage() {
@@ -16,7 +16,7 @@ export default function ServiciosPage() {
       <div className="w-full overflow-hidden">
         <Image
           src="/banner-principal-nuevo.jpg"
-          alt="Movilidad que avanza contigo — Unipars"
+          alt="Movilidad que avanza contigo — Totalpars"
           width={1920}
           height={540}
           className="w-full object-cover"

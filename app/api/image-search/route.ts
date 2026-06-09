@@ -222,7 +222,7 @@ export async function POST(request: Request) {
     const response = await openai.responses.create({
       model: process.env.OPENAI_IMAGE_SEARCH_MODEL || process.env.OPENAI_CHAT_MODEL || "gpt-4o-mini",
       instructions: [
-        "Eres un asistente visual de catalogo de repuestos para Unipars.",
+        "Eres un asistente visual de catalogo de repuestos para Totalpars.",
         "No inventes productos ni slugs.",
         "Responde solo con JSON valido segun el esquema.",
         "La confianza debe ser un numero de 0 a 100.",

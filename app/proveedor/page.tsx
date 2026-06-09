@@ -53,7 +53,7 @@ const initialState: FormState = {
   referenciasAlternas: "",
   categoria: categorias[0],
   nombre: "",
-  marca: "Unipars",
+  marca: "Totalpars",
   precioValor: "",
   precioAnteriorValor: "",
   stock: "0",
@@ -914,7 +914,7 @@ export default function AdminPage() {
 
     let imageUrl =
       adminProducts.find((product) => product.slug === editingSlug)?.imagen ||
-      "/hero-unipars.jpg";
+      "/hero-totalpars.jpg";
     let fichaTecnicaUrl = existingPdfUrl || undefined;
 
     try {
@@ -1823,7 +1823,7 @@ export default function AdminPage() {
                         type="search"
                         value={editSearch}
                         onChange={(event) => setEditSearch(event.target.value)}
-                        placeholder="Ej: farola, Unipars, ventilador..."
+                        placeholder="Ej: farola, Totalpars, ventilador..."
                         className="w-full rounded-2xl border border-black/10 bg-[#fafaf9] px-4 py-3 text-sm text-[#1f2328] outline-none transition-colors duration-200 focus:border-[#ed8435]"
                       />
                     </label>
@@ -2769,7 +2769,7 @@ export default function AdminPage() {
                         type="search"
                         value={editSearch}
                         onChange={(event) => setEditSearch(event.target.value)}
-                        placeholder="Ej: farola, Unipars, FAROLA001..."
+                        placeholder="Ej: farola, Totalpars, FAROLA001..."
                         className="w-full rounded-2xl border border-black/10 bg-[#fafaf9] px-4 py-3 text-sm text-[#1f2328] outline-none transition-colors duration-200 focus:border-[#ed8435]"
                       />
                     </label>

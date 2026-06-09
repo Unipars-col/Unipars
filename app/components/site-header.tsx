@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useRef, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCart } from "./cart-provider";
+import { useProducts } from "./products-provider";
 import { categorias, slugCategoria } from "../data/catalog";
 
 type SiteHeaderProps = {
@@ -17,11 +18,37 @@ type SiteHeaderProps = {
 
 export default function SiteHeader({ currentUser, isVendor }: SiteHeaderProps) {
   const [menuAbierto, setMenuAbierto] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [showSuggestions, setShowSuggestions] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const menuRef = useRef<HTMLDivElement | null>(null);
+  const searchRef = useRef<HTMLDivElement | null>(null);
   const { totalItems } = useCart();
+  const { products } = useProducts();
+
+  const suggestions = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    if (q.length < 2) return [];
+    return products
+      .filter((p) =>
+        p.nombre.toLowerCase().includes(q) ||
+        p.marca.toLowerCase().includes(q) ||
+        p.categoria.toLowerCase().includes(q)
+      )
+      .slice(0, 6);
+  }, [searchQuery, products]);
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
+        setShowSuggestions(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
 
   const irACategoria = (categoria?: string) => {
     setMenuAbierto(false);
@@ -44,10 +71,10 @@ export default function SiteHeader({ currentUser, isVendor }: SiteHeaderProps) {
 
   const handleSearch = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const formData = new FormData(event.currentTarget);
-    const query = String(formData.get("q") || "").trim();
-    const params = new URLSearchParams(searchParams.toString());
-    if (query) { params.set("q", query); } else { params.delete("q"); }
+    const query = searchQuery.trim();
+    setShowSuggestions(false);
+    const params = new URLSearchParams();
+    if (query) params.set("q", query);
     const targetUrl = params.toString() ? `/categorias?${params.toString()}` : "/categorias";
     if (pathname === "/categorias") { router.replace(targetUrl); return; }
     router.push(targetUrl);
@@ -56,7 +83,7 @@ export default function SiteHeader({ currentUser, isVendor }: SiteHeaderProps) {
 
 
   const openVisualSearch = () => {
-    window.dispatchEvent(new CustomEvent("unipars:visual-search-toggle", { detail: { isOpen: true } }));
+    window.dispatchEvent(new CustomEvent("totalpars:visual-search-toggle", { detail: { isOpen: true } }));
   };
 
   const handleLogout = async () => {
@@ -76,37 +103,73 @@ export default function SiteHeader({ currentUser, isVendor }: SiteHeaderProps) {
 
         {/* Fila superior: logo + búsqueda + hamburguesa/acciones */}
         <div className="flex items-center gap-3">
-          <Link href="/" className="inline-flex shrink-0" aria-label="Ir al inicio de Unipars">
+          <Link href="/" className="inline-flex shrink-0" aria-label="Ir al inicio de Totalpars">
             <Image
-              src="/logo.png" alt="Unipars" width={3212} height={1067}
-              style={{ width: "clamp(128px, 12vw, 150px)", height: "auto" }} priority
+              src="/logo.png" alt="Totalpars" width={8000} height={896}
+              style={{ width: "clamp(140px, 14vw, 200px)", height: "auto" }} priority
             />
           </Link>
 
-          <form
-            onSubmit={handleSearch}
-            className="flex min-w-0 flex-1 items-center rounded-full border border-black/10 bg-[#f8f8f7] p-2 shadow-[0_8px_20px_rgba(15,23,42,0.04)] md:max-w-[720px]"
-          >
-            <input
-              key={searchParams.get("q") || ""}
-              name="q" type="search"
-              defaultValue={searchParams.get("q") || ""}
-              placeholder="Buscar repuestos..."
-              className="w-full min-w-0 bg-transparent px-4 text-sm text-[#16384f] outline-none placeholder:text-slate-400 md:px-5"
-            />
-            <div className="ml-2 flex items-center gap-2 rounded-full bg-white/88 pl-2">
-              <button type="submit" className="rounded-full bg-[#ed8435] px-5 py-3 text-sm font-semibold text-white transition-colors duration-200 hover:bg-[#d67024] lg:px-7">
-                Buscar
-              </button>
-              <button type="button" onClick={openVisualSearch} aria-label="Búsqueda por imagen"
-                className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-[#16384f]/12 bg-white text-[#16384f] transition-colors duration-200 hover:border-[#ed8435] hover:bg-[#fff6ee] hover:text-[#ed8435]">
-                <svg aria-hidden="true" viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M14.5 4H9.5L8 6H5a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-3l-1.5-2Z" />
-                  <circle cx="12" cy="12" r="3.5" />
-                </svg>
-              </button>
-            </div>
-          </form>
+          <div ref={searchRef} className="relative min-w-0 flex-1 md:max-w-[720px]">
+            <form
+              onSubmit={handleSearch}
+              className="flex items-center rounded-full border border-black/10 bg-[#f8f8f7] p-2 shadow-[0_8px_20px_rgba(15,23,42,0.04)]"
+            >
+              <input
+                name="q"
+                type="search"
+                value={searchQuery}
+                onChange={(e) => { setSearchQuery(e.target.value); setShowSuggestions(true); }}
+                onFocus={() => { if (searchQuery.trim().length >= 2) setShowSuggestions(true); }}
+                onKeyDown={(e) => { if (e.key === "Escape") setShowSuggestions(false); }}
+                placeholder="Buscar repuestos..."
+                className="w-full min-w-0 bg-transparent px-4 text-sm text-[#16384f] outline-none placeholder:text-slate-400 md:px-5"
+                autoComplete="off"
+              />
+              <div className="ml-2 flex items-center gap-2 rounded-full bg-white/88 pl-2">
+                <button type="submit" className="rounded-full bg-[#ed8435] px-5 py-3 text-sm font-semibold text-white transition-colors duration-200 hover:bg-[#d67024] lg:px-7">
+                  Buscar
+                </button>
+                <button type="button" onClick={openVisualSearch} aria-label="Búsqueda por imagen"
+                  className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-[#16384f]/12 bg-white text-[#16384f] transition-colors duration-200 hover:border-[#ed8435] hover:bg-[#fff6ee] hover:text-[#ed8435]">
+                  <svg aria-hidden="true" viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M14.5 4H9.5L8 6H5a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-3l-1.5-2Z" />
+                    <circle cx="12" cy="12" r="3.5" />
+                  </svg>
+                </button>
+              </div>
+            </form>
+
+            {/* Dropdown de sugerencias */}
+            {showSuggestions && suggestions.length > 0 && (
+              <div className="absolute left-0 right-0 top-full z-50 mt-2 overflow-hidden rounded-2xl border border-black/8 bg-white shadow-[0_18px_40px_rgba(15,23,42,0.12)]">
+                {suggestions.map((producto) => (
+                  <Link
+                    key={producto.slug}
+                    href={`/producto/${producto.slug}`}
+                    onClick={() => { setShowSuggestions(false); setSearchQuery(""); }}
+                    className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-[#f8f8f7]"
+                  >
+                    <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-xl bg-[#f0f2f4]">
+                      <Image src={producto.imagen} alt={producto.nombre} fill className="object-contain p-1" sizes="48px" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-semibold text-[#16384f]">{producto.nombre}</p>
+                      <p className="text-xs text-[#8b8d91]">{producto.marca} · {producto.categoria}</p>
+                    </div>
+                    <p className="shrink-0 text-sm font-bold text-[#ed8435]">{producto.precio}</p>
+                  </Link>
+                ))}
+                <button
+                  type="button"
+                  onClick={() => { router.push(`/categorias?q=${encodeURIComponent(searchQuery.trim())}`); setShowSuggestions(false); }}
+                  className="w-full border-t border-black/6 px-4 py-3 text-center text-sm font-medium text-[#ed8435] transition-colors hover:bg-[#fff6ee]"
+                >
+                  Ver todos los resultados para &quot;{searchQuery}&quot; →
+                </button>
+              </div>
+            )}
+          </div>
 
         </div>
 

@@ -15,9 +15,9 @@ export default function VisualSearchModal() {
       setIsOpen((current) => customEvent.detail?.isOpen ?? !current);
     };
 
-    window.addEventListener("unipars:visual-search-toggle", handleToggle);
+    window.addEventListener("totalpars:visual-search-toggle", handleToggle);
     return () => {
-      window.removeEventListener("unipars:visual-search-toggle", handleToggle);
+      window.removeEventListener("totalpars:visual-search-toggle", handleToggle);
     };
   }, []);
 
@@ -28,7 +28,7 @@ export default function VisualSearchModal() {
       if (event.key === "Escape") {
         setIsOpen(false);
         window.dispatchEvent(
-          new CustomEvent("unipars:visual-search-toggle", {
+          new CustomEvent("totalpars:visual-search-toggle", {
             detail: { isOpen: false },
           }),
         );
@@ -47,7 +47,7 @@ export default function VisualSearchModal() {
   const closeModal = () => {
     setIsOpen(false);
     window.dispatchEvent(
-      new CustomEvent("unipars:visual-search-toggle", {
+      new CustomEvent("totalpars:visual-search-toggle", {
         detail: { isOpen: false },
       }),
     );

@@ -16,7 +16,7 @@ export default async function ProveedorLayout({ children }: { children: ReactNod
         let vendorId: string | null = null;
         if (user.role === "ADMIN") {
           vendorId = user.id;
-          initialProducts = await getVendorProducts(vendorId, "Unipars");
+          initialProducts = await getVendorProducts(vendorId, "Totalpars");
           return (
             <VendorProductsProvider initialProducts={initialProducts}>
               {children}

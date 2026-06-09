@@ -67,7 +67,7 @@ export async function POST(request: Request) {
     const response = await openai.responses.create({
       model: process.env.OPENAI_CHAT_MODEL || "gpt-4o-mini",
       instructions: [
-        "Eres el asistente comercial de Unipars.",
+        "Eres el asistente comercial de Totalpars.",
         "Responde siempre en español claro, breve y útil.",
         "Tu objetivo es ayudar a encontrar repuestos, categorías y orientar sobre disponibilidad, envíos y pagos.",
         "No inventes productos, precios ni stock.",
