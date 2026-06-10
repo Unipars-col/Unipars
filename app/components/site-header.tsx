@@ -110,7 +110,8 @@ export default function SiteHeader({ currentUser, isVendor }: SiteHeaderProps) {
             />
           </Link>
 
-          <div ref={searchRef} className="relative min-w-0 flex-1 md:max-w-[720px]">
+          <div className="flex flex-1 justify-center">
+          <div ref={searchRef} className="relative w-full max-w-[720px]">
             <form
               onSubmit={handleSearch}
               className="flex items-center rounded-full border border-black/10 bg-[#f8f8f7] p-2 shadow-[0_8px_20px_rgba(15,23,42,0.04)]"
@@ -175,6 +176,7 @@ export default function SiteHeader({ currentUser, isVendor }: SiteHeaderProps) {
                 </button>
               </div>
             )}
+          </div>
           </div>
 
         </div>

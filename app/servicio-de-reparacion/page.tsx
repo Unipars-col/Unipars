@@ -15,7 +15,7 @@ export default function ServiciosPage() {
       {/* Banner principal */}
       <div className="w-full overflow-hidden">
         <Image
-          src="/banner-principal-nuevo.jpg"
+          src="/banner-principal-v2.jpg"
           alt="Movilidad que avanza contigo — Totalpars"
           width={1920}
           height={540}

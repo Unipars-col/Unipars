@@ -80,7 +80,8 @@ export default function FeaturedProductCard(props: Props) {
         />
       </div>
 
-      <div style={{ position: "relative", padding: "20px", display: "flex", flexDirection: "column", minWidth: 0, overflow: "hidden", flex: 1 }}>
+      <div style={{ position: "relative", padding: "20px", display: "grid", gridTemplateRows: "auto 1fr auto", minWidth: 0, flex: 1 }}>
+        {/* Fila 1: marca + nombre */}
         <div style={{ marginBottom: 8 }}>
           <p style={{
             fontSize: 11, fontWeight: 600, textTransform: "uppercase",
@@ -94,11 +95,15 @@ export default function FeaturedProductCard(props: Props) {
             {props.nombre}
           </h3>
         </div>
-        <p style={{ fontSize: 13, lineHeight: 1.6, color: "#7b7f85", marginBottom: 8, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
-          {props.descripcion}
-        </p>
-        <p style={{ fontSize: 13, fontWeight: 500, color: "#6e7379" }}>Stock: {props.stock ?? 0}</p>
-        <div style={{ marginTop: "auto", paddingTop: 14, borderTop: "1px solid rgba(0,0,0,0.06)" }}>
+        {/* Fila 2: descripción + stock (se expande) */}
+        <div style={{ overflow: "hidden" }}>
+          <p style={{ fontSize: 13, lineHeight: 1.6, color: "#7b7f85", marginBottom: 8, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
+            {props.descripcion}
+          </p>
+          <p style={{ fontSize: 13, fontWeight: 500, color: "#6e7379" }}>Stock: {props.stock ?? 0}</p>
+        </div>
+        {/* Fila 3: precio + botón (siempre al fondo) */}
+        <div style={{ paddingTop: 14, borderTop: "1px solid rgba(0,0,0,0.06)" }}>
           <p style={{ fontSize: 13, color: "#a0a3a8", textDecoration: "line-through", marginBottom: 2 }}>{props.precioAnterior}</p>
           <p style={{ fontSize: 28, fontWeight: 600, letterSpacing: "-0.03em", color: "#ed8435", marginBottom: 12 }}>{props.precio}</p>
           <Link

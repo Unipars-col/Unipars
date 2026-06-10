@@ -24,11 +24,13 @@ function createPrismaClient() {
     return null;
   }
 
+  // PgBouncer (Supabase pooler) gestiona el pool externo — el cliente
+  // debe usar pocas conexiones propias para no agotarlo.
   const adapter = new PrismaPg({
     connectionString: process.env.DATABASE_URL,
-    max: 10,
+    max: 2,
     connectionTimeoutMillis: 10_000,
-    idleTimeoutMillis: 30_000,
+    idleTimeoutMillis: 10_000,
   });
 
   return new PrismaClient({ adapter });
