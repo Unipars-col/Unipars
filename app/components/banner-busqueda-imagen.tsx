@@ -10,7 +10,7 @@ export default function BannerBusquedaImagen() {
       onClick={() => window.dispatchEvent(new CustomEvent("totalpars:visual-search-toggle", { detail: { isOpen: true } }))}
     >
       <Image
-        src="/banner-busqueda-imagen.png"
+        src="/banner-busqueda-imagen-v2.jpg"
         alt="Buscá más fácil, buscá por imagen"
         width={1440}
         height={540}

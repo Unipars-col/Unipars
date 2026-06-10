@@ -556,7 +556,7 @@ export default function CategoriasPage() {
             {/* Promo aleatoria por categoría */}
             {(() => {
               const promos = [
-                { src: "/promo-unipars.png",    alt: "Bombín para tanque 30% off" },
+                { src: "/promo-totalpars.png",    alt: "Bombín para tanque 30% off" },
                 { src: "/promo-tecnomotor.png", alt: "Amortiguador Tecnimotor 30% off" },
                 { src: "/promo-cauchos.png",    alt: "Cauchos Industriales 20% off" },
                 { src: "/promo-autoprime.png",  alt: "Batería Autoprime 30% off" },

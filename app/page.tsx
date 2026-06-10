@@ -184,7 +184,7 @@ export default async function Home() {
       <section className="mx-auto max-w-[1440px] px-6 py-14">
         <div className="hscroll-md cols-4" style={{ gap: "1.5rem", paddingLeft: "1.5rem", paddingRight: "1.5rem" }}>
           {[
-            { src: "/promo-unipars.png",    alt: "Bombín para tanque 30% off",   video: "/promo-hover-unipars.mp4" },
+            { src: "/promo-totalpars.png",    alt: "Bombín para tanque 30% off",   video: "/promo-hover-totalpars.mp4" },
             { src: "/promo-tecnomotor.png", alt: "Amortiguador Tecnimotor 30% off",       video: "/promo-hover.mp4" },
             { src: "/promo-autoprime.png",  alt: "Batería Autoprime 30% off",             video: "/promo-hover-autoprime.mp4" },
             { src: "/promo-cauchos.png",    alt: "Cauchos Industriales 20% off",          video: "/promo-hover-tecnomotor.mp4" },
