@@ -411,39 +411,85 @@ export default function SellFlow() {
 
   if (authGate === "unauthenticated") {
     return (
-      <main className="min-h-screen bg-[#f8f8f7] text-[#16384f]">
-        <section className="bg-[#16384f] px-5 pb-24 pt-16 text-white sm:px-6 lg:px-8">
-          <div className="mx-auto max-w-[760px]">
-            <h1 className="text-3xl font-semibold leading-tight tracking-[-0.02em] sm:text-4xl">
-              Primero necesitas una cuenta
-            </h1>
+      <main className="min-h-screen bg-white text-[#16384f]">
+        {/* Encabezado centrado sobre fondo blanco */}
+        <section className="px-5 pb-10 pt-20 text-center sm:px-6 lg:px-8">
+          <span className="text-xs font-bold uppercase tracking-[0.22em] text-[#ed8435]">
+            Vende en Totalpars
+          </span>
+          <h1 className="mx-auto mt-4 max-w-[560px] text-4xl font-extrabold leading-tight tracking-[-0.03em] text-[#16384f] sm:text-5xl">
+            Empieza a vender<br />en pocos minutos
+          </h1>
+          <p className="mx-auto mt-5 max-w-[460px] text-base leading-7 text-[#555]">
+            Crea una cuenta y publica tu inventario para conectar con miles de compradores
+          </p>
+        </section>
+
+        {/* Dos tarjetas */}
+        <section className="px-5 pb-10 sm:px-6 lg:px-8">
+          <div className="mx-auto grid max-w-[720px] gap-5 sm:grid-cols-2">
+            {/* Crear cuenta */}
+            <div className="flex flex-col items-center rounded-2xl border border-black/10 bg-white p-8 text-center shadow-[0_4px_28px_rgba(15,23,42,0.10)]">
+              <div className="flex h-20 w-20 items-center justify-center rounded-full bg-[#f0f0f0]">
+                <Image
+                  src="/vender-icon-empresa.png"
+                  alt="Empresa"
+                  width={40}
+                  height={40}
+                  className="h-10 w-10 object-contain"
+                />
+              </div>
+              <h2 className="mt-5 text-base font-bold text-[#16384f]">Crear una cuenta</h2>
+              <p className="mt-2 flex-1 text-sm leading-6 text-[#666]">
+                Registra tu empresa y comienza<br />a publicar tus productos
+              </p>
+              <a
+                href="/registro-empresa"
+                className="mt-6 inline-flex items-center justify-center rounded-full bg-[#ed8435] px-8 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#d67024]"
+              >
+                Crear cuenta
+              </a>
+            </div>
+
+            {/* Iniciar sesión */}
+            <div className="flex flex-col items-center rounded-2xl border border-black/10 bg-white p-8 text-center shadow-[0_4px_28px_rgba(15,23,42,0.10)]">
+              <div className="flex h-20 w-20 items-center justify-center rounded-full bg-[#f0f0f0]">
+                <Image
+                  src="/vender-icon-usuario.png"
+                  alt="Usuario"
+                  width={40}
+                  height={40}
+                  className="h-10 w-10 object-contain"
+                />
+              </div>
+              <h2 className="mt-5 text-base font-bold text-[#16384f]">Iniciar sesión</h2>
+              <p className="mt-2 flex-1 text-sm leading-6 text-[#666]">
+                Accede a tu cuenta para administrar<br />tus productos y solicitudes
+              </p>
+              <a
+                href="/login?redirect=/vender"
+                className="mt-6 inline-flex items-center justify-center rounded-full border border-[#16384f]/30 bg-white px-8 py-3 text-sm font-semibold text-[#16384f] transition-colors hover:border-[#16384f]/60 hover:bg-[#16384f]/5"
+              >
+                Iniciar sesión
+              </a>
+            </div>
           </div>
         </section>
 
-        <section className="-mt-10 px-5 pb-28 sm:px-6 lg:px-8">
-          <div className="mx-auto max-w-[520px] rounded-2xl border border-black/10 bg-white p-8 shadow-[0_4px_20px_rgba(15,23,42,0.08)]">
-            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[#16384f]/10">
-              <Icon name="box" className="h-7 w-7 text-[#16384f]" />
-            </div>
-            <h2 className="mt-5 text-xl font-semibold text-[#16384f]">
-              Crea tu cuenta de empresa
-            </h2>
-            <p className="mt-3 text-sm leading-6 text-[#555]">
-              Para vender en Totalpars necesitas registrarte con tu empresa. Es gratis y solo toma unos minutos.
-            </p>
-            <div className="mt-6 flex flex-col gap-3">
-              <a
-                href="/registro-empresa"
-                className="inline-flex w-full items-center justify-center rounded-full bg-[#ed8435] px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#d67024]"
-              >
-                Registrarme como empresa
-              </a>
-              <a
-                href="/login?redirect=/vender"
-                className="inline-flex w-full items-center justify-center rounded-full border border-[#16384f]/20 bg-white px-6 py-3 text-sm font-semibold text-[#16384f] transition-colors hover:border-[#16384f]/40 hover:bg-[#16384f]/5"
-              >
-                Ya tengo cuenta — Iniciar sesión
-              </a>
+        {/* Fila de stats */}
+        <section className="px-5 pb-24 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-[720px]">
+            <div className="grid divide-y divide-black/10 sm:grid-cols-3 sm:divide-x sm:divide-y-0">
+              {[
+                { icon: "/vender-icon-check.png", label: "Compradores\nverificados" },
+                { icon: "/vender-icon-colombia.png", label: "Cobertura\nnacional" },
+                { icon: "/vender-icon-rayo.png", label: "Publicación\nrápida y sencilla" },
+              ].map(({ icon, label }) => (
+                <div key={label} className="flex items-center justify-center gap-3 px-6 py-6">
+                  <Image src={icon} alt={label} width={32} height={32} className="h-8 w-8 shrink-0 object-contain" />
+                  <span className="whitespace-pre-line text-sm font-semibold leading-5 text-[#16384f]">{label}</span>
+                </div>
+              ))}
             </div>
           </div>
         </section>

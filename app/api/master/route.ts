@@ -49,6 +49,8 @@ export async function GET() {
             categorias: s.categorias,
             createdAt: s.createdAt,
             user: s.user,
+            contactEmail: s.correoEmpresa,
+            contactName: s.repNombre,
             productCount: 0,
             orderCount: 0,
             paidOrderCount: 0,
@@ -87,6 +89,8 @@ export async function GET() {
           totalSales: paidOrders.reduce((sum, o) => sum + o.subtotal, 0),
           isTotalpars: false,
           calificacion: s.calificacion,
+          contactEmail: s.correoEmpresa,
+          contactName: s.repNombre,
         };
       }),
     );
