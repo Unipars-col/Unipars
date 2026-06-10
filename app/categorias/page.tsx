@@ -282,6 +282,18 @@ export default function CategoriasPage() {
                 className="w-full h-auto block"
               />
             </div>
+          ) : !categoriaActiva ? (
+            <div className="overflow-hidden">
+              <Image
+                src="/banner-categorias-principal.jpg"
+                alt="Todo lo que buscas para tu vehículo está aquí"
+                width={2400}
+                height={675}
+                priority
+                sizes="100vw"
+                className="w-full h-auto block"
+              />
+            </div>
           ) : (
             <div className="relative aspect-[1920/500] min-h-[252px] overflow-hidden">
               {categoriaVisual.bannerImagen ? (

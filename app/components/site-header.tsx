@@ -162,7 +162,13 @@ export default function SiteHeader({ currentUser, isVendor }: SiteHeaderProps) {
                 ))}
                 <button
                   type="button"
-                  onClick={() => { router.push(`/categorias?q=${encodeURIComponent(searchQuery.trim())}`); setShowSuggestions(false); }}
+                  onClick={() => {
+                    const q = encodeURIComponent(searchQuery.trim());
+                    const url = `/categorias?q=${q}`;
+                    if (pathname === "/categorias") { router.replace(url); } else { router.push(url); }
+                    setShowSuggestions(false);
+                    setSearchQuery("");
+                  }}
                   className="w-full border-t border-black/6 px-4 py-3 text-center text-sm font-medium text-[#ed8435] transition-colors hover:bg-[#fff6ee]"
                 >
                   Ver todos los resultados para &quot;{searchQuery}&quot; →

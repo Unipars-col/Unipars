@@ -80,8 +80,8 @@ export default function FeaturedProductCard(props: Props) {
         />
       </div>
 
-      <div style={{ position: "relative", padding: "20px", display: "flex", flexDirection: "column", gap: 12, minWidth: 0, overflow: "hidden", flex: 1 }}>
-        <div>
+      <div style={{ position: "relative", padding: "20px", display: "flex", flexDirection: "column", minWidth: 0, overflow: "hidden", flex: 1 }}>
+        <div style={{ marginBottom: 8 }}>
           <p style={{
             fontSize: 11, fontWeight: 600, textTransform: "uppercase",
             letterSpacing: "0.25em", marginBottom: 6,
@@ -94,29 +94,28 @@ export default function FeaturedProductCard(props: Props) {
             {props.nombre}
           </h3>
         </div>
-        <p style={{ fontSize: 13, lineHeight: 1.6, color: "#7b7f85", display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
+        <p style={{ fontSize: 13, lineHeight: 1.6, color: "#7b7f85", marginBottom: 8, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
           {props.descripcion}
         </p>
         <p style={{ fontSize: 13, fontWeight: 500, color: "#6e7379" }}>Stock: {props.stock ?? 0}</p>
-        <div style={{ flex: 1 }} />
-        <div style={{ borderTop: "1px solid rgba(0,0,0,0.06)", paddingTop: 14 }}>
+        <div style={{ marginTop: "auto", paddingTop: 14, borderTop: "1px solid rgba(0,0,0,0.06)" }}>
           <p style={{ fontSize: 13, color: "#a0a3a8", textDecoration: "line-through", marginBottom: 2 }}>{props.precioAnterior}</p>
-          <p style={{ fontSize: 28, fontWeight: 600, letterSpacing: "-0.03em", color: "#ed8435" }}>{props.precio}</p>
+          <p style={{ fontSize: 28, fontWeight: 600, letterSpacing: "-0.03em", color: "#ed8435", marginBottom: 12 }}>{props.precio}</p>
+          <Link
+            href={`/producto/${props.slug}`}
+            style={{
+              display: "flex", alignItems: "center", justifyContent: "center",
+              borderRadius: 999, padding: "12px 20px",
+              fontSize: 14, fontWeight: 600, textDecoration: "none",
+              background: hovered ? "#ed8435" : "#16384f",
+              color: "white",
+              boxShadow: hovered ? "0 8px 24px rgba(237,132,53,0.45)" : "none",
+              transition: "background 0.3s ease, box-shadow 0.3s ease",
+            }}
+          >
+            Ver producto
+          </Link>
         </div>
-        <Link
-          href={`/producto/${props.slug}`}
-          style={{
-            display: "flex", alignItems: "center", justifyContent: "center",
-            borderRadius: 999, padding: "12px 20px",
-            fontSize: 14, fontWeight: 600, textDecoration: "none",
-            background: hovered ? "#ed8435" : "#16384f",
-            color: "white",
-            boxShadow: hovered ? "0 8px 24px rgba(237,132,53,0.45)" : "none",
-            transition: "background 0.3s ease, box-shadow 0.3s ease",
-          }}
-        >
-          Ver producto
-        </Link>
       </div>
     </article>
   );

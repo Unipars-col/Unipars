@@ -292,7 +292,7 @@ export default function ProductoDetallePage() {
                 <p className="text-sm font-medium text-[#2d7af0]">
                   {producto.marca}
                 </p>
-                <h1 className="mt-2 text-4xl font-medium leading-tight tracking-[-0.04em] text-[#33373d] md:text-5xl">
+                <h1 className="mt-2 text-2xl font-semibold leading-tight tracking-[-0.02em] text-[#33373d] md:text-3xl">
                   {producto.nombre}
                 </h1>
                 <p className="mt-3 text-sm text-[#6e7379]">
@@ -305,18 +305,24 @@ export default function ProductoDetallePage() {
               </button>
             </div>
 
-            <div className="text-[#d8dbe0]">★★★★★</div>
-            <p className="text-sm text-[#6e7379]">0.0 (0)</p>
+            <div className="flex items-center gap-2">
+              <span className="text-lg tracking-wide text-[#FFA72F]">★★★★★</span>
+              <span className="text-sm font-medium text-[#33373d]">0.0</span>
+              <span className="text-sm text-[#a0a3a8]">(0 reseñas)</span>
+            </div>
 
             <div className="pt-2">
-              <p className="text-5xl font-semibold tracking-[-0.04em] text-[#33373d]">
-                {producto.precio}
+              {producto.precioAnterior && (
+                <p className="text-base text-[#a0a3a8] line-through">
+                  {producto.precioAnterior}
+                </p>
+              )}
+              <p className="text-5xl font-bold tracking-[-0.04em] text-[#ed8435]">
+                {producto.precio} <span className="text-2xl font-normal text-[#6e7379]">und</span>
               </p>
-              <p className="mt-2 text-2xl text-[#a0a3a8] line-through">
-                {producto.precioAnterior}
-              </p>
-              <p className="mt-3 text-sm font-medium text-[#6e7379]">
-                Stock disponible: {producto.stock ?? 0}
+              <p className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-[#f0fdf4] px-3 py-1 text-xs font-semibold text-[#16a34a]">
+                <span className="h-1.5 w-1.5 rounded-full bg-[#16a34a]" />
+                Stock disponible: {producto.stock ?? 0} unidades
               </p>
             </div>
 
