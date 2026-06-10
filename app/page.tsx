@@ -156,7 +156,7 @@ export default async function Home() {
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <Link href="/servicio-de-reparacion" className="block overflow-hidden rounded-2xl transition-transform duration-300 hover:scale-[1.01]">
             <Image
-              src="/banner-cobertura-v2.jpg"
+              src="/banner-cobertura-nueva.jpg"
               alt="Cobertura nacional Totalpars"
               width={900}
               height={400}
@@ -184,7 +184,7 @@ export default async function Home() {
       <section className="mx-auto max-w-[1440px] px-6 py-14">
         <div className="hscroll-md cols-4" style={{ gap: "1.5rem", paddingLeft: "1.5rem", paddingRight: "1.5rem" }}>
           {[
-            { src: "/promo-totalpars.png",    alt: "Bombín para tanque Totalpars 30% off",   video: "/promo-hover-totalpars.mp4" },
+            { src: "/promo-unipars.png",    alt: "Bombín para tanque 30% off",   video: "/promo-hover-unipars.mp4" },
             { src: "/promo-tecnomotor.png", alt: "Amortiguador Tecnimotor 30% off",       video: "/promo-hover.mp4" },
             { src: "/promo-autoprime.png",  alt: "Batería Autoprime 30% off",             video: "/promo-hover-autoprime.mp4" },
             { src: "/promo-cauchos.png",    alt: "Cauchos Industriales 20% off",          video: "/promo-hover-tecnomotor.mp4" },
@@ -201,16 +201,16 @@ export default async function Home() {
 
       {/* 10 — BANNER UNIPARCEROS */}
       <section className="mx-auto max-w-[1440px] px-6 pb-16">
-        <div className="overflow-hidden rounded-2xl">
+        <Link href="/servicio-de-reparacion" className="block overflow-hidden rounded-2xl transition-transform duration-300 hover:scale-[1.01]">
           <Image
-            src="/banner-uniparceros-home.jpg"
+            src="/banner-uniparceros-cierre.jpg"
             alt="Uniparceros - La red de talleres aliados de Totalpars"
             width={2560}
             height={720}
             loading="eager"
             className="w-full object-cover"
           />
-        </div>
+        </Link>
       </section>
 
       <SiteFooter />

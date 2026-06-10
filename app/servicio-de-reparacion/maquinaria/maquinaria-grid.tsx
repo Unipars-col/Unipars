@@ -88,7 +88,7 @@ export const EQUIPOS: Equipo[] = [
 
 function Stars({ rating }: { rating: number }) {
   return (
-    <svg viewBox="0 0 16 16" className="h-4 w-4 text-[#ed8435]" fill="currentColor">
+    <svg viewBox="0 0 16 16" className="h-4 w-4 text-[#FFA72F]" fill="currentColor">
       <path d="M8 1l1.9 3.8 4.2.6-3 3 .7 4.2L8 10.5l-3.8 2.1.7-4.2-3-3 4.2-.6z" />
     </svg>
   );
@@ -103,7 +103,7 @@ function Modal({ item, onClose }: { item: Equipo; onClose: () => void }) {
           <img src={item.foto} alt={item.nombre} className="h-full w-full object-cover" />
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
           <button onClick={onClose} className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-white/20 text-white backdrop-blur-sm hover:bg-white/40">✕</button>
-          <span className="absolute left-3 top-3 flex items-center gap-1 rounded-full bg-amber-600 px-2.5 py-1 text-[10px] font-bold text-white">
+          <span className="absolute left-3 top-3 flex items-center gap-1 rounded-full bg-[#FFA72F] px-2.5 py-1 text-[10px] font-bold text-white">
             ✓ EQUIPO CERTIFICADO
           </span>
         </div>
@@ -116,7 +116,7 @@ function Modal({ item, onClose }: { item: Equipo; onClose: () => void }) {
               <span className="text-xs text-gray-400">({item.reviews})</span>
             </div>
           </div>
-          <p className="mt-1 text-xs font-semibold text-amber-600">✦ Proveedor Certificado Totalpars</p>
+          <p className="mt-1 text-xs font-semibold text-[#FFA72F]">✦ Proveedor Certificado Totalpars</p>
           <p className="mt-3 text-sm leading-6 text-gray-500">{item.descripcion}</p>
           <div className="mt-4 space-y-2">
             {[
@@ -133,13 +133,13 @@ function Modal({ item, onClose }: { item: Equipo; onClose: () => void }) {
           </div>
           <div className="mt-4 flex flex-wrap gap-1.5">
             {item.tipos.map((t) => (
-              <span key={t} className="rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-xs font-medium text-amber-700">{t}</span>
+              <span key={t} className="rounded-full border border-[#FFD08A] bg-[#FFF8EC] px-2.5 py-1 text-xs font-medium text-[#e8920a]">{t}</span>
             ))}
           </div>
           <a
             href={`https://wa.me/57${item.telefono}?text=Hola,%20vi%20su%20maquinaria%20en%20Totalpars%20y%20quisiera%20cotizar`}
             target="_blank" rel="noreferrer"
-            className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-amber-600 py-3 text-sm font-bold text-white transition-colors hover:bg-amber-700"
+            className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-[#FFA72F] py-3 text-sm font-bold text-white transition-colors hover:bg-[#e8920a]"
           >
             Solicitar cotización por WhatsApp
           </a>
@@ -167,7 +167,7 @@ export default function MaquinariaGrid({ equipos = EQUIPOS }: { equipos?: Equipo
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={eq.foto} alt={eq.nombre} className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
-              <span className="absolute left-3 top-3 flex items-center gap-1 rounded-full bg-amber-600 px-2 py-0.5 text-[10px] font-bold text-white">
+              <span className="absolute left-3 top-3 flex items-center gap-1 rounded-full bg-[#FFA72F] px-2 py-0.5 text-[10px] font-bold text-white">
                 ✓ EQUIPO CERTIFICADO
               </span>
             </div>
@@ -192,7 +192,7 @@ export default function MaquinariaGrid({ equipos = EQUIPOS }: { equipos?: Equipo
                 </div>
               </div>
               <p className="mt-0.5 text-xs text-gray-400">({eq.reviews} reseñas)</p>
-              <p className="mt-1 text-xs font-semibold text-amber-600">✦ Proveedor Certificado Totalpars</p>
+              <p className="mt-1 text-xs font-semibold text-[#FFA72F]">✦ Proveedor Certificado Totalpars</p>
 
               <div className="mt-3 flex flex-wrap gap-1.5">
                 {eq.tipos.map((t) => (
@@ -204,7 +204,7 @@ export default function MaquinariaGrid({ equipos = EQUIPOS }: { equipos?: Equipo
                 <span className="flex items-center gap-1 text-xs text-gray-500">
                   📍 {eq.ciudad}
                 </span>
-                <span className="text-xs font-bold text-amber-600">{eq.precio}</span>
+                <span className="text-xs font-bold text-[#FFA72F]">{eq.precio}</span>
               </div>
             </div>
           </button>

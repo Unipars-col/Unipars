@@ -22,20 +22,12 @@ type Slide = {
 const slides: Slide[] = [
   {
     id: 1,
-    title: "UNIPARCEROS,",
-    titleHighlight: "ALIADOS EN CADA RUTA",
+    title: "",
+    titleHighlight: "",
     cta: null,
-    image: "/hero-banner-transmilenio-v3.jpg",
+    image: "/hero-banner-slide1-new.jpg",
     textAlign: "left",
     darkText: true,
-    rightPanel: {
-      lines: [
-        { text: "MÁS TALLERES," },
-        { text: "MÁS SOLUCIONES", orange: true },
-        { text: "EN TODO COLOMBIA." },
-      ],
-      cta: { label: "ENCUENTRA TU TALLER", href: "/servicio-de-reparacion" },
-    },
   },
   {
     id: 2,

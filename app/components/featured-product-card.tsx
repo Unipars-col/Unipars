@@ -38,6 +38,8 @@ export default function FeaturedProductCard(props: Props) {
         cursor: "pointer",
         position: "relative",
         overflow: "hidden",
+        display: "flex",
+        flexDirection: "column",
       }}
     >
       {/* Gradiente naranja en hover */}
@@ -78,7 +80,7 @@ export default function FeaturedProductCard(props: Props) {
         />
       </div>
 
-      <div style={{ position: "relative", padding: "20px", display: "flex", flexDirection: "column", gap: 12, minWidth: 0, overflow: "hidden" }}>
+      <div style={{ position: "relative", padding: "20px", display: "flex", flexDirection: "column", gap: 12, minWidth: 0, overflow: "hidden", flex: 1 }}>
         <div>
           <p style={{
             fontSize: 11, fontWeight: 600, textTransform: "uppercase",
@@ -96,6 +98,7 @@ export default function FeaturedProductCard(props: Props) {
           {props.descripcion}
         </p>
         <p style={{ fontSize: 13, fontWeight: 500, color: "#6e7379" }}>Stock: {props.stock ?? 0}</p>
+        <div style={{ flex: 1 }} />
         <div style={{ borderTop: "1px solid rgba(0,0,0,0.06)", paddingTop: 14 }}>
           <p style={{ fontSize: 13, color: "#a0a3a8", textDecoration: "line-through", marginBottom: 2 }}>{props.precioAnterior}</p>
           <p style={{ fontSize: 28, fontWeight: 600, letterSpacing: "-0.03em", color: "#ed8435" }}>{props.precio}</p>
