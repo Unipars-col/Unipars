@@ -9,6 +9,8 @@ datasource db {
 
 enum UserRole {
   CUSTOMER
+  SELLER
+  PROVIDER
   ADMIN
   MASTER
 }
@@ -54,7 +56,7 @@ model Product {
   alternativeReferences String[]         @default([])
   category           String
   name               String
-  brand              String
+  brand              String    @default("")
   price              Int
   previousPrice      Int
   stock              Int                 @default(12)
