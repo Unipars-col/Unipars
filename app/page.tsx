@@ -156,8 +156,8 @@ export default async function Home() {
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <Link href="/servicio-de-reparacion" className="block overflow-hidden rounded-2xl transition-transform duration-300 hover:scale-[1.01]">
             <Image
-              src="/banner-cobertura-nueva.jpg"
-              alt="Cobertura nacional Totalpars"
+              src="/banner-cobertura.jpg"
+              alt="Cobertura que llega a donde estés — Uniparceros"
               width={900}
               height={400}
               className="h-full w-full object-cover"
@@ -201,10 +201,10 @@ export default async function Home() {
 
       {/* 10 — BANNER UNIPARCEROS */}
       <section className="mx-auto max-w-[1440px] px-6 pb-16">
-        <Link href="/servicio-de-reparacion" className="block overflow-hidden rounded-2xl transition-transform duration-300 hover:scale-[1.01]">
+        <Link href="/categorias" className="block overflow-hidden rounded-2xl transition-transform duration-300 hover:scale-[1.01]">
           <Image
-            src="/banner-uniparceros-cierre.jpg"
-            alt="Uniparceros - La red de talleres aliados de Totalpars"
+            src="/banner-uniparceros-nuevo.jpg"
+            alt="Encuentra el repuesto y el taller ideal — Uniparceros"
             width={2560}
             height={720}
             loading="eager"

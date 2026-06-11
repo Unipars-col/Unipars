@@ -398,7 +398,7 @@ export default function CategoriasPage() {
           ) : !categoriaActiva ? (
             <div className="overflow-hidden">
               <Image
-                src="/banner-categorias-principal.jpg"
+                src="/banner-categorias-v2.jpg"
                 alt="Todo lo que buscas para tu vehículo está aquí"
                 width={2400}
                 height={675}

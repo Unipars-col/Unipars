@@ -25,7 +25,7 @@ const slides: Slide[] = [
     title: "",
     titleHighlight: "",
     cta: null,
-    image: "/hero-banner-slide1-v2.jpg",
+    image: "/banner-ruta-correcta.jpg",
     textAlign: "left",
     darkText: true,
   },
