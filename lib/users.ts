@@ -1,5 +1,6 @@
 import { compare, hash } from "bcryptjs";
 import { prisma } from "@/lib/prisma";
+import { UserRole } from "@/generated/prisma/client";
 
 export type RegisterUserInput = {
   fullName: string;
@@ -11,7 +12,7 @@ export type RegisterUserInput = {
   addressLine1?: string;
   addressLine2?: string;
   password: string;
-  role?: "CUSTOMER" | "SELLER";
+  role?: UserRole;
 };
 
 export type PublicUser = {
