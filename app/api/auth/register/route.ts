@@ -1,4 +1,5 @@
 import { registerUser } from "@/lib/users";
+import { UserRole } from "@/generated/prisma/client";
 
 export async function POST(request: Request) {
   try {
@@ -45,7 +46,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const role = body.role === "SELLER" ? "SELLER" : "CUSTOMER";
+    const role: UserRole = body.role === "SELLER" ? UserRole.SELLER : UserRole.CUSTOMER;
 
     const user = await registerUser({
       fullName,
