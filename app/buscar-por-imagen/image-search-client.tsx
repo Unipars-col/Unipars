@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  useRef,
   useMemo,
   useState,
   type ChangeEvent,
@@ -28,6 +29,7 @@ type Props = {
 };
 
 export default function ImageSearchClient({ fallbackProduct, onNavigate }: Props) {
+  const cameraInputRef = useRef<HTMLInputElement>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [result, setResult] = useState<ImageSearchResponse | null>(null);
@@ -117,6 +119,16 @@ export default function ImageSearchClient({ fallbackProduct, onNavigate }: Props
 
   return (
     <form onSubmit={handleSubmit} className="px-6 pb-6 pt-5">
+      {/* Input oculto para cámara */}
+      <input
+        ref={cameraInputRef}
+        type="file"
+        accept="image/*"
+        capture="environment"
+        className="sr-only"
+        onChange={handleFileChange}
+      />
+
       <label
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
@@ -172,7 +184,21 @@ export default function ImageSearchClient({ fallbackProduct, onNavigate }: Props
       </label>
 
       <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
-        <p className="text-xs text-[#7b828a]">JPG, PNG o WEBP.</p>
+        <div className="flex items-center gap-2">
+          <p className="text-xs text-[#7b828a]">JPG, PNG o WEBP.</p>
+          <button
+            type="button"
+            onClick={() => cameraInputRef.current?.click()}
+            title="Tomar foto con la cámara"
+            className="flex items-center gap-1.5 rounded-full border border-[#16384f]/20 px-3 py-2 text-xs font-semibold text-[#16384f] transition-colors hover:bg-[#16384f] hover:text-white"
+          >
+            <svg aria-hidden="true" viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+              <circle cx="12" cy="13" r="4"/>
+            </svg>
+            Tomar foto
+          </button>
+        </div>
         <button
           type="submit"
           disabled={!selectedFile || isAnalyzing}

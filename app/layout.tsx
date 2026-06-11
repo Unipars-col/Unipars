@@ -26,6 +26,7 @@ import SupportChat from "./components/support-chat";
 import ScrollToTop from "./components/scroll-to-top";
 import MobileBottomNav from "./components/mobile-bottom-nav";
 import VisualSearchModal from "./components/visual-search-modal";
+import CartDrawer from "./components/cart-drawer";
 import { getProducts } from "@/lib/products";
 import { getSessionFromCookies } from "@/lib/auth";
 import { getUserById } from "@/lib/users";
@@ -90,6 +91,7 @@ export default async function RootLayout({
               isVendor={isVendor}
             />
             {children}
+            <CartDrawer />
             <VisualSearchModal />
             <SupportChat />
             <ScrollToTop />

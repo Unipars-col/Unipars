@@ -244,11 +244,59 @@ export default function EmpresaForm() {
     );
   };
 
+  const STEP_VALIDATORS: Partial<Record<Step, () => string | null>> = {
+    1: () => {
+      if (!nombreEmpresa.trim()) return "Ingresa el nombre de la empresa.";
+      if (!razonSocial.trim()) return "Ingresa la razón social.";
+      if (!nit.trim()) return "Ingresa el NIT / RUT.";
+      if (!ciudad.trim()) return "Ingresa la ciudad.";
+      if (!direccion.trim()) return "Ingresa la dirección comercial.";
+      if (!telefonoEmpresa.trim()) return "Ingresa el teléfono de la empresa.";
+      if (!correoEmpresa.trim()) return "Ingresa el correo corporativo.";
+      return null;
+    },
+    2: () => {
+      if (!repNombre.trim()) return "Ingresa el nombre del representante legal.";
+      if (!repNumDoc.trim()) return "Ingresa el número de documento.";
+      if (!repCargo.trim()) return "Ingresa el cargo del representante.";
+      if (!repCelular.trim()) return "Ingresa el celular del representante.";
+      if (!repCorreo.trim()) return "Ingresa el correo del representante.";
+      return null;
+    },
+    3: () => {
+      if (!descripcion.trim()) return "Describe tu empresa.";
+      if (!anosEnMercado.trim()) return "Indica los años en el mercado.";
+      return null;
+    },
+    5: () => {
+      if (!cantidadProductos) return "Selecciona la cantidad aproximada de productos.";
+      if (!tiempoDespacho) return "Selecciona el tiempo promedio de despacho.";
+      if (!coberturaEnvios.trim()) return "Indica la cobertura de envíos.";
+      return null;
+    },
+    6: () => {
+      if (!numeroCuenta.trim()) return "Ingresa el número de cuenta bancaria.";
+      if (!titularCuenta.trim()) return "Ingresa el nombre del titular de la cuenta.";
+      if (!correoFacturacion.trim()) return "Ingresa el correo para facturación.";
+      return null;
+    },
+  };
+
   const handleNext = () => {
+    const validator = STEP_VALIDATORS[step];
+    if (validator) {
+      const err = validator();
+      if (err) {
+        setError(err);
+        return;
+      }
+    }
+    setError("");
     if (step < 7) setStep((s) => (s + 1) as Step);
   };
 
   const handleBack = () => {
+    setError("");
     if (step > 1) setStep((s) => (s - 1) as Step);
   };
 
@@ -754,15 +802,17 @@ export default function EmpresaForm() {
                   </label>
                 ))}
 
-                {error && (
-                  <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700 border border-red-200">
-                    {error}
-                  </p>
-                )}
               </div>
             )}
 
           </div>
+
+          {/* Error display — visible on all steps */}
+          {error && (
+            <p className="mt-4 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700 border border-red-200">
+              {error}
+            </p>
+          )}
 
           {/* Navigation buttons */}
           <div className="mt-6 flex items-center justify-between gap-4">

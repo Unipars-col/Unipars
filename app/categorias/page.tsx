@@ -71,13 +71,15 @@ export default function CategoriasPage() {
         "Explora esta línea con una vista más clara del catálogo y encuentra referencias listas para cotizar."
       : "Construimos una sola ventana de catálogo para que explores todas las líneas de producto sin duplicar páginas ni perder claridad.";
 
-  const [ordenActivo, setOrdenActivo] = useState<"recomendados" | "mas-vendidos" | "menor-precio">("recomendados");
+  const [ordenActivo, setOrdenActivo] = useState<"recomendados" | "mas-vendidos" | "menor-precio" | "mayor-precio" | "nombre" | "marca">("recomendados");
+  const [showOrdenDropdown, setShowOrdenDropdown] = useState(false);
   const [marcasActivas, setMarcasActivas] = useState<string[]>([]);
   const [marcaBusqueda, setMarcaBusqueda] = useState("");
   const [mostrarMasMarcas, setMostrarMasMarcas] = useState(false);
   const [disponibilidadActiva, setDisponibilidadActiva] = useState<string[]>([]);
   const [precioMinimo, setPrecioMinimo] = useState(priceBounds.min);
   const [precioMaximo, setPrecioMaximo] = useState(priceBounds.max);
+  const [showMobileFilters, setShowMobileFilters] = useState(false);
 
   const marcasConConteo = useMemo(() => {
     const counts = new Map<string, number>();
@@ -151,6 +153,9 @@ export default function CategoriasPage() {
     );
   }).sort((a, b) => {
     if (ordenActivo === "menor-precio") return a.precioValor - b.precioValor;
+    if (ordenActivo === "mayor-precio") return b.precioValor - a.precioValor;
+    if (ordenActivo === "nombre") return a.nombre.localeCompare(b.nombre, "es");
+    if (ordenActivo === "marca") return a.marca.localeCompare(b.marca, "es");
     if (ordenActivo === "mas-vendidos") {
       const descA = a.precioAnteriorValor > 0 ? (a.precioAnteriorValor - a.precioValor) / a.precioAnteriorValor : 0;
       const descB = b.precioAnteriorValor > 0 ? (b.precioAnteriorValor - b.precioValor) / b.precioAnteriorValor : 0;
@@ -207,6 +212,97 @@ export default function CategoriasPage() {
         </section>
       )}
 
+      {/* ── MOBILE: drawer de filtros ──────────────────────────────────── */}
+      {showMobileFilters && (
+        <div className="fixed inset-0 z-[110] md:hidden">
+          <div className="absolute inset-0 bg-black/40" onClick={() => setShowMobileFilters(false)} />
+          <div className="absolute bottom-0 left-0 right-0 max-h-[85dvh] overflow-y-auto rounded-t-[1.5rem] bg-white px-5 pb-8 pt-5">
+            <div className="mb-4 flex items-center justify-between">
+              <h3 className="text-lg font-bold text-[#16384f]">Filtrar productos</h3>
+              <button type="button" onClick={() => setShowMobileFilters(false)} className="flex h-8 w-8 items-center justify-center rounded-full border border-black/10 text-lg text-[#5f666d]">×</button>
+            </div>
+
+            {/* Orden */}
+            <div className="mb-5">
+              <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-[#8b8d91]">Ordenar por</p>
+              <div className="flex flex-wrap gap-2">
+                {(["recomendados", "mas-vendidos", "menor-precio"] as const).map((op) => {
+                  const labels = { "recomendados": "Recomendados", "mas-vendidos": "Más vendidos", "menor-precio": "Menor precio" };
+                  return (
+                    <button key={op} type="button" onClick={() => setOrdenActivo(op)}
+                      className={`rounded-full px-4 py-2 text-sm font-medium transition-colors ${ordenActivo === op ? "bg-[#16384f] text-white" : "border border-black/10 text-[#5d6167]"}`}>
+                      {labels[op]}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Marca */}
+            <div className="mb-5">
+              <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-[#8b8d91]">Marca</p>
+              <input type="text" placeholder="Buscar marca..." value={marcaBusqueda}
+                onChange={(e) => setMarcaBusqueda(e.target.value)}
+                className="mb-3 w-full rounded-lg border border-black/10 bg-[#f8f8f7] px-3 py-2 text-sm focus:border-[#16384f] focus:outline-none" />
+              <div className="space-y-1">
+                {(mostrarMasMarcas ? marcasFiltradas : marcasFiltradas.slice(0, 8)).map(({ nombre, conteo }) => (
+                  <label key={nombre} className="flex cursor-pointer items-center gap-3 rounded-md px-1 py-2 text-sm text-[#3b3f45]">
+                    <input type="checkbox" checked={marcasActivas.includes(nombre)}
+                      onChange={() => alternar(nombre, marcasActivas, setMarcasActivas)}
+                      className="h-4 w-4 rounded accent-[#16384f]" />
+                    <span className="flex-1">{nombre}</span>
+                    <span className="text-xs text-[#a0a3a8]">({conteo})</span>
+                  </label>
+                ))}
+              </div>
+              {marcasFiltradas.length > 8 && (
+                <button type="button" onClick={() => setMostrarMasMarcas((v) => !v)}
+                  className="mt-2 text-sm font-semibold text-[#16384f]">
+                  {mostrarMasMarcas ? "Ver menos" : "Ver más"}
+                </button>
+              )}
+            </div>
+
+            {/* Disponibilidad */}
+            <div className="mb-5">
+              <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-[#8b8d91]">Disponibilidad</p>
+              <div className="space-y-2">
+                {disponibilidades.map((item) => (
+                  <label key={item} className="flex items-center gap-3 text-sm text-[#5d6167]">
+                    <input type="checkbox" checked={disponibilidadActiva.includes(item)}
+                      onChange={() => alternar(item, disponibilidadActiva, setDisponibilidadActiva)}
+                      className="h-4 w-4 rounded accent-[#16384f]" />
+                    {item}
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            {/* Precio */}
+            <div className="mb-6">
+              <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-[#8b8d91]">Precio</p>
+              <div className="flex justify-between text-xs text-[#5d6167] mb-3">
+                <span>{Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", maximumFractionDigits: 0 }).format(precioMinimo)}</span>
+                <span>{Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", maximumFractionDigits: 0 }).format(precioMaximo)}</span>
+              </div>
+              <input type="range" min={priceBounds.min} max={priceBounds.max} step={10000} value={precioMinimo}
+                onChange={(e) => setPrecioMinimo(Math.min(Number(e.target.value), precioMaximo))}
+                className="mb-3 h-2 w-full cursor-pointer appearance-none rounded-full bg-[#d9dde3] accent-[#ed8435]" />
+              <input type="range" min={priceBounds.min} max={priceBounds.max} step={10000} value={precioMaximo}
+                onChange={(e) => setPrecioMaximo(Math.max(Number(e.target.value), precioMinimo))}
+                className="h-2 w-full cursor-pointer appearance-none rounded-full bg-[#d9dde3] accent-[#16384f]" />
+              <button type="button" onClick={() => { setPrecioMinimo(priceBounds.min); setPrecioMaximo(priceBounds.max); }}
+                className="mt-3 text-sm font-semibold text-[#16384f]">Restablecer rango</button>
+            </div>
+
+            <button type="button" onClick={() => setShowMobileFilters(false)}
+              className="w-full rounded-xl bg-[#16384f] py-3.5 text-sm font-semibold text-white">
+              Ver {productosFiltrados.length} resultado{productosFiltrados.length !== 1 ? "s" : ""}
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* ── MOBILE: productos de categoría seleccionada ─────────────────── */}
       {categoriaActiva && (
         <section className="bg-white md:hidden">
@@ -224,6 +320,23 @@ export default function CategoriasPage() {
             <h2 className="text-lg font-bold text-[#16384f]">{categoriaActiva}</h2>
             <p className="text-xs text-[#8b8d91]">{productosFiltrados.length} productos</p>
           </div>
+
+          {/* Botón flotante de filtros — siempre visible en mobile */}
+          <button
+            type="button"
+            onClick={() => setShowMobileFilters(true)}
+            className="fixed bottom-20 right-4 z-50 flex items-center gap-2 rounded-full bg-[#16384f] px-5 py-3 text-sm font-semibold text-white shadow-[0_8px_24px_rgba(22,56,79,0.35)]"
+          >
+            <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="11" y1="18" x2="13" y2="18"/>
+            </svg>
+            Filtrar
+            {(marcasActivas.length + disponibilidadActiva.length) > 0 && (
+              <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#ed8435] text-[10px] font-bold text-white">
+                {marcasActivas.length + disponibilidadActiva.length}
+              </span>
+            )}
+          </button>
           <div className="grid grid-cols-2 gap-3 p-4 pb-24">
             {productosFiltrados.map((producto) => (
               <article
@@ -573,51 +686,79 @@ export default function CategoriasPage() {
           </aside>
 
           <div className="space-y-8">
-            <div className="rounded-[1.75rem] border border-black/8 bg-white p-6 shadow-[0_14px_28px_rgba(15,23,42,0.05)]">
-              <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+            <div className="rounded-[1.75rem] border border-black/8 bg-white shadow-[0_14px_28px_rgba(15,23,42,0.05)]">
+              {/* Parte 1: título y conteo */}
+              <div className="flex items-center justify-between px-6 pt-6 pb-4">
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[#8b8d91]">
                     Resultados
                   </p>
-                  <h2 className="mt-2 text-3xl font-semibold tracking-[-0.04em] text-[#1f2328]">
-                    {productosFiltrados.length} productos en{" "}
-                    {categoriaActiva ?? "todo el catálogo"}
+                  <h2 className="mt-1 text-2xl font-semibold tracking-[-0.04em] text-[#1f2328]">
+                    {productosFiltrados.length} producto{productosFiltrados.length !== 1 ? "s" : ""} en{" "}
+                    <span className="text-[#16384f]">{categoriaActiva ?? "todo el catálogo"}</span>
                   </h2>
-                  <div className="mt-3 flex flex-wrap gap-3 text-sm text-[#6e7379]">
-                    <p>
-                      Filtro principal activo:{" "}
-                      <span className="font-semibold text-[#16384f]">
-                        {categoriaActiva ?? "Todas las categorías"}
-                      </span>
-                    </p>
-                    {queryActiva && (
-                      <p className="rounded-full border border-[#ed8435]/18 bg-[#fff6ee] px-3 py-1 font-medium text-[#b85d12]">
-                        Búsqueda: {searchParams.get("q")}
-                      </p>
-                    )}
-                  </div>
+                  {queryActiva && (
+                    <p className="mt-1 text-sm text-[#6e7379]">Búsqueda: <span className="font-semibold text-[#b85d12]">{searchParams.get("q")}</span></p>
+                  )}
                 </div>
+                {/* chips activos */}
+                {(marcasActivas.length + disponibilidadActiva.length) > 0 && (
+                  <button type="button" onClick={() => { setMarcasActivas([]); setDisponibilidadActiva([]); }}
+                    className="shrink-0 rounded-full border border-[#ed8435]/30 bg-[#fff6ee] px-3 py-1.5 text-xs font-semibold text-[#b85d12] hover:bg-[#ffe4cc] transition-colors">
+                    Limpiar filtros ×
+                  </button>
+                )}
+              </div>
 
-                <div className="flex flex-wrap gap-3">
-                  {(["recomendados", "mas-vendidos", "menor-precio"] as const).map((op) => {
-                    const labels = { "recomendados": "Recomendados", "mas-vendidos": "Más vendidos", "menor-precio": "Menor precio" };
-                    const active = ordenActivo === op;
-                    return (
+              {/* Parte 2: dropdown de orden + chips deslizables */}
+              <div className="flex items-center gap-3 border-t border-black/6 px-6 py-3">
+                {/* Dropdown de orden estilo Homecenter */}
+                {(() => {
+                  const opcionesOrden = [
+                    { value: "recomendados", label: "Recomendados" },
+                    { value: "mas-vendidos", label: "Más vendidos" },
+                    { value: "menor-precio", label: "Precio de menor a mayor" },
+                    { value: "mayor-precio", label: "Precio de mayor a menor" },
+                    { value: "nombre", label: "Nombre" },
+                    { value: "marca", label: "Marca" },
+                  ] as const;
+                  const labelActivo = opcionesOrden.find((o) => o.value === ordenActivo)?.label ?? "Ordenar";
+                  return (
+                    <div className="relative shrink-0">
                       <button
-                        key={op}
                         type="button"
-                        onClick={() => setOrdenActivo(op)}
-                        className={`rounded-full px-4 py-2 text-sm font-medium transition-colors duration-150 ${
-                          active
-                            ? "bg-[#16384f] text-white"
-                            : "border border-black/10 bg-[#f8f8f7] text-[#5d6167] hover:border-[#16384f]/30 hover:text-[#16384f]"
-                        }`}
+                        onClick={() => setShowOrdenDropdown((v) => !v)}
+                        className="flex items-center gap-2 rounded-lg border border-black/12 bg-white px-4 py-2.5 text-sm font-medium text-[#1f2328] shadow-sm hover:border-[#16384f]/30 transition-colors"
                       >
-                        {labels[op]}
+                        {labelActivo}
+                        <svg viewBox="0 0 24 24" className={`h-4 w-4 text-[#8b8d91] transition-transform duration-150 ${showOrdenDropdown ? "rotate-180" : ""}`} fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="6 9 12 15 18 9" />
+                        </svg>
                       </button>
-                    );
-                  })}
-                </div>
+                      {showOrdenDropdown && (
+                        <>
+                          <div className="fixed inset-0 z-10" onClick={() => setShowOrdenDropdown(false)} />
+                          <div className="absolute left-0 top-full z-20 mt-1 w-56 overflow-hidden rounded-xl border border-black/10 bg-white shadow-[0_12px_32px_rgba(15,23,42,0.15)]">
+                            {opcionesOrden.map((op) => (
+                              <button
+                                key={op.value}
+                                type="button"
+                                onClick={() => { setOrdenActivo(op.value); setShowOrdenDropdown(false); }}
+                                className={`flex w-full items-center px-4 py-3 text-sm transition-colors hover:bg-[#f5f5f5] ${ordenActivo === op.value ? "bg-[#f0f4f7] font-semibold text-[#16384f]" : "text-[#3b3f45]"}`}
+                              >
+                                {ordenActivo === op.value && (
+                                  <svg viewBox="0 0 24 24" className="mr-2 h-3.5 w-3.5 shrink-0 text-[#16384f]" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                                )}
+                                <span className={ordenActivo === op.value ? "" : "ml-5"}>{op.label}</span>
+                              </button>
+                            ))}
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  );
+                })()}
+
               </div>
             </div>
 

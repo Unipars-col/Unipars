@@ -2,11 +2,31 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { useCart } from "../components/cart-provider";
 
 export default function CarritoPage() {
   const { items, incrementItem, decrementItem, removeItem, clearCart } =
     useCart();
+  const router = useRouter();
+  const [checkingAuth, setCheckingAuth] = useState(false);
+
+  const handleContinuar = async () => {
+    setCheckingAuth(true);
+    try {
+      const res = await fetch("/api/account", { credentials: "include" });
+      if (res.ok) {
+        router.push("/checkout");
+      } else {
+        router.push("/login?next=/checkout");
+      }
+    } catch {
+      router.push("/login?next=/checkout");
+    } finally {
+      setCheckingAuth(false);
+    }
+  };
 
   return (
     <main className="min-h-screen bg-[#f5f5f5] text-[#111]">
@@ -126,12 +146,14 @@ export default function CarritoPage() {
                 ))}
               </div>
 
-              <Link
-                href="/checkout"
-                className="mt-8 inline-flex w-full items-center justify-center rounded-full bg-[#ed8435] px-6 py-3 text-sm font-semibold text-white transition-colors duration-200 hover:bg-[#d67024]"
+              <button
+                type="button"
+                onClick={handleContinuar}
+                disabled={checkingAuth}
+                className="mt-8 inline-flex w-full items-center justify-center rounded-full bg-[#ed8435] px-6 py-3 text-sm font-semibold text-white transition-colors duration-200 hover:bg-[#d67024] disabled:opacity-70"
               >
-                Continuar compra
-              </Link>
+                {checkingAuth ? "Verificando..." : "Continuar compra"}
+              </button>
             </aside>
           </div>
         )}

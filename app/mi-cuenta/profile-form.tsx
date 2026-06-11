@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState, type ChangeEvent, type FormEvent } from "
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { departamentosColombia, getCitiesForDepartment } from "@/lib/colombia-locations";
+import FacturaElectronica from "../checkout/exito/factura-electronica";
 
 type AccountUser = {
   id: string;
@@ -481,38 +482,35 @@ export default function AccountProfileForm({
             </div>
           </div>
 
-          <div className="mt-8 rounded-[1.5rem] border border-black/8 bg-[#fafaf9] p-5 text-sm text-[#5d6167]">
+          {/* Siempre visible: datos clave del usuario */}
+          <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            {summaryItems.map((item) => (
+              <div
+                key={item.label}
+                className="rounded-[1.3rem] border border-black/8 bg-[#fafaf9] px-5 py-4"
+              >
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#8b8d91]">
+                  {item.label}
+                </p>
+                <p className="mt-3 text-sm font-semibold leading-7 text-[#16384f]">
+                  {item.value}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-4 rounded-[1.25rem] border border-black/8 bg-[#fafaf9] px-5 py-3 text-sm text-[#5d6167]">
             Cuenta creada el{" "}
             <span className="font-semibold text-[#16384f]">
               {new Date(user.createdAt).toLocaleDateString("es-CO")}
             </span>
+            {activePanel === "summary" && (
+              <span>
+                {" "}· Usa <span className="font-semibold text-[#16384f]">Datos</span> para editar tu perfil o{" "}
+                <span className="font-semibold text-[#16384f]">Pedidos</span> para revisar tus compras.
+              </span>
+            )}
           </div>
-
-          {activePanel === "summary" && (
-            <div className="mt-8 space-y-6">
-              <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-                {summaryItems.map((item) => (
-                  <div
-                    key={item.label}
-                    className="rounded-[1.3rem] border border-black/8 bg-white px-5 py-4"
-                  >
-                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#8b8d91]">
-                      {item.label}
-                    </p>
-                    <p className="mt-3 text-sm font-semibold leading-7 text-[#16384f]">
-                      {item.value}
-                    </p>
-                  </div>
-                ))}
-              </div>
-
-              <div className="rounded-[1.5rem] border border-black/8 bg-[#fafaf9] px-5 py-5 text-sm leading-7 text-[#5d6167]">
-                Desde aquí puedes entrar a <span className="font-semibold text-[#16384f]">Datos</span>{" "}
-                para actualizar tu cuenta o a <span className="font-semibold text-[#16384f]">Pedidos</span>{" "}
-                para revisar el estado de tus compras.
-              </div>
-            </div>
-          )}
 
           {activePanel === "details" && (
             <form onSubmit={handleSubmit} className="mt-8 grid gap-5 md:grid-cols-2">
@@ -686,24 +684,18 @@ export default function AccountProfileForm({
               </div>
             </form>
           )}
-        </section>
 
-        {activePanel === "orders" && (
-          <section className="rounded-[2rem] bg-white p-8 shadow-lg shadow-black/10 md:p-10">
-          <div className="flex flex-wrap items-end justify-between gap-4">
+          {activePanel === "orders" && (
+          <div>
+          <div className="mt-8 flex flex-wrap items-end justify-between gap-4">
             <div>
               <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[#ed8435]">
                 Mis pedidos
               </p>
-              <h2 className="mt-2 text-3xl font-bold text-[#16384f] md:text-4xl">
+              <h2 className="mt-2 text-2xl font-bold text-[#16384f]">
                 Historial de compras
               </h2>
-              <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-600">
-                Aquí verás todos los pedidos que vayas creando desde el checkout,
-                junto con su estado y los productos incluidos.
-              </p>
             </div>
-
             <Link
               href="/categorias"
               className="rounded-full border border-[#16384f]/20 px-5 py-3 text-sm font-semibold text-[#16384f] transition-colors duration-200 hover:bg-[#16384f] hover:text-white"
@@ -1030,12 +1022,17 @@ export default function AccountProfileForm({
                       </p>
                     </div>
                   )}
+
+                  <div className="mt-5">
+                    <FacturaElectronica pedido={selectedOrder.id} />
+                  </div>
                 </div>
               )}
             </div>
           )}
-          </section>
-        )}
+          </div>
+          )}
+        </section>
       </section>
     </main>
   );

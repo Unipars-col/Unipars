@@ -13,6 +13,7 @@ export async function POST(request: Request) {
       addressLine2?: string;
       password?: string;
       confirmPassword?: string;
+      role?: string;
     };
 
     const fullName = body.fullName?.trim() || "";
@@ -44,6 +45,8 @@ export async function POST(request: Request) {
       );
     }
 
+    const role = body.role === "SELLER" ? "SELLER" : "CUSTOMER";
+
     const user = await registerUser({
       fullName,
       company: body.company,
@@ -54,6 +57,7 @@ export async function POST(request: Request) {
       addressLine1,
       addressLine2: body.addressLine2,
       password,
+      role,
     });
 
     return Response.json(

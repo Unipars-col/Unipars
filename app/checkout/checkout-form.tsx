@@ -47,6 +47,15 @@ type PendingOrderState = {
   subtotal: number;
 } | null;
 
+type WompiParams = {
+  publicKey: string;
+  reference: string;
+  amountInCents: number;
+  currency: string;
+  integrityHash: string;
+  redirectUrl: string;
+};
+
 function formatCurrency(value: number) {
   return new Intl.NumberFormat("es-CO", {
     style: "currency",
@@ -82,8 +91,8 @@ export default function CheckoutForm({
   const [inlineError, setInlineError] = useState("");
   const [toast, setToast] = useState<ToastState>(null);
   const [pendingOrder, setPendingOrder] = useState<PendingOrderState>(null);
-  const [paymentCode, setPaymentCode] = useState("");
-  const [isConfirmingPayment, setIsConfirmingPayment] = useState(false);
+  const [wompiParams, setWompiParams] = useState<WompiParams | null>(null);
+  const [isRedirecting, setIsRedirecting] = useState(false);
   const cityOptions = useMemo(
     () => getCitiesForDepartment(form.department),
     [form.department],
@@ -137,9 +146,7 @@ export default function CheckoutForm({
 
     const response = await fetch("/api/orders", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(form),
     });
 
@@ -149,79 +156,62 @@ export default function CheckoutForm({
       order?: { id: string; totalItems: number; subtotal: number };
     };
 
-    setIsSubmitting(false);
-
     if (!response.ok || !payload.order) {
+      setIsSubmitting(false);
       const message = payload.error || "No fue posible crear el pedido.";
       setInlineError(message);
       setToast({ tone: "error", message });
       return;
     }
 
-    setPendingOrder(payload.order);
-    setPaymentCode("");
-    setToast({
-      tone: "success",
-      message:
-        payload.message ||
-        "Pedido creado correctamente. Confirma el pago demo para completar el flujo.",
-    });
-  };
+    // Fetch Wompi parameters server-side (hash generation)
+    const wompiRes = await fetch(`/api/checkout/wompi-hash?orderId=${payload.order.id}`);
+    const wompiData = (await wompiRes.json()) as WompiParams & { error?: string };
 
-  const handleConfirmPayment = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+    setIsSubmitting(false);
 
-    if (!pendingOrder) return;
-
-    setInlineError("");
-    setToast(null);
-    setIsConfirmingPayment(true);
-
-    const response = await fetch(`/api/orders/${pendingOrder.id}/pay`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ paymentCode }),
-    });
-
-    const payload = (await response.json()) as {
-      error?: string;
-      message?: string;
-      order?: { id: string };
-    };
-
-    setIsConfirmingPayment(false);
-
-    if (!response.ok || !payload.order) {
-      const message = payload.error || "No fue posible confirmar el pago.";
-      setInlineError(message);
-      setToast({ tone: "error", message });
+    if (!wompiRes.ok || !wompiData.integrityHash) {
+      setPendingOrder(payload.order);
+      setInlineError(wompiData.error || "No fue posible iniciar el pago. Intenta desde Mis pedidos.");
       return;
     }
 
-    setToast({
-      tone: "success",
-      message: payload.message || "Pago de prueba confirmado correctamente.",
+    setPendingOrder(payload.order);
+    setWompiParams(wompiData);
+  };
+
+  const handleGoToWompi = () => {
+    if (!wompiParams) return;
+    setIsRedirecting(true);
+
+    const params = new URLSearchParams({
+      "public-key": wompiParams.publicKey,
+      currency: wompiParams.currency,
+      "amount-in-cents": String(wompiParams.amountInCents),
+      reference: wompiParams.reference,
+      "signature:integrity": wompiParams.integrityHash,
+      "redirect-url": wompiParams.redirectUrl,
+      "customer-data:email": form.customerEmail,
+      "customer-data:full-name": form.customerName,
+      "customer-data:phone-number": form.customerPhone,
     });
 
-    router.push(`/checkout/exito?pedido=${payload.order.id}&pagado=1`);
-    router.refresh();
+    window.location.href = `https://checkout.wompi.co/p/?${params.toString()}`;
   };
 
   return (
     <main className="min-h-screen bg-[#f5f5f5] text-[#111]">
-      {pendingOrder && (
+      {pendingOrder && wompiParams && (
         <div className="fixed inset-0 z-[90] flex items-center justify-center bg-[#0f172a]/45 px-6 backdrop-blur-[2px]">
           <div className="w-full max-w-lg rounded-[1.9rem] border border-black/8 bg-white p-7 shadow-[0_30px_80px_rgba(15,23,42,0.28)]">
             <p className="text-sm font-semibold uppercase tracking-[0.24em] text-[#ed8435]">
-              Pago demo
+              Pago seguro
             </p>
             <h2 className="mt-3 text-3xl font-bold text-[#16384f]">
-              Simular pago del pedido
+              Pagar con Wompi
             </h2>
             <p className="mt-3 text-sm leading-7 text-slate-600">
-              Mientras conectamos Wompi, este paso te permite mostrar la experiencia completa. Usa el código <span className="font-semibold text-[#16384f]">1234</span> para aprobar el pago.
+              Tu pedido está listo. Serás redirigido a la pasarela de pago seguro de Wompi para completar la transacción.
             </p>
 
             <div className="mt-6 grid gap-3 md:grid-cols-2">
@@ -233,7 +223,7 @@ export default function CheckoutForm({
               </div>
               <div className="rounded-[1.2rem] border border-black/8 bg-[#fafaf9] px-4 py-4">
                 <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#8b8d91]">
-                  Total
+                  Total a pagar
                 </p>
                 <p className="mt-2 text-sm font-semibold text-[#16384f]">
                   {formatCurrency(pendingOrder.subtotal)}
@@ -241,46 +231,24 @@ export default function CheckoutForm({
               </div>
             </div>
 
-            <form onSubmit={handleConfirmPayment} className="mt-6 space-y-4">
-              <div>
-                <label
-                  htmlFor="paymentCode"
-                  className="mb-2 block text-sm font-medium text-slate-700"
-                >
-                  Código de pago demo
-                </label>
-                <input
-                  id="paymentCode"
-                  type="password"
-                  value={paymentCode}
-                  onChange={(event) => setPaymentCode(event.target.value)}
-                  placeholder="Ingresa el código"
-                  autoFocus
-                  required
-                  className="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none transition-colors duration-200 focus:border-[#ed8435]"
-                />
-              </div>
-
-              <div className="flex gap-3">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setPendingOrder(null);
-                    setPaymentCode("");
-                  }}
-                  className="flex-1 rounded-xl border border-[#16384f]/20 px-4 py-3 font-semibold text-[#16384f] transition-colors duration-200 hover:bg-[#16384f] hover:text-white"
-                >
-                  Pagar luego
-                </button>
-                <button
-                  type="submit"
-                  disabled={isConfirmingPayment}
-                  className="flex-1 rounded-xl bg-[#ed8435] px-4 py-3 font-semibold text-white transition-colors duration-200 hover:bg-[#d67024] disabled:cursor-not-allowed disabled:opacity-70"
-                >
-                  {isConfirmingPayment ? "Validando..." : "Confirmar pago"}
-                </button>
-              </div>
-            </form>
+            <div className="mt-6 flex gap-3">
+              <button
+                type="button"
+                onClick={() => { setPendingOrder(null); setWompiParams(null); }}
+                disabled={isRedirecting}
+                className="flex-1 rounded-xl border border-[#16384f]/20 px-4 py-3 font-semibold text-[#16384f] transition-colors duration-200 hover:bg-[#16384f] hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                Pagar luego
+              </button>
+              <button
+                type="button"
+                onClick={handleGoToWompi}
+                disabled={isRedirecting}
+                className="flex-1 rounded-xl bg-[#ed8435] px-4 py-3 font-semibold text-white transition-colors duration-200 hover:bg-[#d67024] disabled:cursor-not-allowed disabled:opacity-70"
+              >
+                {isRedirecting ? "Redirigiendo..." : "Ir a pagar →"}
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -323,8 +291,7 @@ export default function CheckoutForm({
             Finalizar pedido
           </h1>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-[#6e7379]">
-            Completa tus datos de entrega. El pedido quedará guardado en tu cuenta
-            y luego podremos conectar el pago con Wompi sobre este mismo flujo.
+            Completa tus datos de entrega y paga de forma segura con Wompi. Aceptamos tarjetas de crédito/débito, PSE y Nequi.
           </p>
         </div>
 
@@ -508,7 +475,7 @@ export default function CheckoutForm({
                 disabled={isSubmitting}
                 className="rounded-full bg-[#ed8435] px-6 py-3 text-sm font-semibold text-white transition-colors duration-200 hover:bg-[#d67024] disabled:cursor-not-allowed disabled:opacity-70"
               >
-                {isSubmitting ? "Guardando pedido..." : "Crear pedido"}
+                {isSubmitting ? "Preparando pedido..." : "Continuar al pago"}
               </button>
               <button
                 type="button"
@@ -563,7 +530,7 @@ export default function CheckoutForm({
               </div>
               <div className="mt-3 flex items-center justify-between text-sm text-[#5d6167]">
                 <span>Pago</span>
-                <span className="font-semibold text-[#16384f]">Pendiente</span>
+                <span className="font-semibold text-[#16384f]">Wompi</span>
               </div>
             </div>
           </aside>
