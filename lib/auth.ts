@@ -15,7 +15,7 @@ function getSessionKey() {
 export type SessionPayload = {
   userId: string;
   email: string;
-  role: "CUSTOMER" | "ADMIN" | "MASTER";
+  role: "CUSTOMER" | "SELLER" | "PROVIDER" | "ADMIN" | "MASTER";
 };
 
 export async function createSessionToken(payload: SessionPayload) {

@@ -133,7 +133,7 @@ export default function LoginPage() {
 
   const completeLogin = async (payload: {
     message?: string;
-    user?: { id: string; role: "CUSTOMER" | "ADMIN" | "MASTER" };
+    user?: { id: string; role: "CUSTOMER" | "SELLER" | "PROVIDER" | "ADMIN" | "MASTER" };
     isVendor?: boolean;
   }) => {
     setIsEnteringAccount(true);
@@ -192,7 +192,7 @@ export default function LoginPage() {
     const payload = (await response.json()) as {
       error?: string;
       message?: string;
-      user?: { id: string; role: "CUSTOMER" | "ADMIN" | "MASTER" };
+      user?: { id: string; role: "CUSTOMER" | "SELLER" | "PROVIDER" | "ADMIN" | "MASTER" };
       requiresAdminPin?: boolean;
       isVendor?: boolean;
     };

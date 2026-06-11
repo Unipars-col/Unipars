@@ -93,7 +93,7 @@ export async function PATCH(request: Request) {
     await setSessionCookie({
       userId: user.id,
       email: user.email,
-      role: user.role as "CUSTOMER" | "ADMIN" | "MASTER",
+      role: user.role as "CUSTOMER" | "SELLER" | "PROVIDER" | "ADMIN" | "MASTER",
     });
 
     return Response.json({

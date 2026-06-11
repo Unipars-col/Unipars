@@ -24,7 +24,7 @@ export type PublicUser = {
   city: string | null;
   addressLine1: string | null;
   addressLine2: string | null;
-  role: "CUSTOMER" | "ADMIN" | "MASTER";
+  role: "CUSTOMER" | "SELLER" | "PROVIDER" | "ADMIN" | "MASTER";
   createdAt: Date;
 };
 
