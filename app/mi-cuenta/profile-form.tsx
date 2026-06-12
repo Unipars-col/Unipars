@@ -1117,7 +1117,7 @@ export default function AccountProfileForm({
                   const q = catalogSearch.toLowerCase();
                   return !q || p.nombre.toLowerCase().includes(q) || p.marca.toLowerCase().includes(q) || p.categoria.toLowerCase().includes(q);
                 })
-                .slice(0, 60)
+                .slice(0, 500)
                 .map((p) => {
                   const saved = clientCodes.find((c) => c.productSlug === p.slug);
                   const inputVal = inlineInputs[p.slug] ?? saved?.customCode ?? "";
