@@ -144,40 +144,77 @@ export default function CheckoutForm({
     setToast(null);
     setIsSubmitting(true);
 
-    const response = await fetch("/api/orders", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form),
-    });
+    try {
+      const controller = new AbortController();
+      const timeoutId = window.setTimeout(() => controller.abort(), 30_000);
 
-    const payload = (await response.json()) as {
-      error?: string;
-      message?: string;
-      order?: { id: string; totalItems: number; subtotal: number };
-    };
+      let response: Response;
+      try {
+        response = await fetch("/api/orders", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(form),
+          signal: controller.signal,
+        });
+      } catch (fetchErr) {
+        window.clearTimeout(timeoutId);
+        setIsSubmitting(false);
+        const message = fetchErr instanceof Error && fetchErr.name === "AbortError"
+          ? "La solicitud tardó demasiado. Intenta de nuevo."
+          : "Error de conexión. Verifica tu red e intenta de nuevo.";
+        setInlineError(message);
+        setToast({ tone: "error", message });
+        return;
+      }
+      window.clearTimeout(timeoutId);
 
-    if (!response.ok || !payload.order) {
+      let payload: { error?: string; message?: string; order?: { id: string; totalItems: number; subtotal: number } };
+      try {
+        payload = await response.json();
+      } catch {
+        setIsSubmitting(false);
+        const message = `Error del servidor (${response.status}). Intenta de nuevo.`;
+        setInlineError(message);
+        setToast({ tone: "error", message });
+        return;
+      }
+
+      if (!response.ok || !payload.order) {
+        setIsSubmitting(false);
+        const message = payload.error || "No fue posible crear el pedido.";
+        setInlineError(message);
+        setToast({ tone: "error", message });
+        return;
+      }
+
+      // Fetch Wompi parameters server-side (hash generation)
+      const wompiRes = await fetch(`/api/checkout/wompi-hash?orderId=${payload.order.id}`);
+      let wompiData: WompiParams & { error?: string };
+      try {
+        wompiData = await wompiRes.json();
+      } catch {
+        setPendingOrder(payload.order);
+        setIsSubmitting(false);
+        setInlineError("No fue posible iniciar el pago. Intenta desde Mis pedidos.");
+        return;
+      }
+
       setIsSubmitting(false);
-      const message = payload.error || "No fue posible crear el pedido.";
+
+      if (!wompiRes.ok || !wompiData.integrityHash) {
+        setPendingOrder(payload.order);
+        setInlineError(wompiData.error || "No fue posible iniciar el pago. Intenta desde Mis pedidos.");
+        return;
+      }
+
+      setPendingOrder(payload.order);
+      setWompiParams(wompiData);
+    } catch {
+      setIsSubmitting(false);
+      const message = "Ocurrió un error inesperado. Intenta de nuevo.";
       setInlineError(message);
       setToast({ tone: "error", message });
-      return;
     }
-
-    // Fetch Wompi parameters server-side (hash generation)
-    const wompiRes = await fetch(`/api/checkout/wompi-hash?orderId=${payload.order.id}`);
-    const wompiData = (await wompiRes.json()) as WompiParams & { error?: string };
-
-    setIsSubmitting(false);
-
-    if (!wompiRes.ok || !wompiData.integrityHash) {
-      setPendingOrder(payload.order);
-      setInlineError(wompiData.error || "No fue posible iniciar el pago. Intenta desde Mis pedidos.");
-      return;
-    }
-
-    setPendingOrder(payload.order);
-    setWompiParams(wompiData);
   };
 
   const handleGoToWompi = () => {
