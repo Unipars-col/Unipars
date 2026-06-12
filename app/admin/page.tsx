@@ -1552,17 +1552,6 @@ export default function AdminPage() {
                     ),
                     onClick: openOrdersView,
                   },
-                  {
-                    label: "Vendedores",
-                    desc: "Gestiona proveedores y solicitudes.",
-                    iconBg: "bg-[#f0fbff]",
-                    icon: (
-                      <svg aria-hidden="true" viewBox="0 0 24 24" className="h-6 w-6 text-[#0891b2]" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                      </svg>
-                    ),
-                    onClick: openVendorsView,
-                  },
                 ].map((item) => (
                   <button key={item.label} type="button" onClick={item.onClick} className="rounded-2xl border border-black/8 bg-white p-5 text-left shadow-sm transition-shadow hover:shadow-md">
                     <div className={`flex h-14 w-14 items-center justify-center rounded-2xl ${item.iconBg}`}>

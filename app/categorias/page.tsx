@@ -81,6 +81,25 @@ export default function CategoriasPage() {
   const [precioMaximo, setPrecioMaximo] = useState(priceBounds.max);
   const [showMobileFilters, setShowMobileFilters] = useState(false);
 
+  type AiExpansion = { keywords: string[]; categoria: string | null; interpretacion: string | null; loading: boolean };
+  const [aiExpansion, setAiExpansion] = useState<AiExpansion | null>(null);
+
+  useEffect(() => {
+    if (!queryActiva) { setAiExpansion(null); return; }
+    const words = queryActiva.trim().split(/\s+/);
+    const isNatural = words.length >= 4 || /\b(quiero|necesito|busco|tengo|reparar|arreglar|cambiar|comprar|para mi|como|cómo)\b/i.test(queryActiva);
+    if (!isNatural) { setAiExpansion(null); return; }
+    setAiExpansion({ keywords: [], categoria: null, interpretacion: null, loading: true });
+    const controller = new AbortController();
+    fetch(`/api/search/ai-expand?q=${encodeURIComponent(queryActiva)}`, { signal: controller.signal })
+      .then((r) => r.json())
+      .then((data: { keywords?: string[]; categoria?: string | null; interpretacion?: string | null }) => {
+        setAiExpansion({ keywords: data.keywords ?? [], categoria: data.categoria ?? null, interpretacion: data.interpretacion ?? null, loading: false });
+      })
+      .catch(() => setAiExpansion(null));
+    return () => controller.abort();
+  }, [queryActiva]);
+
   const marcasConConteo = useMemo(() => {
     const counts = new Map<string, number>();
     for (const p of products) counts.set(p.marca, (counts.get(p.marca) ?? 0) + 1);
@@ -119,6 +138,7 @@ export default function CategoriasPage() {
     );
   };
 
+  const aiKeywords = aiExpansion?.keywords ?? [];
   const productosFiltrados = products.filter((producto) => {
     const coincideCategoria =
       !categoriaActiva || producto.categoria === categoriaActiva;
@@ -127,7 +147,13 @@ export default function CategoriasPage() {
       producto.nombre.toLowerCase().includes(queryActiva) ||
       producto.marca.toLowerCase().includes(queryActiva) ||
       producto.categoria.toLowerCase().includes(queryActiva) ||
-      producto.descripcion.toLowerCase().includes(queryActiva);
+      producto.descripcion.toLowerCase().includes(queryActiva) ||
+      (aiKeywords.length > 0 && aiKeywords.some((kw) =>
+        producto.nombre.toLowerCase().includes(kw) ||
+        producto.marca.toLowerCase().includes(kw) ||
+        producto.categoria.toLowerCase().includes(kw) ||
+        producto.descripcion.toLowerCase().includes(kw)
+      ));
     const coincideMarca =
       marcasActivas.length === 0 || marcasActivas.includes(producto.marca);
     const coincideDisponibilidad =
@@ -699,6 +725,15 @@ export default function CategoriasPage() {
                   </h2>
                   {queryActiva && (
                     <p className="mt-1 text-sm text-[#6e7379]">Búsqueda: <span className="font-semibold text-[#b85d12]">{searchParams.get("q")}</span></p>
+                  )}
+                  {queryActiva && aiExpansion?.loading && (
+                    <p className="mt-1 text-xs text-[#8b8d91] animate-pulse">Analizando con IA...</p>
+                  )}
+                  {queryActiva && aiExpansion?.interpretacion && !aiExpansion.loading && (
+                    <p className="mt-1 flex items-center gap-1.5 text-xs text-[#0891b2]">
+                      <span className="text-[#ed8435]">✦</span>
+                      <span>Entendido como: <span className="font-semibold">{aiExpansion.interpretacion}</span></span>
+                    </p>
                   )}
                 </div>
                 {/* chips activos */}
