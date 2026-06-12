@@ -1206,41 +1206,33 @@ export default function AccountProfileForm({
             ) : clientCodes.length === 0 ? (
               <div className="rounded-[1.4rem] border border-dashed border-black/12 bg-white p-10 text-center text-[#6e7379]">
                 <p className="font-semibold">Aún no tienes referencias guardadas.</p>
-                <p className="mt-1 text-sm">Abre cualquier producto del catálogo y guarda tu código interno.</p>
+                <p className="mt-1 text-sm">Ve al tab Catálogo y asigna tu código a los productos.</p>
               </div>
             ) : (
-              <div className="overflow-hidden rounded-[1.4rem] border border-black/8 bg-white">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b border-black/6 bg-[#f8f9fb]">
-                      <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-[0.2em] text-[#8b8d91]">Producto</th>
-                      <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-[0.2em] text-[#8b8d91]">Tu código</th>
-                      <th className="px-5 py-3 text-right text-xs font-semibold uppercase tracking-[0.2em] text-[#8b8d91]"></th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {clientCodes.map((c) => (
-                      <tr key={c.id} className="border-b border-black/5 last:border-0 transition-colors hover:bg-[#fafaf9]">
-                        <td className="px-5 py-4">
-                          <p className="font-semibold text-[#1f2328]">{c.productName}</p>
-                          <p className="text-xs text-[#8b8d91]">{c.productSlug}</p>
-                        </td>
-                        <td className="px-5 py-4">
-                          <span className="inline-flex items-center gap-1.5 rounded-lg bg-[#e8f0fe] px-3 py-1.5 text-sm font-bold text-[#16384f]">
-                            <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                            {c.customCode}
-                          </span>
-                        </td>
-                        <td className="px-5 py-4 text-right">
-                          <a href={`/producto/${c.productSlug}`}
-                            className="text-xs font-semibold text-[#2d7af0] transition-colors hover:text-[#16384f]">
-                            Ver →
-                          </a>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+              <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                {clientCodes.map((c) => {
+                  const prod = products.find((p) => p.slug === c.productSlug);
+                  return (
+                    <a key={c.id} href={`/producto/${c.productSlug}`}
+                      className="group flex gap-4 rounded-[1.4rem] border border-black/8 bg-white p-4 shadow-sm transition-shadow hover:shadow-md">
+                      <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-[#f0f2f4]">
+                        {prod && (
+                          <Image src={prod.imagen} alt={c.productName} fill className="object-contain p-2" sizes="80px" />
+                        )}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-semibold text-[#1f2328] group-hover:text-[#16384f]">{c.productName}</p>
+                        {prod && (
+                          <p className="mt-0.5 text-base font-bold text-[#ed8435]">{prod.precio}</p>
+                        )}
+                        <span className="mt-2 inline-flex items-center gap-1 rounded-lg bg-[#e8f0fe] px-2.5 py-1 text-xs font-bold text-[#16384f]">
+                          <svg viewBox="0 0 24 24" className="h-3 w-3" fill="none" stroke="currentColor" strokeWidth="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                          {c.customCode}
+                        </span>
+                      </div>
+                    </a>
+                  );
+                })}
               </div>
             )}
           </div>
