@@ -30,16 +30,17 @@ export default function SiteHeader({ currentUser, isVendor }: SiteHeaderProps) {
   const { products } = useProducts();
 
   useEffect(() => {
-    if (currentUser?.role !== "EXCLUSIVE") return;
+    if (!currentUser) return;
     fetch("/api/mi-cuenta/codigos")
-      .then((r) => r.json())
-      .then((d: { codes?: { productSlug: string; customCode: string }[] }) => {
+      .then((r) => r.ok ? r.json() : null)
+      .then((d: { codes?: { productSlug: string; customCode: string }[] } | null) => {
+        if (!d?.codes?.length) return;
         const map: Record<string, string> = {};
-        for (const c of d.codes ?? []) map[c.productSlug] = c.customCode;
+        for (const c of d.codes) map[c.productSlug] = c.customCode;
         setClientCodes(map);
       })
       .catch(() => undefined);
-  }, [currentUser?.role]);
+  }, [currentUser]);
 
   const suggestions = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
