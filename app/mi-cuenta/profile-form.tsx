@@ -65,8 +65,9 @@ type FormState = {
   confirmPassword: string;
 };
 
-type AccountPanel = "summary" | "details" | "orders" | "referencias" | "catalogo";
+type AccountPanel = "summary" | "details" | "orders" | "referencias" | "catalogo" | "direcciones";
 type ClientCode = { id: string; productSlug: string; productName: string; customCode: string };
+type SavedAddress = { id: string; label: string | null; department: string; city: string; addressLine1: string; addressLine2: string | null; isDefault: boolean };
 
 function formatCurrency(value: number) {
   return new Intl.NumberFormat("es-CO", {
@@ -301,6 +302,11 @@ export default function AccountProfileForm({
   const [catalogSearch, setCatalogSearch] = useState("");
   const [inlineInputs, setInlineInputs] = useState<Record<string, string>>({});
   const [inlineSaving, setInlineSaving] = useState<string | null>(null);
+  const [savedAddresses, setSavedAddresses] = useState<SavedAddress[]>([]);
+  const [addressesLoaded, setAddressesLoaded] = useState(false);
+  const [addressSaving, setAddressSaving] = useState(false);
+  const [showAddressForm, setShowAddressForm] = useState(false);
+  const [newAddress, setNewAddress] = useState({ label: "", department: "", city: "", addressLine1: "", addressLine2: "" });
   const { products } = useProducts();
   const cityOptions = useMemo(
     () => getCitiesForDepartment(form.department),
@@ -488,6 +494,28 @@ export default function AccountProfileForm({
                 }`}
               >
                 Pedidos
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setActivePanel("direcciones");
+                  if (!addressesLoaded) {
+                    fetch("/api/mi-cuenta/direcciones")
+                      .then((r) => r.ok ? r.json() : { addresses: [] })
+                      .then((d: { addresses?: SavedAddress[] }) => {
+                        setSavedAddresses(d.addresses ?? []);
+                        setAddressesLoaded(true);
+                      })
+                      .catch(() => setAddressesLoaded(true));
+                  }
+                }}
+                className={`rounded-full px-5 py-3 text-sm font-semibold transition-colors duration-200 ${
+                  activePanel === "direcciones"
+                    ? "bg-[#16384f] text-white"
+                    : "border border-[#16384f]/20 text-[#16384f] hover:bg-[#16384f] hover:text-white"
+                }`}
+              >
+                Direcciones
               </button>
               {user.role === "EXCLUSIVE" && (
                 <>
@@ -1236,6 +1264,154 @@ export default function AccountProfileForm({
               </div>
             )}
           </div>
+          )}
+
+          {/* ── Panel Direcciones ── */}
+          {activePanel === "direcciones" && (
+            <div className="mt-6 space-y-6">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#8b8d91]">Entrega</p>
+                <h2 className="mt-1 text-2xl font-semibold tracking-[-0.04em] text-[#16384f]">Mis direcciones</h2>
+                <p className="mt-2 text-sm text-[#6e7379]">Hasta 10 direcciones de entrega. En el checkout podrás elegir a cuál enviar cada pedido.</p>
+              </div>
+
+              {!addressesLoaded ? (
+                <p className="text-sm text-[#8b8d91] animate-pulse">Cargando...</p>
+              ) : (
+                <>
+                  <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                    {savedAddresses.map((addr) => (
+                      <div key={addr.id} className="relative rounded-[1.4rem] border border-black/8 bg-white p-5 shadow-sm">
+                        {addr.isDefault && (
+                          <span className="absolute right-4 top-4 rounded-full bg-[#ed8435] px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">Principal</span>
+                        )}
+                        {addr.label && <p className="text-xs font-bold uppercase tracking-wide text-[#ed8435]">{addr.label}</p>}
+                        <p className="mt-1 text-sm font-semibold text-[#16384f]">{addr.addressLine1}</p>
+                        {addr.addressLine2 && <p className="text-xs text-[#8b8d91]">{addr.addressLine2}</p>}
+                        <p className="mt-1 text-xs text-[#6e7379]">{addr.city}, {addr.department}</p>
+                        <div className="mt-4 flex gap-2">
+                          {!addr.isDefault && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                fetch(`/api/mi-cuenta/direcciones/${addr.id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ isDefault: true }) })
+                                  .then((r) => r.ok ? r.json() : null)
+                                  .then(() => setSavedAddresses((prev) => prev.map((a) => ({ ...a, isDefault: a.id === addr.id }))))
+                                  .catch(() => undefined);
+                              }}
+                              className="rounded-lg border border-[#16384f]/20 px-3 py-1.5 text-xs font-semibold text-[#16384f] hover:bg-[#16384f] hover:text-white transition-colors"
+                            >
+                              Hacer principal
+                            </button>
+                          )}
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (!confirm("¿Eliminar esta dirección?")) return;
+                              fetch(`/api/mi-cuenta/direcciones/${addr.id}`, { method: "DELETE" })
+                                .then((r) => r.ok ? r.json() : null)
+                                .then(() => {
+                                  setSavedAddresses((prev) => {
+                                    const remaining = prev.filter((a) => a.id !== addr.id);
+                                    if (addr.isDefault && remaining.length > 0) remaining[0].isDefault = true;
+                                    return remaining;
+                                  });
+                                })
+                                .catch(() => undefined);
+                            }}
+                            className="rounded-lg border border-red-200 px-3 py-1.5 text-xs font-semibold text-red-500 hover:bg-red-50 transition-colors"
+                          >
+                            Eliminar
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+
+                    {savedAddresses.length < 10 && !showAddressForm && (
+                      <button
+                        type="button"
+                        onClick={() => setShowAddressForm(true)}
+                        className="flex min-h-[140px] flex-col items-center justify-center gap-2 rounded-[1.4rem] border-2 border-dashed border-slate-200 bg-white text-[#16384f] transition-colors hover:border-[#ed8435] hover:text-[#ed8435]"
+                      >
+                        <span className="text-3xl leading-none">+</span>
+                        <span className="text-sm font-semibold">Agregar dirección</span>
+                        <span className="text-xs text-slate-400">{savedAddresses.length}/10</span>
+                      </button>
+                    )}
+                  </div>
+
+                  {savedAddresses.length === 0 && !showAddressForm && (
+                    <div className="rounded-[1.4rem] border border-dashed border-black/12 bg-white p-10 text-center text-[#6e7379]">
+                      <p className="font-semibold">Aún no tienes direcciones guardadas.</p>
+                      <p className="mt-1 text-sm">Agrega hasta 10 puntos de entrega para tus pedidos.</p>
+                    </div>
+                  )}
+
+                  {showAddressForm && (
+                    <div className="rounded-2xl border border-slate-200 bg-slate-50 p-6">
+                      <p className="mb-4 text-sm font-semibold text-[#16384f]">Nueva dirección</p>
+                      <div className="grid gap-4 md:grid-cols-2">
+                        <div className="md:col-span-2">
+                          <label className="mb-1.5 block text-xs font-medium text-slate-600">Etiqueta (opcional)</label>
+                          <input type="text" value={newAddress.label} onChange={(e) => setNewAddress((a) => ({ ...a, label: e.target.value }))} placeholder="Ej: Bodega norte, Taller centro..." className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm outline-none focus:border-[#ed8435]" />
+                        </div>
+                        <div>
+                          <label className="mb-1.5 block text-xs font-medium text-slate-600">Departamento *</label>
+                          <select value={newAddress.department} onChange={(e) => setNewAddress((a) => ({ ...a, department: e.target.value, city: "" }))} required className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm outline-none focus:border-[#ed8435]">
+                            <option value="">Selecciona un departamento</option>
+                            {departamentosColombia.map((d) => <option key={d} value={d}>{d}</option>)}
+                          </select>
+                        </div>
+                        <div>
+                          <label className="mb-1.5 block text-xs font-medium text-slate-600">Ciudad *</label>
+                          <input type="text" value={newAddress.city} onChange={(e) => setNewAddress((a) => ({ ...a, city: e.target.value }))} list="new-addr-cities" placeholder={newAddress.department ? "Busca o escribe tu ciudad" : "Primero selecciona departamento"} disabled={!newAddress.department} required className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm outline-none focus:border-[#ed8435]" />
+                          <datalist id="new-addr-cities">{getCitiesForDepartment(newAddress.department).map((c) => <option key={c} value={c} />)}</datalist>
+                        </div>
+                        <div className="md:col-span-2">
+                          <label className="mb-1.5 block text-xs font-medium text-slate-600">Dirección *</label>
+                          <input type="text" value={newAddress.addressLine1} onChange={(e) => setNewAddress((a) => ({ ...a, addressLine1: e.target.value }))} placeholder="Calle, carrera, barrio o punto de entrega" required className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm outline-none focus:border-[#ed8435]" />
+                        </div>
+                        <div className="md:col-span-2">
+                          <label className="mb-1.5 block text-xs font-medium text-slate-600">Complemento (opcional)</label>
+                          <input type="text" value={newAddress.addressLine2} onChange={(e) => setNewAddress((a) => ({ ...a, addressLine2: e.target.value }))} placeholder="Apto, interior, piso, bodega..." className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm outline-none focus:border-[#ed8435]" />
+                        </div>
+                      </div>
+                      <div className="mt-4 flex gap-3">
+                        <button
+                          type="button"
+                          disabled={addressSaving}
+                          onClick={() => {
+                            if (!newAddress.department || !newAddress.city || !newAddress.addressLine1) return;
+                            setAddressSaving(true);
+                            fetch("/api/mi-cuenta/direcciones", {
+                              method: "POST",
+                              headers: { "Content-Type": "application/json" },
+                              body: JSON.stringify({ ...newAddress, isDefault: savedAddresses.length === 0 }),
+                            })
+                              .then((r) => r.ok ? r.json() : null)
+                              .then((d: { address?: SavedAddress } | null) => {
+                                if (d?.address) {
+                                  setSavedAddresses((prev) => [...prev, d.address!]);
+                                  setNewAddress({ label: "", department: "", city: "", addressLine1: "", addressLine2: "" });
+                                  setShowAddressForm(false);
+                                }
+                              })
+                              .catch(() => undefined)
+                              .finally(() => setAddressSaving(false));
+                          }}
+                          className="rounded-xl bg-[#ed8435] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#d67024] disabled:opacity-60 transition-colors"
+                        >
+                          {addressSaving ? "Guardando..." : "Guardar dirección"}
+                        </button>
+                        <button type="button" onClick={() => setShowAddressForm(false)} className="rounded-xl border border-slate-200 px-5 py-2.5 text-sm font-semibold text-[#16384f] hover:bg-slate-100 transition-colors">
+                          Cancelar
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
           )}
         </section>
       </section>

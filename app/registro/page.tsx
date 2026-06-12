@@ -20,6 +20,16 @@ type RegisterFormState = {
   confirmPassword: string;
 };
 
+type ExtraAddress = {
+  label: string;
+  department: string;
+  city: string;
+  addressLine1: string;
+  addressLine2: string;
+};
+
+const emptyAddress = (): ExtraAddress => ({ label: "", department: "", city: "", addressLine1: "", addressLine2: "" });
+
 type ToastState = { tone: "success" | "error"; message: string } | null;
 
 const initialState: RegisterFormState = {
@@ -111,11 +121,24 @@ export default function RegistroPage() {
     setRole(selected);
   };
   const [form, setForm] = useState<RegisterFormState>(initialState);
+  const [extraAddresses, setExtraAddresses] = useState<ExtraAddress[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [toast, setToast] = useState<ToastState>(null);
   const [inlineError, setInlineError] = useState("");
 
   const cityOptions = useMemo(() => getCitiesForDepartment(form.department), [form.department]);
+
+  const updateExtra = (index: number, field: keyof ExtraAddress, value: string) => {
+    setExtraAddresses((prev) => prev.map((a, i) => i === index ? { ...a, [field]: value, ...(field === "department" ? { city: "" } : {}) } : a));
+  };
+
+  const addExtraAddress = () => {
+    if (extraAddresses.length < 9) setExtraAddresses((prev) => [...prev, emptyAddress()]);
+  };
+
+  const removeExtraAddress = (index: number) => {
+    setExtraAddresses((prev) => prev.filter((_, i) => i !== index));
+  };
 
   useEffect(() => {
     if (!toast) return;
@@ -145,7 +168,7 @@ export default function RegistroPage() {
     const response = await fetch("/api/auth/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...form, role }),
+      body: JSON.stringify({ ...form, role, extraAddresses }),
     });
 
     const payload = await response.json() as { error?: string; message?: string };
@@ -267,6 +290,59 @@ export default function RegistroPage() {
             <label htmlFor="addressLine2" className="mb-2 block text-sm font-medium text-slate-700">Complemento de dirección</label>
             <input id="addressLine2" type="text" value={form.addressLine2} onChange={handleChange} placeholder="Apto, interior, piso, bodega..." className={`w-full rounded-xl border border-slate-200 px-4 py-3 outline-none transition-colors ${focusBorder}`} />
           </div>
+
+          {/* Direcciones adicionales */}
+          {extraAddresses.length > 0 && (
+            <div className="md:col-span-2 space-y-4">
+              {extraAddresses.map((addr, idx) => {
+                const extraCities = getCitiesForDepartment(addr.department);
+                return (
+                  <div key={idx} className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
+                    <div className="mb-3 flex items-center justify-between">
+                      <p className="text-sm font-semibold text-[#16384f]">Dirección de entrega {idx + 2}</p>
+                      <button type="button" onClick={() => removeExtraAddress(idx)} className="text-xs font-semibold text-red-500 hover:underline">Eliminar</button>
+                    </div>
+                    <div className="grid gap-4 md:grid-cols-2">
+                      <div className="md:col-span-2">
+                        <label className="mb-1.5 block text-xs font-medium text-slate-600">Etiqueta (opcional)</label>
+                        <input type="text" value={addr.label} onChange={(e) => updateExtra(idx, "label", e.target.value)} placeholder='Ej: Bodega norte, Taller centro...' className={`w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm outline-none transition-colors ${focusBorder}`} />
+                      </div>
+                      <div>
+                        <label className="mb-1.5 block text-xs font-medium text-slate-600">Departamento *</label>
+                        <select value={addr.department} onChange={(e) => updateExtra(idx, "department", e.target.value)} required className={`w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm outline-none transition-colors ${focusBorder}`}>
+                          <option value="">Selecciona un departamento</option>
+                          {departamentosColombia.map((d) => <option key={d} value={d}>{d}</option>)}
+                        </select>
+                      </div>
+                      <div>
+                        <label className="mb-1.5 block text-xs font-medium text-slate-600">Ciudad *</label>
+                        <input type="text" value={addr.city} onChange={(e) => updateExtra(idx, "city", e.target.value)} list={`extra-cities-${idx}`} placeholder={addr.department ? "Busca o escribe tu ciudad" : "Primero selecciona departamento"} disabled={!addr.department} required className={`w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm outline-none transition-colors ${focusBorder}`} />
+                        <datalist id={`extra-cities-${idx}`}>{extraCities.map((c) => <option key={c} value={c} />)}</datalist>
+                      </div>
+                      <div className="md:col-span-2">
+                        <label className="mb-1.5 block text-xs font-medium text-slate-600">Dirección *</label>
+                        <input type="text" value={addr.addressLine1} onChange={(e) => updateExtra(idx, "addressLine1", e.target.value)} placeholder="Calle, carrera, barrio o punto de entrega" required className={`w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm outline-none transition-colors ${focusBorder}`} />
+                      </div>
+                      <div className="md:col-span-2">
+                        <label className="mb-1.5 block text-xs font-medium text-slate-600">Complemento (opcional)</label>
+                        <input type="text" value={addr.addressLine2} onChange={(e) => updateExtra(idx, "addressLine2", e.target.value)} placeholder="Apto, interior, piso, bodega..." className={`w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm outline-none transition-colors ${focusBorder}`} />
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          {extraAddresses.length < 9 && (
+            <div className="md:col-span-2">
+              <button type="button" onClick={addExtraAddress} className="flex items-center gap-2 rounded-xl border border-dashed border-slate-300 px-4 py-3 text-sm font-medium text-[#16384f] transition-colors hover:border-[#ed8435] hover:text-[#ed8435]">
+                <span className="text-lg leading-none">+</span>
+                Agregar dirección de entrega
+                <span className="ml-auto text-xs text-slate-400">{extraAddresses.length}/9 adicionales</span>
+              </button>
+            </div>
+          )}
 
           {inlineError && (
             <p className="rounded-xl border border-[#ed8435]/20 bg-[#fff6ee] px-4 py-3 text-sm font-medium text-[#b85d12] md:col-span-2">{inlineError}</p>

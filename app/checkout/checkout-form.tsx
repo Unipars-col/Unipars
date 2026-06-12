@@ -24,6 +24,16 @@ type CheckoutUser = {
   addressLine2: string | null;
 };
 
+type SavedAddress = {
+  id: string;
+  label: string | null;
+  department: string;
+  city: string;
+  addressLine1: string;
+  addressLine2: string | null;
+  isDefault: boolean;
+};
+
 type ToastState = {
   tone: "success" | "error";
   message: string;
@@ -75,6 +85,8 @@ export default function CheckoutForm({
 }) {
   const router = useRouter();
   const hasSavedAddress = Boolean(user.city || user.addressLine1 || user.addressLine2);
+  const [savedAddresses, setSavedAddresses] = useState<SavedAddress[]>([]);
+  const [selectedAddressId, setSelectedAddressId] = useState<string | "profile" | "new">("profile");
   const [form, setForm] = useState<FormState>({
     customerName: user.fullName,
     customerEmail: user.email,
@@ -104,6 +116,21 @@ export default function CheckoutForm({
     return () => window.clearTimeout(timeoutId);
   }, [toast]);
 
+  useEffect(() => {
+    fetch("/api/mi-cuenta/direcciones")
+      .then((r) => r.ok ? r.json() : null)
+      .then((d: { addresses?: SavedAddress[] } | null) => {
+        if (!d?.addresses?.length) return;
+        setSavedAddresses(d.addresses);
+        const def = d.addresses.find((a) => a.isDefault) ?? d.addresses[0];
+        if (def) {
+          setSelectedAddressId(def.id);
+          setForm((f) => ({ ...f, department: def.department, city: def.city, addressLine1: def.addressLine1, addressLine2: def.addressLine2 ?? "" }));
+        }
+      })
+      .catch(() => undefined);
+  }, []);
+
   const totalItems = useMemo(
     () => items.reduce((total, item) => total + item.cantidad, 0),
     [items],
@@ -125,7 +152,6 @@ export default function CheckoutForm({
   const handleToggleDifferentAddress = () => {
     setUseDifferentAddress((current) => {
       const nextValue = !current;
-
       setForm((currentForm) => ({
         ...currentForm,
         department: nextValue ? "" : user.department || "",
@@ -133,9 +159,22 @@ export default function CheckoutForm({
         addressLine1: nextValue ? "" : user.addressLine1 || "",
         addressLine2: nextValue ? "" : user.addressLine2 || "",
       }));
-
       return nextValue;
     });
+  };
+
+  const selectSavedAddress = (addrId: string) => {
+    setSelectedAddressId(addrId);
+    if (addrId === "new") {
+      setForm((f) => ({ ...f, department: "", city: "", addressLine1: "", addressLine2: "" }));
+      return;
+    }
+    if (addrId === "profile") {
+      setForm((f) => ({ ...f, department: user.department || "", city: user.city || "", addressLine1: user.addressLine1 || "", addressLine2: user.addressLine2 || "" }));
+      return;
+    }
+    const addr = savedAddresses.find((a) => a.id === addrId);
+    if (addr) setForm((f) => ({ ...f, department: addr.department, city: addr.city, addressLine1: addr.addressLine1, addressLine2: addr.addressLine2 ?? "" }));
   };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -391,65 +430,108 @@ export default function CheckoutForm({
                 />
               </div>
 
-              <div>
-                <label htmlFor="department" className="mb-2 block text-sm font-medium text-slate-700">
-                  Departamento
-                </label>
-                <select
-                  id="department"
-                  value={form.department}
-                  onChange={handleChange}
-                  required
-                  className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 outline-none transition-colors duration-200 focus:border-[#ed8435]"
-                >
-                  <option value="">Selecciona un departamento</option>
-                  {departamentosColombia.map((department) => (
-                    <option key={department} value={department}>
-                      {department}
-                    </option>
-                  ))}
-                </select>
-              </div>
+              {(selectedAddressId === "new" || (!savedAddresses.length && !hasSavedAddress) || (!savedAddresses.length && useDifferentAddress)) && (
+                <>
+                  <div>
+                    <label htmlFor="department" className="mb-2 block text-sm font-medium text-slate-700">
+                      Departamento
+                    </label>
+                    <select
+                      id="department"
+                      value={form.department}
+                      onChange={handleChange}
+                      required
+                      className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 outline-none transition-colors duration-200 focus:border-[#ed8435]"
+                    >
+                      <option value="">Selecciona un departamento</option>
+                      {departamentosColombia.map((department) => (
+                        <option key={department} value={department}>
+                          {department}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
 
-              <div>
-                <label htmlFor="city" className="mb-2 block text-sm font-medium text-slate-700">
-                  Ciudad
-                </label>
-                <input
-                  id="city"
-                  value={form.city}
-                  onChange={handleChange}
-                  list="checkout-cities"
-                  required
-                  disabled={!form.department}
-                  placeholder={
-                    form.department
-                      ? "Busca o escribe tu ciudad"
-                      : "Primero selecciona un departamento"
-                  }
-                  className="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none transition-colors duration-200 focus:border-[#ed8435]"
-                />
-                <datalist id="checkout-cities">
-                  {cityOptions.map((city) => (
-                    <option key={city} value={city} />
-                  ))}
-                </datalist>
-              </div>
+                  <div>
+                    <label htmlFor="city" className="mb-2 block text-sm font-medium text-slate-700">
+                      Ciudad
+                    </label>
+                    <input
+                      id="city"
+                      value={form.city}
+                      onChange={handleChange}
+                      list="checkout-cities"
+                      required
+                      disabled={!form.department}
+                      placeholder={
+                        form.department
+                          ? "Busca o escribe tu ciudad"
+                          : "Primero selecciona un departamento"
+                      }
+                      className="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none transition-colors duration-200 focus:border-[#ed8435]"
+                    />
+                    <datalist id="checkout-cities">
+                      {cityOptions.map((city) => (
+                        <option key={city} value={city} />
+                      ))}
+                    </datalist>
+                  </div>
 
-              <div>
-                <label htmlFor="addressLine2" className="mb-2 block text-sm font-medium text-slate-700">
-                  Complemento de dirección
-                </label>
-                <input
-                  id="addressLine2"
-                  value={form.addressLine2}
-                  onChange={handleChange}
-                  placeholder="Apto, interior, piso..."
-                  className="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none transition-colors duration-200 focus:border-[#ed8435]"
-                />
-              </div>
+                  <div>
+                    <label htmlFor="addressLine2" className="mb-2 block text-sm font-medium text-slate-700">
+                      Complemento de dirección
+                    </label>
+                    <input
+                      id="addressLine2"
+                      value={form.addressLine2}
+                      onChange={handleChange}
+                      placeholder="Apto, interior, piso..."
+                      className="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none transition-colors duration-200 focus:border-[#ed8435]"
+                    />
+                  </div>
+                </>
+              )}
 
-              {hasSavedAddress && (
+              {savedAddresses.length > 0 && (
+                <div className="md:col-span-2">
+                  <p className="mb-3 text-sm font-semibold text-[#16384f]">Dirección de entrega</p>
+                  <div className="grid gap-2 sm:grid-cols-2">
+                    {hasSavedAddress && (
+                      <button
+                        type="button"
+                        onClick={() => selectSavedAddress("profile")}
+                        className={`rounded-[1.25rem] border p-4 text-left transition-colors ${selectedAddressId === "profile" ? "border-[#ed8435] bg-[#fff6ee]" : "border-black/8 bg-[#fafaf9] hover:border-[#ed8435]/50"}`}
+                      >
+                        <p className="text-xs font-semibold uppercase tracking-wide text-[#ed8435]">Principal</p>
+                        <p className="mt-1 text-sm font-medium text-[#16384f]">{user.addressLine1}</p>
+                        <p className="text-xs text-[#8b8d91]">{user.city}, {user.department}</p>
+                      </button>
+                    )}
+                    {savedAddresses.map((addr) => (
+                      <button
+                        key={addr.id}
+                        type="button"
+                        onClick={() => selectSavedAddress(addr.id)}
+                        className={`rounded-[1.25rem] border p-4 text-left transition-colors ${selectedAddressId === addr.id ? "border-[#ed8435] bg-[#fff6ee]" : "border-black/8 bg-[#fafaf9] hover:border-[#ed8435]/50"}`}
+                      >
+                        {addr.label && <p className="text-xs font-semibold uppercase tracking-wide text-[#ed8435]">{addr.label}</p>}
+                        <p className="mt-1 text-sm font-medium text-[#16384f]">{addr.addressLine1}</p>
+                        <p className="text-xs text-[#8b8d91]">{addr.city}, {addr.department}</p>
+                      </button>
+                    ))}
+                    <button
+                      type="button"
+                      onClick={() => selectSavedAddress("new")}
+                      className={`rounded-[1.25rem] border border-dashed p-4 text-left transition-colors ${selectedAddressId === "new" ? "border-[#ed8435] bg-[#fff6ee]" : "border-slate-300 hover:border-[#ed8435]/50"}`}
+                    >
+                      <p className="text-sm font-medium text-[#16384f]">+ Nueva dirección</p>
+                      <p className="text-xs text-[#8b8d91]">Ingresar manualmente</p>
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {!savedAddresses.length && hasSavedAddress && (
                 <div className="md:col-span-2 rounded-[1.25rem] border border-black/8 bg-[#fafaf9] p-4">
                   <label className="flex cursor-pointer items-start gap-3">
                     <input
@@ -471,19 +553,38 @@ export default function CheckoutForm({
                 </div>
               )}
 
-              <div className="md:col-span-2">
-                <label htmlFor="addressLine1" className="mb-2 block text-sm font-medium text-slate-700">
-                  Dirección principal
-                </label>
-                <input
-                  id="addressLine1"
-                  value={form.addressLine1}
-                  onChange={handleChange}
-                  required
-                  placeholder="Calle, carrera, barrio o punto de entrega"
-                  className="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none transition-colors duration-200 focus:border-[#ed8435]"
-                />
-              </div>
+              {(selectedAddressId === "new" || (!savedAddresses.length && !hasSavedAddress) || (!savedAddresses.length && useDifferentAddress)) && (
+                <div className="md:col-span-2">
+                  <label htmlFor="addressLine1" className="mb-2 block text-sm font-medium text-slate-700">
+                    Dirección principal
+                  </label>
+                  <input
+                    id="addressLine1"
+                    value={form.addressLine1}
+                    onChange={handleChange}
+                    required
+                    placeholder="Calle, carrera, barrio o punto de entrega"
+                    className="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none transition-colors duration-200 focus:border-[#ed8435]"
+                  />
+                </div>
+              )}
+
+              {selectedAddressId !== "new" && (savedAddresses.length > 0 || hasSavedAddress) && (
+                <div className="md:col-span-2">
+                  <label htmlFor="addressLine1" className="mb-2 block text-sm font-medium text-slate-700">
+                    Dirección principal
+                  </label>
+                  <input
+                    id="addressLine1"
+                    value={form.addressLine1}
+                    onChange={handleChange}
+                    required
+                    readOnly
+                    placeholder="Calle, carrera, barrio o punto de entrega"
+                    className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none text-slate-500"
+                  />
+                </div>
+              )}
 
               <div className="md:col-span-2">
                 <label htmlFor="notes" className="mb-2 block text-sm font-medium text-slate-700">

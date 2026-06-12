@@ -1,5 +1,14 @@
 import { registerUser } from "@/lib/users";
+import { prisma } from "@/lib/prisma";
 import { UserRole } from "@/generated/prisma/client";
+
+type ExtraAddress = {
+  label?: string;
+  department: string;
+  city: string;
+  addressLine1: string;
+  addressLine2?: string;
+};
 
 export async function POST(request: Request) {
   try {
@@ -15,6 +24,7 @@ export async function POST(request: Request) {
       password?: string;
       confirmPassword?: string;
       role?: string;
+      extraAddresses?: ExtraAddress[];
     };
 
     const fullName = body.fullName?.trim() || "";
@@ -60,6 +70,24 @@ export async function POST(request: Request) {
       password,
       role,
     });
+
+    const extraAddresses = body.extraAddresses?.filter(
+      (a) => a.department?.trim() && a.city?.trim() && a.addressLine1?.trim(),
+    ) ?? [];
+
+    if (prisma && extraAddresses.length > 0) {
+      await prisma.userAddress.createMany({
+        data: extraAddresses.slice(0, 9).map((a, i) => ({
+          userId: user.id,
+          label: a.label?.trim() || null,
+          department: a.department.trim(),
+          city: a.city.trim(),
+          addressLine1: a.addressLine1.trim(),
+          addressLine2: a.addressLine2?.trim() || null,
+          isDefault: i === 0,
+        })),
+      });
+    }
 
     return Response.json(
       {
