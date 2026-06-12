@@ -717,8 +717,8 @@ export default function CategoriasPage() {
                   const opcionesOrden = [
                     { value: "recomendados", label: "Recomendados" },
                     { value: "mas-vendidos", label: "Más vendidos" },
-                    { value: "menor-precio", label: "Precio de menor a mayor" },
-                    { value: "mayor-precio", label: "Precio de mayor a menor" },
+                    { value: "menor-precio", label: "Menor precio primero" },
+                    { value: "mayor-precio", label: "Mayor precio primero" },
                     { value: "nombre", label: "Nombre" },
                     { value: "marca", label: "Marca" },
                   ] as const;
@@ -738,7 +738,7 @@ export default function CategoriasPage() {
                       {showOrdenDropdown && (
                         <>
                           <div className="fixed inset-0 z-10" onClick={() => setShowOrdenDropdown(false)} />
-                          <div className="absolute left-0 top-full z-20 mt-1 w-56 overflow-hidden rounded-xl border border-black/10 bg-white shadow-[0_12px_32px_rgba(15,23,42,0.15)]">
+                          <div className="absolute left-0 top-full z-20 mt-1 w-52 min-w-full overflow-hidden rounded-xl border border-black/10 bg-white shadow-[0_12px_32px_rgba(15,23,42,0.15)]">
                             {opcionesOrden.map((op) => (
                               <button
                                 key={op.value}
