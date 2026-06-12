@@ -325,7 +325,7 @@ export default function CategoriasPage() {
           <button
             type="button"
             onClick={() => setShowMobileFilters(true)}
-            className="fixed bottom-20 right-4 z-50 flex items-center gap-2 rounded-full bg-[#16384f] px-5 py-3 text-sm font-semibold text-white shadow-[0_8px_24px_rgba(22,56,79,0.35)]"
+            className="fixed bottom-20 left-4 z-50 flex items-center gap-2 rounded-full bg-[#16384f] px-5 py-3 text-sm font-semibold text-white shadow-[0_8px_24px_rgba(22,56,79,0.35)]"
           >
             <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
               <line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="11" y1="18" x2="13" y2="18"/>
@@ -522,7 +522,7 @@ export default function CategoriasPage() {
       <PromoRibbon />
 
       <section className="mx-auto max-w-[1680px] px-6 pb-16 pt-6">
-        <div className="grid gap-8 xl:grid-cols-[300px_minmax(0,1fr)]">
+        <div className="categorias-layout grid gap-8">
           <aside className="space-y-5">
             <div className="rounded-[1.75rem] border border-black/8 bg-white p-6 shadow-[0_14px_28px_rgba(15,23,42,0.05)]">
               <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[#8b8d91]">

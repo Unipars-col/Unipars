@@ -37,7 +37,6 @@ export default function FeaturedProductCard(props: Props) {
         transition: "transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease",
         cursor: "pointer",
         position: "relative",
-        overflow: "hidden",
         display: "flex",
         flexDirection: "column",
       }}
@@ -50,26 +49,28 @@ export default function FeaturedProductCard(props: Props) {
         transition: "opacity 0.3s ease",
       }} />
 
-      <div style={{ position: "relative", overflow: "hidden", borderRadius: "1.75rem 1.75rem 0 0" }}>
-        <span style={{
-          position: "absolute", left: 16, top: 16, zIndex: 10,
-          background: "#ed8435", color: "white", borderRadius: 8,
-          padding: "4px 10px", fontSize: 13, fontWeight: 600,
-        }}>
-          {props.descuento}
-        </span>
-        <div style={{ display: "flex", height: 208, alignItems: "center", justifyContent: "center", padding: "28px" }}>
-          <Image
-            src={props.imagen}
-            alt={props.nombre}
-            width={800}
-            height={600}
-            style={{
-              maxHeight: 140, width: "auto", maxWidth: "100%", objectFit: "contain",
-              transform: hovered ? "scale(1.18)" : "scale(1)",
-              transition: "transform 0.5s ease",
-            }}
-          />
+      <div style={{ position: "relative", borderRadius: "1.75rem 1.75rem 0 0" }}>
+        <div style={{ overflow: "hidden", borderRadius: "1.75rem 1.75rem 0 0" }}>
+          <span style={{
+            position: "absolute", left: 16, top: 16, zIndex: 10,
+            background: "#ed8435", color: "white", borderRadius: 8,
+            padding: "4px 10px", fontSize: 13, fontWeight: 600,
+          }}>
+            {props.descuento}
+          </span>
+          <div style={{ display: "flex", height: 208, alignItems: "center", justifyContent: "center", padding: "28px" }}>
+            <Image
+              src={props.imagen}
+              alt={props.nombre}
+              width={800}
+              height={600}
+              style={{
+                maxHeight: 140, width: "auto", maxWidth: "100%", objectFit: "contain",
+                transform: hovered ? "scale(1.18)" : "scale(1)",
+                transition: "transform 0.5s ease",
+              }}
+            />
+          </div>
         </div>
         <HoverCartControl
           id={props.slug}

@@ -164,18 +164,26 @@ body {
   .hscroll-md.cols-4   { grid-template-columns: repeat(4, 1fr); }
 }
 
+/* ── Categorias: sidebar + productos ────────────────────────────── */
+.categorias-layout {
+  grid-template-columns: 1fr;
+}
+@media (min-width: 768px) {
+  .categorias-layout {
+    grid-template-columns: 260px minmax(0, 1fr);
+  }
+}
+
 /* ── Tarjeta producto destacado — ancho mobile ───────────────────── */
 .featured-card {
   width: 80vw;
   min-width: 0;
   flex-shrink: 0;
-  overflow: hidden;
 }
 @media (min-width: 768px) {
   .featured-card {
     width: auto;
     min-width: 0;
-    overflow: hidden;
   }
 }
 

@@ -328,21 +328,21 @@ export default function ProductoDetallePage() {
 
             {/* CTA mobile: full-width estilo Alkosto */}
             <div className="pt-4">
-              <div className="flex overflow-hidden rounded-2xl border border-black/12 xl:hidden">
+              <div className="flex overflow-hidden rounded-xl border border-black/12 xl:hidden">
                 <div className="flex shrink-0 items-center divide-x divide-black/10">
                   <button
                     type="button"
                     onClick={() => ajustarCantidad(-1)}
-                    className="px-4 py-4 text-xl text-[#4f545a] transition-colors hover:bg-[#f5f5f5]"
+                    className="px-3 py-2.5 text-base text-[#4f545a] transition-colors hover:bg-[#f5f5f5]"
                     aria-label="Disminuir cantidad"
                   >−</button>
-                  <div className="w-10 py-4 text-center text-base font-semibold text-[#33373d]">
+                  <div className="w-8 py-2.5 text-center text-sm font-semibold text-[#33373d]">
                     {cantidad}
                   </div>
                   <button
                     type="button"
                     onClick={() => ajustarCantidad(1)}
-                    className="px-4 py-4 text-xl text-[#4f545a] transition-colors hover:bg-[#f5f5f5]"
+                    className="px-3 py-2.5 text-base text-[#4f545a] transition-colors hover:bg-[#f5f5f5]"
                     aria-label="Aumentar cantidad"
                   >+</button>
                 </div>
@@ -353,7 +353,7 @@ export default function ProductoDetallePage() {
                   imagen={producto.imagen}
                   cantidad={cantidad}
                   disabled={!producto.puedeComprar}
-                  className="flex-1 !rounded-none text-base font-bold"
+                  className="flex-1 !rounded-none text-sm font-semibold"
                 />
               </div>
               {/* CTA desktop: original */}
