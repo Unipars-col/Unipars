@@ -4,10 +4,11 @@ export function generateWompiIntegrityHash(
   reference: string,
   amountInCents: number,
   currency: string,
+  secret?: string,
 ): string {
-  const secret = process.env.WOMPI_INTEGRITY_SECRET;
-  if (!secret) throw new Error("WOMPI_INTEGRITY_SECRET not configured");
-  const data = `${reference}${amountInCents}${currency}${secret}`;
+  const s = secret ?? (process.env as Record<string, string | undefined>)["WOMPI_INTEGRITY_SECRET"];
+  if (!s) throw new Error("WOMPI_INTEGRITY_SECRET not configured");
+  const data = `${reference}${amountInCents}${currency}${s}`;
   return createHash("sha256").update(data).digest("hex");
 }
 
