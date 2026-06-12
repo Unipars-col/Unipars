@@ -1,10 +1,12 @@
 "use client";
 
 import { useEffect, useMemo, useState, type ChangeEvent, type FormEvent } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { departamentosColombia, getCitiesForDepartment } from "@/lib/colombia-locations";
 import FacturaElectronica from "../checkout/exito/factura-electronica";
+import { useProducts } from "../components/products-provider";
 
 type AccountUser = {
   id: string;
@@ -63,7 +65,7 @@ type FormState = {
   confirmPassword: string;
 };
 
-type AccountPanel = "summary" | "details" | "orders" | "referencias";
+type AccountPanel = "summary" | "details" | "orders" | "referencias" | "catalogo";
 type ClientCode = { id: string; productSlug: string; productName: string; customCode: string };
 
 function formatCurrency(value: number) {
@@ -296,6 +298,10 @@ export default function AccountProfileForm({
   const [inlineError, setInlineError] = useState("");
   const [clientCodes, setClientCodes] = useState<ClientCode[]>([]);
   const [codesLoaded, setCodesLoaded] = useState(false);
+  const [catalogSearch, setCatalogSearch] = useState("");
+  const [inlineInputs, setInlineInputs] = useState<Record<string, string>>({});
+  const [inlineSaving, setInlineSaving] = useState<string | null>(null);
+  const { products } = useProducts();
   const cityOptions = useMemo(
     () => getCitiesForDepartment(form.department),
     [form.department],
@@ -484,28 +490,55 @@ export default function AccountProfileForm({
                 Pedidos
               </button>
               {user.role === "EXCLUSIVE" && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setActivePanel("referencias");
-                    if (!codesLoaded) {
-                      fetch("/api/mi-cuenta/codigos")
-                        .then((r) => r.json())
-                        .then((data: { codes?: ClientCode[] }) => {
-                          setClientCodes(data.codes ?? []);
-                          setCodesLoaded(true);
-                        })
-                        .catch(() => setCodesLoaded(true));
-                    }
-                  }}
-                  className={`rounded-full px-5 py-3 text-sm font-semibold transition-colors duration-200 ${
-                    activePanel === "referencias"
-                      ? "bg-[#16384f] text-white"
-                      : "border border-[#16384f]/20 text-[#16384f] hover:bg-[#16384f] hover:text-white"
-                  }`}
-                >
-                  Mis referencias
-                </button>
+                <>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setActivePanel("catalogo");
+                      if (!codesLoaded) {
+                        fetch("/api/mi-cuenta/codigos")
+                          .then((r) => r.json())
+                          .then((data: { codes?: ClientCode[] }) => {
+                            setClientCodes(data.codes ?? []);
+                            const inputs: Record<string, string> = {};
+                            for (const c of data.codes ?? []) inputs[c.productSlug] = c.customCode;
+                            setInlineInputs(inputs);
+                            setCodesLoaded(true);
+                          })
+                          .catch(() => setCodesLoaded(true));
+                      }
+                    }}
+                    className={`rounded-full px-5 py-3 text-sm font-semibold transition-colors duration-200 ${
+                      activePanel === "catalogo"
+                        ? "bg-[#16384f] text-white"
+                        : "border border-[#16384f]/20 text-[#16384f] hover:bg-[#16384f] hover:text-white"
+                    }`}
+                  >
+                    Catálogo
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setActivePanel("referencias");
+                      if (!codesLoaded) {
+                        fetch("/api/mi-cuenta/codigos")
+                          .then((r) => r.json())
+                          .then((data: { codes?: ClientCode[] }) => {
+                            setClientCodes(data.codes ?? []);
+                            setCodesLoaded(true);
+                          })
+                          .catch(() => setCodesLoaded(true));
+                      }
+                    }}
+                    className={`rounded-full px-5 py-3 text-sm font-semibold transition-colors duration-200 ${
+                      activePanel === "referencias"
+                        ? "bg-[#16384f] text-white"
+                        : "border border-[#16384f]/20 text-[#16384f] hover:bg-[#16384f] hover:text-white"
+                    }`}
+                  >
+                    Mis referencias
+                  </button>
+                </>
               )}
             </div>
           </div>
@@ -1058,6 +1091,105 @@ export default function AccountProfileForm({
               )}
             </div>
           )}
+          </div>
+          )}
+
+          {/* ── Panel Catálogo (solo EXCLUSIVE) ── */}
+          {activePanel === "catalogo" && user.role === "EXCLUSIVE" && (
+          <div className="space-y-5">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#8b8d91]">Cliente exclusivo</p>
+              <h2 className="mt-1 text-2xl font-semibold tracking-[-0.04em] text-[#16384f]">Asignar mis códigos</h2>
+              <p className="mt-2 text-sm text-[#6e7379]">Busca un producto y escribe tu referencia interna. Presiona Enter o clic en Guardar.</p>
+            </div>
+
+            <input
+              type="text"
+              value={catalogSearch}
+              onChange={(e) => setCatalogSearch(e.target.value)}
+              placeholder="Buscar producto por nombre, marca o categoría..."
+              className="w-full rounded-2xl border border-black/10 bg-white px-5 py-3 text-sm outline-none focus:border-[#16384f]/40 shadow-sm"
+            />
+
+            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+              {products
+                .filter((p) => {
+                  const q = catalogSearch.toLowerCase();
+                  return !q || p.nombre.toLowerCase().includes(q) || p.marca.toLowerCase().includes(q) || p.categoria.toLowerCase().includes(q);
+                })
+                .slice(0, 60)
+                .map((p) => {
+                  const saved = clientCodes.find((c) => c.productSlug === p.slug);
+                  const inputVal = inlineInputs[p.slug] ?? saved?.customCode ?? "";
+                  return (
+                    <div key={p.slug} className="flex items-center gap-3 rounded-2xl border border-black/8 bg-white p-3 shadow-sm">
+                      <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-[#f0f2f4]">
+                        <Image src={p.imagen} alt={p.nombre} fill className="object-contain p-1" sizes="56px" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-semibold text-[#1f2328]">{p.nombre}</p>
+                        <p className="text-[11px] text-[#8b8d91]">{p.marca} · {p.categoria}</p>
+                        <div className="mt-1.5 flex items-center gap-1.5">
+                          <input
+                            type="text"
+                            value={inputVal}
+                            onChange={(e) => setInlineInputs((prev) => ({ ...prev, [p.slug]: e.target.value }))}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter" && inlineInputs[p.slug]?.trim()) {
+                                setInlineSaving(p.slug);
+                                fetch("/api/mi-cuenta/codigos", {
+                                  method: "POST",
+                                  headers: { "Content-Type": "application/json" },
+                                  body: JSON.stringify({ productSlug: p.slug, productName: p.nombre, customCode: inlineInputs[p.slug].trim() }),
+                                })
+                                  .then((r) => r.json())
+                                  .then((d: { code?: ClientCode }) => {
+                                    if (d.code) {
+                                      setClientCodes((prev) => {
+                                        const exists = prev.find((c) => c.productSlug === p.slug);
+                                        return exists ? prev.map((c) => c.productSlug === p.slug ? d.code! : c) : [...prev, d.code!];
+                                      });
+                                    }
+                                  })
+                                  .finally(() => setInlineSaving(null));
+                              }
+                            }}
+                            placeholder="Tu código..."
+                            maxLength={30}
+                            className="w-full rounded-lg border border-black/10 bg-[#f8f9fb] px-2 py-1 text-xs font-semibold text-[#16384f] outline-none placeholder:font-normal placeholder:text-[#c0c4ca] focus:border-[#16384f]/40"
+                          />
+                          <button
+                            type="button"
+                            disabled={!inlineInputs[p.slug]?.trim() || inlineSaving === p.slug}
+                            onClick={() => {
+                              if (!inlineInputs[p.slug]?.trim()) return;
+                              setInlineSaving(p.slug);
+                              fetch("/api/mi-cuenta/codigos", {
+                                method: "POST",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({ productSlug: p.slug, productName: p.nombre, customCode: inlineInputs[p.slug].trim() }),
+                              })
+                                .then((r) => r.json())
+                                .then((d: { code?: ClientCode }) => {
+                                  if (d.code) {
+                                    setClientCodes((prev) => {
+                                      const exists = prev.find((c) => c.productSlug === p.slug);
+                                      return exists ? prev.map((c) => c.productSlug === p.slug ? d.code! : c) : [...prev, d.code!];
+                                    });
+                                  }
+                                })
+                                .finally(() => setInlineSaving(null));
+                            }}
+                            className="shrink-0 rounded-lg bg-[#16384f] px-2 py-1 text-[10px] font-bold text-white transition-colors hover:bg-[#0f2638] disabled:opacity-40"
+                          >
+                            {inlineSaving === p.slug ? "..." : saved ? "✓" : "Guardar"}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+            </div>
           </div>
           )}
 
