@@ -35,7 +35,17 @@ export async function GET(request: Request) {
 
     const amountInCents = order.subtotal * 100;
     const currency = "COP";
-    const integritySecret = (process.env as Record<string, string | undefined>)["WOMPI_INTEGRITY_SECRET"];
+    const env = process.env as Record<string, string | undefined>;
+    const integritySecret = env["WOMPI_INTEGRITY_SECRET"];
+    if (!integritySecret) {
+      return Response.json({
+        error: "WOMPI_INTEGRITY_SECRET not configured",
+        _debug: {
+          keys_with_wompi: Object.keys(env).filter(k => k.includes("WOMPI")),
+          total_env_keys: Object.keys(env).length,
+        }
+      }, { status: 500 });
+    }
     const integrityHash = generateWompiIntegrityHash(order.id, amountInCents, currency, integritySecret);
     const appUrl = (process.env as Record<string, string | undefined>)["NEXT_PUBLIC_APP_URL"] || "https://unipars-tech.vercel.app";
 
