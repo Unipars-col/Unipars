@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useParams } from "next/navigation";
@@ -170,8 +170,27 @@ export default function ProductoDetallePage() {
   const { products } = useProducts();
   const [cantidad, setCantidad] = useState(1);
   const [fichaAbierta, setFichaAbierta] = useState(true);
+  const [isExclusive, setIsExclusive] = useState(false);
+
+  useEffect(() => {
+    fetch("/api/auth/me")
+      .then((r) => r.ok ? r.json() : null)
+      .then((d: { user?: { role?: string } } | null) => {
+        if (d?.user?.role === "EXCLUSIVE") setIsExclusive(true);
+      })
+      .catch(() => undefined);
+  }, []);
+
   const slug = params.slug;
-  const producto = products.find((item) => item.slug === slug);
+  const rawProducto = products.find((item) => item.slug === slug);
+  const producto = useMemo(() => {
+    if (!rawProducto || !isExclusive) return rawProducto;
+    if (rawProducto.marca.toLowerCase() === "unipars") return rawProducto;
+    const nuevoPrecio = Math.ceil(rawProducto.precioValor * 1.1);
+    const nuevoPrecioAnterior = Math.ceil(rawProducto.precioAnteriorValor * 1.1);
+    const fmt = (v: number) => new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", maximumFractionDigits: 0 }).format(v);
+    return { ...rawProducto, marca: "Unipars", precioValor: nuevoPrecio, precio: fmt(nuevoPrecio), precioAnteriorValor: nuevoPrecioAnterior, precioAnterior: fmt(nuevoPrecioAnterior) };
+  }, [rawProducto, isExclusive]);
   const galleryImages = useMemo(
     () =>
       producto

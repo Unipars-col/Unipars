@@ -33,6 +33,39 @@ export default function CategoriasPage() {
   const maxIdx = Math.max(0, categoriasData.length - VISIBLE);
   const clipRef = useRef<HTMLDivElement>(null);
   const [clipWidth, setClipWidth] = useState(0);
+  const [isExclusive, setIsExclusive] = useState(false);
+  const [clientCodes, setClientCodes] = useState<Record<string, string>>({});
+  const [ordenActivo, setOrdenActivo] = useState<"recomendados" | "mas-vendidos" | "menor-precio" | "mayor-precio" | "nombre" | "marca">("recomendados");
+  const [showOrdenDropdown, setShowOrdenDropdown] = useState(false);
+  const [marcasActivas, setMarcasActivas] = useState<string[]>([]);
+  const [marcaBusqueda, setMarcaBusqueda] = useState("");
+  const [mostrarMasMarcas, setMostrarMasMarcas] = useState(false);
+  const [disponibilidadActiva, setDisponibilidadActiva] = useState<string[]>([]);
+  const [showMobileFilters, setShowMobileFilters] = useState(false);
+  type AiExpansion = { keywords: string[]; categoria: string | null; interpretacion: string | null; loading: boolean };
+  const [aiExpansion, setAiExpansion] = useState<AiExpansion | null>(null);
+
+  const displayProducts = useMemo(() => {
+    if (!isExclusive) return products;
+    const fmt = (v: number) => new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", maximumFractionDigits: 0 }).format(v);
+    return products.map((p) => {
+      if (p.marca.toLowerCase() === "unipars") return p;
+      const nuevoPrecio = Math.ceil(p.precioValor * 1.1);
+      const nuevoPrecioAnterior = Math.ceil(p.precioAnteriorValor * 1.1);
+      return { ...p, marca: "Unipars", precioValor: nuevoPrecio, precio: fmt(nuevoPrecio), precioAnteriorValor: nuevoPrecioAnterior, precioAnterior: fmt(nuevoPrecioAnterior) };
+    });
+  }, [products, isExclusive]);
+
+  const priceBounds = useMemo(() => {
+    const values = displayProducts.map((product) => product.precioValor);
+    const min = values.length > 0 ? Math.min(...values) : 0;
+    const max = values.length > 0 ? Math.max(...values) : 1000000;
+    return { min, max };
+  }, [displayProducts]);
+
+  const [precioMinimo, setPrecioMinimo] = useState(0);
+  const [precioMaximo, setPrecioMaximo] = useState(1_000_000_000);
+
   useEffect(() => {
     const el = clipRef.current;
     if (!el) return;
@@ -40,17 +73,28 @@ export default function CategoriasPage() {
     obs.observe(el);
     return () => obs.disconnect();
   }, []);
+
+  useEffect(() => {
+    fetch("/api/auth/me")
+      .then((r) => r.json())
+      .then((data: { user?: { role?: string } }) => {
+        if (data.user?.role === "EXCLUSIVE") setIsExclusive(true);
+        if (data.user?.role !== "EXCLUSIVE") return null;
+        return fetch("/api/mi-cuenta/codigos");
+      })
+      .then((r) => r?.json())
+      .then((data?: { codes?: { productSlug: string; customCode: string }[] }) => {
+        if (!data?.codes) return;
+        const map: Record<string, string> = {};
+        for (const c of data.codes) map[c.productSlug] = c.customCode;
+        setClientCodes(map);
+      })
+      .catch(() => undefined);
+  }, []);
+
   const GAP = 12;
   const cardW = clipWidth > 0 ? (clipWidth - (VISIBLE - 1) * GAP) / VISIBLE : 0;
   const step = cardW + GAP;
-  const marcas = Array.from(new Set(products.map((product) => product.marca)));
-  const priceBounds = useMemo(() => {
-    const values = products.map((product) => product.precioValor);
-    const min = values.length > 0 ? Math.min(...values) : 0;
-    const max = values.length > 0 ? Math.max(...values) : 1000000;
-
-    return { min, max };
-  }, [products]);
 
   const soloOfertas = searchParams.get("oferta") === "true";
   const categoriaActiva = categoriaDesdeSlug(searchParams.get("categoria"));
@@ -71,37 +115,6 @@ export default function CategoriasPage() {
         "Explora esta línea con una vista más clara del catálogo y encuentra referencias listas para cotizar."
       : "Construimos una sola ventana de catálogo para que explores todas las líneas de producto sin duplicar páginas ni perder claridad.";
 
-  const [ordenActivo, setOrdenActivo] = useState<"recomendados" | "mas-vendidos" | "menor-precio" | "mayor-precio" | "nombre" | "marca">("recomendados");
-  const [showOrdenDropdown, setShowOrdenDropdown] = useState(false);
-  const [marcasActivas, setMarcasActivas] = useState<string[]>([]);
-  const [marcaBusqueda, setMarcaBusqueda] = useState("");
-  const [mostrarMasMarcas, setMostrarMasMarcas] = useState(false);
-  const [disponibilidadActiva, setDisponibilidadActiva] = useState<string[]>([]);
-  const [precioMinimo, setPrecioMinimo] = useState(priceBounds.min);
-  const [precioMaximo, setPrecioMaximo] = useState(priceBounds.max);
-  const [showMobileFilters, setShowMobileFilters] = useState(false);
-
-  type AiExpansion = { keywords: string[]; categoria: string | null; interpretacion: string | null; loading: boolean };
-  const [aiExpansion, setAiExpansion] = useState<AiExpansion | null>(null);
-  const [clientCodes, setClientCodes] = useState<Record<string, string>>({});
-
-  useEffect(() => {
-    fetch("/api/auth/me")
-      .then((r) => r.json())
-      .then((data: { user?: { role?: string } }) => {
-        if (data.user?.role !== "EXCLUSIVE") return;
-        return fetch("/api/mi-cuenta/codigos");
-      })
-      .then((r) => r?.json())
-      .then((data?: { codes?: { productSlug: string; customCode: string }[] }) => {
-        if (!data?.codes) return;
-        const map: Record<string, string> = {};
-        for (const c of data.codes) map[c.productSlug] = c.customCode;
-        setClientCodes(map);
-      })
-      .catch(() => undefined);
-  }, []);
-
   useEffect(() => {
     if (!queryActiva) { setAiExpansion(null); return; }
     const words = queryActiva.trim().split(/\s+/);
@@ -120,11 +133,11 @@ export default function CategoriasPage() {
 
   const marcasConConteo = useMemo(() => {
     const counts = new Map<string, number>();
-    for (const p of products) counts.set(p.marca, (counts.get(p.marca) ?? 0) + 1);
+    for (const p of displayProducts) counts.set(p.marca, (counts.get(p.marca) ?? 0) + 1);
     return Array.from(counts.entries())
       .map(([nombre, conteo]) => ({ nombre, conteo }))
       .sort((a, b) => b.conteo - a.conteo);
-  }, [products]);
+  }, [displayProducts]);
 
   const marcasFiltradas = marcasConConteo.filter((m) =>
     m.nombre.toLowerCase().includes(marcaBusqueda.toLowerCase()),
@@ -157,7 +170,7 @@ export default function CategoriasPage() {
   };
 
   const aiKeywords = aiExpansion?.keywords ?? [];
-  const productosFiltrados = products.filter((producto) => {
+  const productosFiltrados = displayProducts.filter((producto) => {
     const coincideCategoria =
       !categoriaActiva || producto.categoria === categoriaActiva;
     const coincideBusqueda =
