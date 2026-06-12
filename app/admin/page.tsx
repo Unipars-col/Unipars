@@ -1234,6 +1234,7 @@ export default function AdminPage() {
     setInventoryStatusFilter("all");
     setActiveTab("inventory");
     void loadInventoryMovements();
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const openOrdersView = () => {
