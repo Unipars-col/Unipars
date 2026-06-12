@@ -166,6 +166,7 @@ export default function CategoriasPage() {
       producto.marca.toLowerCase().includes(queryActiva) ||
       producto.categoria.toLowerCase().includes(queryActiva) ||
       producto.descripcion.toLowerCase().includes(queryActiva) ||
+      (clientCodes[producto.slug]?.toLowerCase().includes(queryActiva) ?? false) ||
       (aiKeywords.length > 0 && aiKeywords.some((kw) =>
         producto.nombre.toLowerCase().includes(kw) ||
         producto.marca.toLowerCase().includes(kw) ||

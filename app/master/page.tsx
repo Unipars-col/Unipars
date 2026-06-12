@@ -1092,12 +1092,21 @@ export default function MasterPage() {
   const toggleExclusive = async (userId: string, currentRole: string) => {
     setExclusiveSaving(userId);
     const newRole = currentRole === "EXCLUSIVE" ? "CUSTOMER" : "EXCLUSIVE";
-    await fetch(`/api/admin/users/${userId}/role`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ role: newRole }),
-    });
-    setExclusiveUsers((prev) => prev.map((u) => u.id === userId ? { ...u, role: newRole } : u));
+    try {
+      const res = await fetch(`/api/admin/users/${userId}/role`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ role: newRole }),
+      });
+      const data = await res.json() as { error?: string; user?: { role: string } };
+      if (!res.ok) {
+        alert(`Error al actualizar: ${data.error ?? res.status}`);
+      } else {
+        setExclusiveUsers((prev) => prev.map((u) => u.id === userId ? { ...u, role: data.user?.role ?? newRole } : u));
+      }
+    } catch (e) {
+      alert(`Error de red: ${String(e)}`);
+    }
     setExclusiveSaving(null);
   };
 

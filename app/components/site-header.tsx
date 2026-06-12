@@ -20,6 +20,7 @@ export default function SiteHeader({ currentUser, isVendor }: SiteHeaderProps) {
   const [menuAbierto, setMenuAbierto] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [clientCodes, setClientCodes] = useState<Record<string, string>>({});
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -28,6 +29,18 @@ export default function SiteHeader({ currentUser, isVendor }: SiteHeaderProps) {
   const { totalItems } = useCart();
   const { products } = useProducts();
 
+  useEffect(() => {
+    if (currentUser?.role !== "EXCLUSIVE") return;
+    fetch("/api/mi-cuenta/codigos")
+      .then((r) => r.json())
+      .then((d: { codes?: { productSlug: string; customCode: string }[] }) => {
+        const map: Record<string, string> = {};
+        for (const c of d.codes ?? []) map[c.productSlug] = c.customCode;
+        setClientCodes(map);
+      })
+      .catch(() => undefined);
+  }, [currentUser?.role]);
+
   const suggestions = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
     if (q.length < 2) return [];
@@ -35,10 +48,11 @@ export default function SiteHeader({ currentUser, isVendor }: SiteHeaderProps) {
       .filter((p) =>
         p.nombre.toLowerCase().includes(q) ||
         p.marca.toLowerCase().includes(q) ||
-        p.categoria.toLowerCase().includes(q)
+        p.categoria.toLowerCase().includes(q) ||
+        (clientCodes[p.slug]?.toLowerCase().includes(q) ?? false)
       )
       .slice(0, 6);
-  }, [searchQuery, products]);
+  }, [searchQuery, products, clientCodes]);
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
