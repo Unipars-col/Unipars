@@ -16,6 +16,7 @@ type AccountUser = {
   city: string | null;
   addressLine1: string | null;
   addressLine2: string | null;
+  role: "CUSTOMER" | "EXCLUSIVE" | "SELLER" | "PROVIDER" | "ADMIN" | "MASTER";
   createdAt: Date;
 };
 
@@ -62,7 +63,8 @@ type FormState = {
   confirmPassword: string;
 };
 
-type AccountPanel = "summary" | "details" | "orders";
+type AccountPanel = "summary" | "details" | "orders" | "referencias";
+type ClientCode = { id: string; productSlug: string; productName: string; customCode: string };
 
 function formatCurrency(value: number) {
   return new Intl.NumberFormat("es-CO", {
@@ -292,6 +294,8 @@ export default function AccountProfileForm({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [toast, setToast] = useState<ToastState>(null);
   const [inlineError, setInlineError] = useState("");
+  const [clientCodes, setClientCodes] = useState<ClientCode[]>([]);
+  const [codesLoaded, setCodesLoaded] = useState(false);
   const cityOptions = useMemo(
     () => getCitiesForDepartment(form.department),
     [form.department],
@@ -479,6 +483,30 @@ export default function AccountProfileForm({
               >
                 Pedidos
               </button>
+              {user.role === "EXCLUSIVE" && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActivePanel("referencias");
+                    if (!codesLoaded) {
+                      fetch("/api/mi-cuenta/codigos")
+                        .then((r) => r.json())
+                        .then((data: { codes?: ClientCode[] }) => {
+                          setClientCodes(data.codes ?? []);
+                          setCodesLoaded(true);
+                        })
+                        .catch(() => setCodesLoaded(true));
+                    }
+                  }}
+                  className={`rounded-full px-5 py-3 text-sm font-semibold transition-colors duration-200 ${
+                    activePanel === "referencias"
+                      ? "bg-[#16384f] text-white"
+                      : "border border-[#16384f]/20 text-[#16384f] hover:bg-[#16384f] hover:text-white"
+                  }`}
+                >
+                  Mis referencias
+                </button>
+              )}
             </div>
           </div>
 
@@ -1030,6 +1058,59 @@ export default function AccountProfileForm({
               )}
             </div>
           )}
+          </div>
+          )}
+
+          {/* ── Panel Mis referencias (solo EXCLUSIVE) ── */}
+          {activePanel === "referencias" && user.role === "EXCLUSIVE" && (
+          <div className="space-y-6">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#8b8d91]">Cliente exclusivo</p>
+              <h2 className="mt-1 text-2xl font-semibold tracking-[-0.04em] text-[#16384f]">Mis referencias internas</h2>
+              <p className="mt-2 text-sm text-[#6e7379]">Códigos personalizados que has asignado a los productos del catálogo.</p>
+            </div>
+            {!codesLoaded ? (
+              <p className="text-sm text-[#8b8d91] animate-pulse">Cargando...</p>
+            ) : clientCodes.length === 0 ? (
+              <div className="rounded-[1.4rem] border border-dashed border-black/12 bg-white p-10 text-center text-[#6e7379]">
+                <p className="font-semibold">Aún no tienes referencias guardadas.</p>
+                <p className="mt-1 text-sm">Abre cualquier producto del catálogo y guarda tu código interno.</p>
+              </div>
+            ) : (
+              <div className="overflow-hidden rounded-[1.4rem] border border-black/8 bg-white">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-black/6 bg-[#f8f9fb]">
+                      <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-[0.2em] text-[#8b8d91]">Producto</th>
+                      <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-[0.2em] text-[#8b8d91]">Tu código</th>
+                      <th className="px-5 py-3 text-right text-xs font-semibold uppercase tracking-[0.2em] text-[#8b8d91]"></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {clientCodes.map((c) => (
+                      <tr key={c.id} className="border-b border-black/5 last:border-0 transition-colors hover:bg-[#fafaf9]">
+                        <td className="px-5 py-4">
+                          <p className="font-semibold text-[#1f2328]">{c.productName}</p>
+                          <p className="text-xs text-[#8b8d91]">{c.productSlug}</p>
+                        </td>
+                        <td className="px-5 py-4">
+                          <span className="inline-flex items-center gap-1.5 rounded-lg bg-[#e8f0fe] px-3 py-1.5 text-sm font-bold text-[#16384f]">
+                            <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                            {c.customCode}
+                          </span>
+                        </td>
+                        <td className="px-5 py-4 text-right">
+                          <a href={`/producto/${c.productSlug}`}
+                            className="text-xs font-semibold text-[#2d7af0] transition-colors hover:text-[#16384f]">
+                            Ver →
+                          </a>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
           )}
         </section>

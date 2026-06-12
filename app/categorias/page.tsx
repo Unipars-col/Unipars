@@ -83,6 +83,24 @@ export default function CategoriasPage() {
 
   type AiExpansion = { keywords: string[]; categoria: string | null; interpretacion: string | null; loading: boolean };
   const [aiExpansion, setAiExpansion] = useState<AiExpansion | null>(null);
+  const [clientCodes, setClientCodes] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    fetch("/api/auth/me")
+      .then((r) => r.json())
+      .then((data: { user?: { role?: string } }) => {
+        if (data.user?.role !== "EXCLUSIVE") return;
+        return fetch("/api/mi-cuenta/codigos");
+      })
+      .then((r) => r?.json())
+      .then((data?: { codes?: { productSlug: string; customCode: string }[] }) => {
+        if (!data?.codes) return;
+        const map: Record<string, string> = {};
+        for (const c of data.codes) map[c.productSlug] = c.customCode;
+        setClientCodes(map);
+      })
+      .catch(() => undefined);
+  }, []);
 
   useEffect(() => {
     if (!queryActiva) { setAiExpansion(null); return; }
@@ -833,6 +851,12 @@ export default function CategoriasPage() {
                       <h3 className="text-lg font-semibold leading-tight tracking-[-0.03em] text-[#1f2328]">
                         {producto.nombre}
                       </h3>
+                      {clientCodes[producto.slug] && (
+                        <span className="mt-1.5 inline-flex items-center gap-1 rounded-md bg-[#e8f0fe] px-2 py-0.5 text-[11px] font-semibold text-[#16384f]">
+                          <svg viewBox="0 0 24 24" className="h-3 w-3" fill="none" stroke="currentColor" strokeWidth="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                          {clientCodes[producto.slug]}
+                        </span>
+                      )}
                     </div>
 
                     <p className="text-sm text-[#6e7379]">

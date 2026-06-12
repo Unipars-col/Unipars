@@ -11,7 +11,7 @@ import { categorias, slugCategoria } from "../data/catalog";
 type SiteHeaderProps = {
   currentUser: {
     fullName: string;
-    role: "CUSTOMER" | "SELLER" | "PROVIDER" | "ADMIN" | "MASTER";
+    role: "CUSTOMER" | "EXCLUSIVE" | "SELLER" | "PROVIDER" | "ADMIN" | "MASTER";
   } | null;
   isVendor?: boolean;
 };

@@ -1075,7 +1075,31 @@ export default function MasterPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [expandedId, setExpandedId] = useState<string | null>(null);
-  const [view, setView] = useState<"activos" | "solicitudes" | "uniparceros" | "encuesta">("activos");
+  const [view, setView] = useState<"activos" | "solicitudes" | "uniparceros" | "encuesta" | "exclusivos">("activos");
+  const [exclusiveSearch, setExclusiveSearch] = useState("");
+  const [exclusiveUsers, setExclusiveUsers] = useState<{ id: string; fullName: string; email: string; company: string | null; role: string }[]>([]);
+  const [exclusiveLoaded, setExclusiveLoaded] = useState(false);
+  const [exclusiveSaving, setExclusiveSaving] = useState<string | null>(null);
+
+  const loadExclusiveUsers = (q?: string) => {
+    const url = q ? `/api/admin/users?q=${encodeURIComponent(q)}` : "/api/admin/users";
+    fetch(url)
+      .then((r) => r.json())
+      .then((d: { users?: typeof exclusiveUsers }) => { setExclusiveUsers(d.users ?? []); setExclusiveLoaded(true); })
+      .catch(() => setExclusiveLoaded(true));
+  };
+
+  const toggleExclusive = async (userId: string, currentRole: string) => {
+    setExclusiveSaving(userId);
+    const newRole = currentRole === "EXCLUSIVE" ? "CUSTOMER" : "EXCLUSIVE";
+    await fetch(`/api/admin/users/${userId}/role`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ role: newRole }),
+    });
+    setExclusiveUsers((prev) => prev.map((u) => u.id === userId ? { ...u, role: newRole } : u));
+    setExclusiveSaving(null);
+  };
 
   useEffect(() => {
     void (async () => {
@@ -1187,11 +1211,16 @@ export default function MasterPage() {
               { id: "solicitudes", label: "Solicitudes", count: data.vendors.filter((v) => v.estado === "PENDIENTE" || v.estado === "EN_REVISION").length },
               { id: "uniparceros", label: "Uniparceros", count: talleres.length + arriendos.length + maquinarias.length },
               { id: "encuesta", label: "¿Cómo nos conocieron?", count: encuesta?.total ?? 0 },
+              { id: "exclusivos", label: "Clientes exclusivos", count: null },
             ] as const).map((tab) => (
               <button
                 key={tab.id}
                 type="button"
-                onClick={() => { setView(tab.id); setExpandedId(null); }}
+                onClick={() => {
+                  setView(tab.id);
+                  setExpandedId(null);
+                  if (tab.id === "exclusivos" && !exclusiveLoaded) loadExclusiveUsers();
+                }}
                 className={`flex shrink-0 items-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
                   view === tab.id
                     ? tab.id === "uniparceros" ? "bg-[#ed8435] text-white" : "bg-[#16384f] text-white"
@@ -1199,9 +1228,11 @@ export default function MasterPage() {
                 }`}
               >
                 {tab.label}
-                <span className={`rounded-full px-2 py-0.5 text-[11px] font-black ${
-                  view === tab.id ? "bg-white/20 text-white" : "bg-[#f0f0ee] text-[#8b8d91]"
-                }`}>{tab.count}</span>
+                {tab.count !== null && (
+                  <span className={`rounded-full px-2 py-0.5 text-[11px] font-black ${
+                    view === tab.id ? "bg-white/20 text-white" : "bg-[#f0f0ee] text-[#8b8d91]"
+                  }`}>{tab.count}</span>
+                )}
               </button>
             ))}
           </div>
@@ -1290,8 +1321,90 @@ export default function MasterPage() {
             </div>
           )}
 
+          {/* ── CLIENTES EXCLUSIVOS TAB ── */}
+          {view === "exclusivos" && (
+            <div className="rounded-[1.75rem] border border-black/8 bg-white p-6 shadow-sm">
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#8b8d91]">Gestión</p>
+              <h2 className="mt-1 text-xl font-bold text-[#16384f]">Clientes exclusivos</h2>
+              <p className="mt-1 text-sm text-[#6e7379] mb-5">Busca un usuario por email o nombre y activa su acceso exclusivo para que pueda guardar códigos internos.</p>
+
+              <div className="flex gap-2 mb-5">
+                <input
+                  type="text"
+                  value={exclusiveSearch}
+                  onChange={(e) => setExclusiveSearch(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === "Enter") loadExclusiveUsers(exclusiveSearch); }}
+                  placeholder="Buscar por email, nombre o empresa..."
+                  className="flex-1 rounded-xl border border-black/12 bg-[#f8f9fb] px-4 py-2.5 text-sm outline-none focus:border-[#16384f]/40"
+                />
+                <button
+                  type="button"
+                  onClick={() => loadExclusiveUsers(exclusiveSearch || undefined)}
+                  className="rounded-xl bg-[#16384f] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#0f2638] transition-colors"
+                >
+                  Buscar
+                </button>
+              </div>
+
+              {!exclusiveLoaded ? (
+                <p className="py-6 text-center text-sm text-[#8b8d91] animate-pulse">Cargando...</p>
+              ) : exclusiveUsers.length === 0 ? (
+                <p className="py-6 text-center text-sm text-[#8b8d91]">
+                  {exclusiveSearch ? "No se encontraron usuarios." : "Aún no hay clientes exclusivos registrados."}
+                </p>
+              ) : (
+                <div className="overflow-hidden rounded-[1.2rem] border border-black/8">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-black/6 bg-[#f8f9fb]">
+                        <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-[0.2em] text-[#8b8d91]">Usuario</th>
+                        <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-[0.2em] text-[#8b8d91]">Estado</th>
+                        <th className="px-5 py-3 text-right text-xs font-semibold uppercase tracking-[0.2em] text-[#8b8d91]">Acción</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {exclusiveUsers.map((u) => (
+                        <tr key={u.id} className="border-b border-black/5 last:border-0 hover:bg-[#fafaf9]">
+                          <td className="px-5 py-4">
+                            <p className="font-semibold text-[#1f2328]">{u.fullName}</p>
+                            <p className="text-xs text-[#8b8d91]">{u.email}{u.company ? ` · ${u.company}` : ""}</p>
+                          </td>
+                          <td className="px-5 py-4">
+                            {u.role === "EXCLUSIVE" ? (
+                              <span className="inline-flex items-center gap-1.5 rounded-full bg-[#e8f0fe] px-3 py-1 text-xs font-bold text-[#16384f]">
+                                ✦ Exclusivo
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center rounded-full bg-[#f0f0ee] px-3 py-1 text-xs font-medium text-[#8b8d91]">
+                                Cliente regular
+                              </span>
+                            )}
+                          </td>
+                          <td className="px-5 py-4 text-right">
+                            <button
+                              type="button"
+                              disabled={exclusiveSaving === u.id}
+                              onClick={() => void toggleExclusive(u.id, u.role)}
+                              className={`rounded-full px-4 py-1.5 text-xs font-semibold transition-colors ${
+                                u.role === "EXCLUSIVE"
+                                  ? "border border-red-200 text-red-500 hover:bg-red-50"
+                                  : "bg-[#16384f] text-white hover:bg-[#0f2638]"
+                              }`}
+                            >
+                              {exclusiveSaving === u.id ? "..." : u.role === "EXCLUSIVE" ? "Quitar acceso" : "Activar exclusivo"}
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          )}
+
           <div className="space-y-3">
-            {view !== "uniparceros" && view !== "encuesta" && allVendors.filter((v) =>
+            {view !== "uniparceros" && view !== "encuesta" && view !== "exclusivos" && allVendors.filter((v) =>
               view === "activos"
                 ? v.isTotalpars || v.estado === "APROBADA" || v.estado === "ACTIVO"
                 : !v.isTotalpars && (v.estado === "PENDIENTE" || v.estado === "EN_REVISION" || v.estado === "RECHAZADA")

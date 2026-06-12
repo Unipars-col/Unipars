@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import AddToCartButton from "../../components/add-to-cart-button";
+import ExclusiveCodePanel from "../../components/exclusive-code-panel";
 import { useProducts } from "../../components/products-provider";
 import type { ProductoEspecificacion } from "../../data/catalog";
 
@@ -385,6 +386,8 @@ export default function ProductoDetallePage() {
                 />
               </div>
             </div>
+
+            <ExclusiveCodePanel productSlug={producto.slug} productName={producto.nombre} />
 
             {producto.fichaTecnicaUrl && (
               <a
