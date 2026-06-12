@@ -184,7 +184,10 @@ export default function SiteHeader({ currentUser, isVendor }: SiteHeaderProps) {
         {/* Fila desktop: nav + acciones */}
         <div className="mt-3 hidden items-center justify-between gap-3 md:flex">
           <nav className="flex shrink-0 items-center gap-4 text-[13px] font-semibold tracking-[0.01em] text-[#16384f] md:gap-5 lg:text-sm xl:gap-6">
-            <div className="relative" ref={menuRef}>
+            <div className="relative" ref={menuRef}
+              onMouseEnter={() => setMenuAbierto(true)}
+              onMouseLeave={() => setMenuAbierto(false)}
+            >
               <div className="flex items-center gap-2">
                 <button type="button" onClick={() => irACategoria()}
                   className="whitespace-nowrap transition-colors duration-200 hover:text-[#ed8435]">
