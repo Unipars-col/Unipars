@@ -766,7 +766,7 @@ export default function CategoriasPage() {
               {productosFiltrados.map((producto) => (
                 <article
                   key={producto.slug}
-                  className="overflow-hidden rounded-[1.75rem] border border-black/8 bg-white shadow-[0_16px_35px_rgba(15,23,42,0.05)] transition-transform duration-300 hover:-translate-y-1"
+                  className="flex flex-col overflow-hidden rounded-[1.75rem] border border-black/8 bg-white shadow-[0_16px_35px_rgba(15,23,42,0.05)] transition-transform duration-300 hover:-translate-y-1"
                 >
                   <div className="relative bg-white">
                     <span className="absolute left-4 top-4 z-10 rounded-lg bg-[#ed8435] px-3 py-1 text-sm font-semibold text-white">
@@ -790,7 +790,7 @@ export default function CategoriasPage() {
                     />
                   </div>
 
-                  <div className="space-y-3 p-4">
+                  <div className="flex flex-1 flex-col space-y-3 p-4">
                     <div>
                       <p className="mb-2 text-[11px] font-medium uppercase tracking-[0.22em] text-[#8b8d91]">
                         {producto.categoria} · {producto.marca}
@@ -808,7 +808,7 @@ export default function CategoriasPage() {
                       Stock: {producto.stock ?? 0}
                     </p>
 
-                    <div className="border-t border-black/6 pt-3">
+                    <div className="mt-auto border-t border-black/6 pt-3">
                       <p className="text-sm text-[#a0a3a8] line-through">
                         {producto.precioAnterior}
                       </p>
