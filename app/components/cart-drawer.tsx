@@ -297,10 +297,29 @@ export default function CartDrawer() {
                 textAlign: "center",
                 textDecoration: "none",
                 boxSizing: "border-box",
+                marginBottom: 8,
               }}
             >
               Ver carrito completo
             </Link>
+
+            <button
+              type="button"
+              onClick={closeDrawer}
+              style={{
+                width: "100%",
+                padding: "12px",
+                borderRadius: 999,
+                border: "none",
+                backgroundColor: "transparent",
+                color: "#6e7379",
+                fontSize: 13,
+                fontWeight: 600,
+                cursor: "pointer",
+              }}
+            >
+              Seguir comprando
+            </button>
           </div>
         )}
       </div>
