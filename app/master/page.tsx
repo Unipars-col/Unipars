@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import AccountEntryLoading from "@/app/components/account-entry-loading";
 
 function fmt(v: number) {
   return new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", maximumFractionDigits: 0 }).format(v);
@@ -22,6 +23,7 @@ type VendorMetric = {
   orderCount: number;
   paidOrderCount: number;
   totalSales: number;
+  itemsSold: number;
   isTotalpars: boolean;
   brands?: string[];
   calificacion?: number | null;
@@ -340,14 +342,17 @@ function VendorStatusSelect({ vendorId, initial }: { vendorId: string; initial: 
   );
 }
 
-function StarRating({ vendorId, initial }: { vendorId: string; initial: number | null | undefined }) {
-  const [rating, setRating] = useState(initial ?? 0);
+function StarRating({ vendorId, initial, itemsSold }: { vendorId: string; initial: number | null | undefined; itemsSold: number }) {
+  const autoStars = Math.min(5, Math.floor(itemsSold / 100));
+  const [override, setOverride] = useState<number | null>(initial ?? null);
   const [hover, setHover] = useState(0);
   const [saving, setSaving] = useState(false);
 
+  const displayed = override ?? autoStars;
+
   const save = async (stars: number) => {
     setSaving(true);
-    setRating(stars);
+    setOverride(stars);
     await fetch(`/api/master/${vendorId}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
@@ -356,25 +361,46 @@ function StarRating({ vendorId, initial }: { vendorId: string; initial: number |
     setSaving(false);
   };
 
+  const reset = async () => {
+    setSaving(true);
+    setOverride(null);
+    await fetch(`/api/master/${vendorId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ calificacion: null }),
+    });
+    setSaving(false);
+  };
+
   return (
-    <div className="flex items-center gap-1">
-      {[1, 2, 3, 4, 5].map((s) => (
-        <button
-          key={s}
-          type="button"
-          disabled={saving}
-          onMouseEnter={() => setHover(s)}
-          onMouseLeave={() => setHover(0)}
-          onClick={() => void save(s)}
-          className="text-xl leading-none transition-transform duration-100 hover:scale-110 disabled:cursor-wait"
-          aria-label={`${s} estrellas`}
-        >
-          <span className={(hover || rating) >= s ? "text-[#ed8435]" : "text-[#d1d5db]"}>★</span>
-        </button>
-      ))}
-      {rating > 0 && (
-        <span className="ml-1 text-xs font-semibold text-[#8b8d91]">{rating}/5</span>
-      )}
+    <div className="flex flex-col gap-1">
+      <div className="flex items-center gap-1">
+        {[1, 2, 3, 4, 5].map((s) => (
+          <button
+            key={s}
+            type="button"
+            disabled={saving}
+            onMouseEnter={() => setHover(s)}
+            onMouseLeave={() => setHover(0)}
+            onClick={() => void save(s)}
+            className="text-xl leading-none transition-transform duration-100 hover:scale-110 disabled:cursor-wait"
+            aria-label={`${s} estrellas`}
+          >
+            <span className={(hover || displayed) >= s ? "text-[#ed8435]" : "text-[#d1d5db]"}>★</span>
+          </button>
+        ))}
+        {displayed > 0 && (
+          <span className="ml-1 text-xs font-semibold text-[#8b8d91]">{displayed}/5</span>
+        )}
+      </div>
+      <p className="text-[10px] text-[#a2a5aa]">
+        {itemsSold} uds. vendidas · auto: {autoStars}★
+        {override !== null && (
+          <button type="button" onClick={() => void reset()} className="ml-2 text-[#ed8435] hover:underline disabled:opacity-50" disabled={saving}>
+            restablecer
+          </button>
+        )}
+      </p>
     </div>
   );
 }
@@ -485,25 +511,25 @@ function VendorDetailPanel({ vendorId, isTotalpars }: { vendorId: string; isTota
 
               {/* ── Fila 3: Stats compactos ── */}
               <div className="grid grid-cols-3 gap-3">
-                <div className="flex items-center gap-3 rounded-[1.2rem] border border-black/[0.06] bg-white px-4 py-3 shadow-[0_2px_10px_rgba(15,23,42,0.04)]">
+                <div className="flex flex-col items-center gap-2 rounded-[1.2rem] border border-black/[0.06] bg-white px-2 py-4 text-center shadow-[0_2px_10px_rgba(15,23,42,0.04)] sm:flex-row sm:gap-3 sm:px-4 sm:py-3 sm:text-left">
                   <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#f0f4f7]">
                     <svg viewBox="0 0 14 14" className="h-3.5 w-3.5 text-[#16384f]" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M1 7h12M7 1v12"/></svg>
                   </div>
                   <div>
-                    <p className="text-[9px] font-bold uppercase tracking-[0.18em] text-[#c5c7cb]">Ticket prom.</p>
-                    <p className="mt-0.5 text-sm font-medium text-[#1f2328]">{fmt(detail.avgOrderValue)}</p>
+                    <p className="text-[8px] font-bold uppercase tracking-[0.15em] text-[#c5c7cb] sm:text-[9px] sm:tracking-[0.18em]">Ticket prom.</p>
+                    <p className="mt-0.5 text-sm font-semibold text-[#1f2328]">{fmt(detail.avgOrderValue)}</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-3 rounded-[1.2rem] border border-black/[0.06] bg-white px-4 py-3 shadow-[0_2px_10px_rgba(15,23,42,0.04)]">
+                <div className="flex flex-col items-center gap-2 rounded-[1.2rem] border border-black/[0.06] bg-white px-2 py-4 text-center shadow-[0_2px_10px_rgba(15,23,42,0.04)] sm:flex-row sm:gap-3 sm:px-4 sm:py-3 sm:text-left">
                   <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#f0f4f7]">
                     <svg viewBox="0 0 14 14" className="h-3.5 w-3.5 text-[#16384f]" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="1" width="12" height="12" rx="2"/><path d="M4 7h6M4 4.5h6M4 9.5h3"/></svg>
                   </div>
                   <div>
-                    <p className="text-[9px] font-bold uppercase tracking-[0.18em] text-[#c5c7cb]">Productos</p>
-                    <p className="mt-0.5 text-sm font-medium text-[#1f2328]">{detail.products}</p>
+                    <p className="text-[8px] font-bold uppercase tracking-[0.15em] text-[#c5c7cb] sm:text-[9px] sm:tracking-[0.18em]">Productos</p>
+                    <p className="mt-0.5 text-sm font-semibold text-[#1f2328]">{detail.products}</p>
                   </div>
                 </div>
-                <div className={`flex items-center gap-3 rounded-[1.2rem] px-4 py-3 ${detail.pendingDispatch > 0 ? "border border-[#ed8435]/20 bg-[#fffaf5]" : "border border-[#1f8b45]/15 bg-[#f4fbf6]"}`}>
+                <div className={`flex flex-col items-center gap-2 rounded-[1.2rem] px-2 py-4 text-center sm:flex-row sm:gap-3 sm:px-4 sm:py-3 sm:text-left ${detail.pendingDispatch > 0 ? "border border-[#ed8435]/20 bg-[#fffaf5]" : "border border-[#1f8b45]/15 bg-[#f4fbf6]"}`}>
                   <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${detail.pendingDispatch > 0 ? "bg-[#ed8435]/10" : "bg-[#1f8b45]/10"}`}>
                     {detail.pendingDispatch > 0
                       ? <svg viewBox="0 0 14 14" className="h-3.5 w-3.5 text-[#b85d12]" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="7" cy="7" r="6"/><path d="M7 4v3.5M7 9.5v.5"/></svg>
@@ -511,9 +537,9 @@ function VendorDetailPanel({ vendorId, isTotalpars }: { vendorId: string; isTota
                     }
                   </div>
                   <div>
-                    <p className="text-[9px] font-bold uppercase tracking-[0.18em] text-[#c5c7cb]">Por despachar</p>
-                    <p className={`mt-0.5 text-sm font-medium ${detail.pendingDispatch > 0 ? "text-[#b85d12]" : "text-[#1f8b45]"}`}>
-                      {detail.pendingDispatch > 0 ? `${detail.pendingDispatch} pedido${detail.pendingDispatch > 1 ? "s" : ""}` : "Al día ✓"}
+                    <p className="text-[8px] font-bold uppercase tracking-[0.15em] text-[#c5c7cb] sm:text-[9px] sm:tracking-[0.18em]">Por despachar</p>
+                    <p className={`mt-0.5 text-sm font-semibold ${detail.pendingDispatch > 0 ? "text-[#b85d12]" : "text-[#1f8b45]"}`}>
+                      {detail.pendingDispatch > 0 ? `${detail.pendingDispatch} ped.` : "Al día ✓"}
                     </p>
                   </div>
                 </div>
@@ -847,13 +873,26 @@ function SolicitudFlotaList<T extends ArriendoSolicitud | MaquinariaSolicitud>({
                 </div>
               </div>
 
-              {detalle.estado === "PENDIENTE" && (
-                <div className="mt-5 flex gap-2">
-                  <button onClick={() => cambiarEstado(detalle.id, "APROBADA")} className="flex-1 rounded-xl bg-[#1f8b45] py-2.5 text-xs font-bold text-white hover:bg-[#186a36]">✓ Aprobar</button>
-                  <button onClick={() => cambiarEstado(detalle.id, "EN_REVISION")} className="flex-1 rounded-xl border border-black/10 py-2.5 text-xs font-bold text-[#4338ca] hover:bg-[#f0f0ff]">En revisión</button>
-                  <button onClick={() => cambiarEstado(detalle.id, "RECHAZADA")} className="flex-1 rounded-xl border border-red-200 py-2.5 text-xs font-bold text-red-600 hover:bg-red-50">✕ Rechazar</button>
+              <div className="mt-5 flex gap-2">
+                <div className="relative">
+                    <select
+                      value={detalle.estado}
+                      onChange={(e) => void cambiarEstado(detalle.id, e.target.value)}
+                      className={`cursor-pointer appearance-none rounded-full border py-1.5 pl-3 pr-7 text-xs font-semibold outline-none ${
+                        (detalle.estado as string) === "APROBADA"    ? "bg-[#effaf2] text-[#1f6b39] border-[#1f8b45]/20" :
+                        (detalle.estado as string) === "EN_REVISION" ? "bg-[#f0f0ff] text-[#4338ca] border-[#4338ca]/20" :
+                        (detalle.estado as string) === "RECHAZADA"   ? "bg-[#fff1f1] text-[#c53b3b] border-[#c53b3b]/20" :
+                        "bg-[#fff6ee] text-[#b85d12] border-[#ed8435]/20"
+                      }`}
+                    >
+                      <option value="PENDIENTE">Pendiente</option>
+                      <option value="EN_REVISION">En revisión</option>
+                      <option value="APROBADA">Aprobado</option>
+                      <option value="RECHAZADA">Rechazado</option>
+                    </select>
+                    <svg className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 h-3 w-3 opacity-50" viewBox="0 0 10 6" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M1 1l4 4 4-4"/></svg>
                 </div>
-              )}
+              </div>
             </div>
           </div>
         </div>
@@ -904,9 +943,24 @@ function SolicitudFlotaList<T extends ArriendoSolicitud | MaquinariaSolicitud>({
               >
                 Ver detalle
               </button>
-              <button onClick={() => cambiarEstado(t.id, "APROBADA")} className="rounded-xl bg-[#1f8b45] px-5 py-2 text-xs font-bold text-white hover:bg-[#186a36]">✓ Aprobar</button>
-              <button onClick={() => cambiarEstado(t.id, "EN_REVISION")} className="rounded-xl border border-black/10 px-5 py-2 text-xs font-bold text-[#4338ca] hover:bg-[#f0f0ff]">En revisión</button>
-              <button onClick={() => cambiarEstado(t.id, "RECHAZADA")} className="rounded-xl border border-red-200 px-5 py-2 text-xs font-bold text-red-600 hover:bg-red-50">✕ Rechazar</button>
+<div className="relative">
+                <select
+                  value={t.estado}
+                  onChange={(e) => void cambiarEstado(t.id, e.target.value)}
+                  className={`cursor-pointer appearance-none rounded-full border py-1.5 pl-3 pr-7 text-xs font-semibold outline-none transition-opacity ${
+                    t.estado === "APROBADA"    ? "bg-[#effaf2] text-[#1f6b39] border-[#1f8b45]/20" :
+                    t.estado === "EN_REVISION" ? "bg-[#f0f0ff] text-[#4338ca] border-[#4338ca]/20" :
+                    t.estado === "RECHAZADA"   ? "bg-[#fff1f1] text-[#c53b3b] border-[#c53b3b]/20" :
+                    "bg-[#fff6ee] text-[#b85d12] border-[#ed8435]/20"
+                  }`}
+                >
+                  <option value="PENDIENTE">Pendiente</option>
+                  <option value="EN_REVISION">En revisión</option>
+                  <option value="APROBADA">Aprobado</option>
+                  <option value="RECHAZADA">Rechazado</option>
+                </select>
+                <svg className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 h-3 w-3 opacity-50" viewBox="0 0 10 6" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M1 1l4 4 4-4"/></svg>
+              </div>
             </div>
           </div>
         </div>
@@ -983,13 +1037,26 @@ function UniparcerosList({ talleres, setTalleres }: { talleres: TallerSolicitud[
                 </div>
               )}
 
-              {detalle.estado === "PENDIENTE" && (
-                <div className="mt-5 flex gap-2">
-                  <button onClick={() => cambiarEstado(detalle.id, "APROBADA")} className="flex-1 rounded-xl bg-[#1f8b45] py-2.5 text-xs font-bold text-white hover:bg-[#186a36]">✓ Aprobar</button>
-                  <button onClick={() => cambiarEstado(detalle.id, "EN_REVISION")} className="flex-1 rounded-xl border border-black/10 py-2.5 text-xs font-bold text-[#4338ca] hover:bg-[#f0f0ff]">En revisión</button>
-                  <button onClick={() => cambiarEstado(detalle.id, "RECHAZADA")} className="flex-1 rounded-xl border border-red-200 py-2.5 text-xs font-bold text-red-600 hover:bg-red-50">✕ Rechazar</button>
+              <div className="mt-5 flex gap-2">
+                <div className="relative">
+                    <select
+                      value={detalle.estado}
+                      onChange={(e) => void cambiarEstado(detalle.id, e.target.value)}
+                      className={`cursor-pointer appearance-none rounded-full border py-1.5 pl-3 pr-7 text-xs font-semibold outline-none ${
+                        (detalle.estado as string) === "APROBADA"    ? "bg-[#effaf2] text-[#1f6b39] border-[#1f8b45]/20" :
+                        (detalle.estado as string) === "EN_REVISION" ? "bg-[#f0f0ff] text-[#4338ca] border-[#4338ca]/20" :
+                        (detalle.estado as string) === "RECHAZADA"   ? "bg-[#fff1f1] text-[#c53b3b] border-[#c53b3b]/20" :
+                        "bg-[#fff6ee] text-[#b85d12] border-[#ed8435]/20"
+                      }`}
+                    >
+                      <option value="PENDIENTE">Pendiente</option>
+                      <option value="EN_REVISION">En revisión</option>
+                      <option value="APROBADA">Aprobado</option>
+                      <option value="RECHAZADA">Rechazado</option>
+                    </select>
+                    <svg className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 h-3 w-3 opacity-50" viewBox="0 0 10 6" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M1 1l4 4 4-4"/></svg>
                 </div>
-              )}
+              </div>
             </div>
           </div>
         </div>
@@ -1046,13 +1113,370 @@ function UniparcerosList({ talleres, setTalleres }: { talleres: TallerSolicitud[
               >
                 Ver taller
               </button>
-              <button onClick={() => cambiarEstado(t.id, "APROBADA")} className="rounded-xl bg-[#1f8b45] px-5 py-2 text-xs font-bold text-white hover:bg-[#186a36]">✓ Aprobar taller</button>
-              <button onClick={() => cambiarEstado(t.id, "EN_REVISION")} className="rounded-xl border border-black/10 px-5 py-2 text-xs font-bold text-[#4338ca] hover:bg-[#f0f0ff]">En revisión</button>
-              <button onClick={() => cambiarEstado(t.id, "RECHAZADA")} className="rounded-xl border border-red-200 px-5 py-2 text-xs font-bold text-red-600 hover:bg-red-50">✕ Rechazar</button>
+<div className="relative">
+                <select
+                  value={t.estado}
+                  onChange={(e) => void cambiarEstado(t.id, e.target.value)}
+                  className={`cursor-pointer appearance-none rounded-full border py-1.5 pl-3 pr-7 text-xs font-semibold outline-none transition-opacity ${
+                    t.estado === "APROBADA"    ? "bg-[#effaf2] text-[#1f6b39] border-[#1f8b45]/20" :
+                    t.estado === "EN_REVISION" ? "bg-[#f0f0ff] text-[#4338ca] border-[#4338ca]/20" :
+                    t.estado === "RECHAZADA"   ? "bg-[#fff1f1] text-[#c53b3b] border-[#c53b3b]/20" :
+                    "bg-[#fff6ee] text-[#b85d12] border-[#ed8435]/20"
+                  }`}
+                >
+                  <option value="PENDIENTE">Pendiente</option>
+                  <option value="EN_REVISION">En revisión</option>
+                  <option value="APROBADA">Aprobado</option>
+                  <option value="RECHAZADA">Rechazado</option>
+                </select>
+                <svg className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 h-3 w-3 opacity-50" viewBox="0 0 10 6" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M1 1l4 4 4-4"/></svg>
+              </div>
             </div>
           </div>
         </div>
       ))}
+    </div>
+  );
+}
+
+type ImgSlot = {
+  key: string; label: string; group: string;
+  device: "pc" | "responsive";
+  tab: "home" | "ofertas" | "categorias";
+  defaultSrc: string; vertical?: boolean;
+  dims: string; maxSize: string;
+};
+const IMG_SLOTS: ImgSlot[] = [
+  // Home
+  { key: "hero-1", label: "Hero Banner 1", group: "Carrusel principal", device: "pc", tab: "home", defaultSrc: "/banner-ruta-correcta.jpg", dims: "1440 × 540 px", maxSize: "2 MB" },
+  { key: "hero-2", label: "Hero Banner 2", group: "Carrusel principal", device: "pc", tab: "home", defaultSrc: "/hero-banner-2-v2.jpg", dims: "1440 × 540 px", maxSize: "2 MB" },
+  { key: "hero-3", label: "Hero Banner 3", group: "Carrusel principal", device: "pc", tab: "home", defaultSrc: "/hero-banner-3-v2.jpg", dims: "1440 × 540 px", maxSize: "2 MB" },
+  { key: "banner-cobertura", label: "Banner Cobertura", group: "Banners estáticos", device: "pc", tab: "home", defaultSrc: "/banner-cobertura.jpg", dims: "900 × 400 px", maxSize: "1.5 MB" },
+  { key: "banner-lo-tenemos", label: "Banner Lo tenemos todo", group: "Banners estáticos", device: "pc", tab: "home", defaultSrc: "/banner-lo-tenemos.jpg", dims: "900 × 400 px", maxSize: "1.5 MB" },
+  { key: "banner-uniparceros", label: "Banner Uniparceros", group: "Banners estáticos", device: "pc", tab: "home", defaultSrc: "/banner-uniparceros-nuevo.jpg", dims: "2560 × 720 px", maxSize: "2 MB" },
+  { key: "banner-busqueda", label: "Banner búsqueda por imagen", group: "Banners estáticos", device: "pc", tab: "home", defaultSrc: "/banner-busqueda-imagen-v3.jpg", dims: "1440 × 540 px", maxSize: "2 MB" },
+  { key: "popup-promo", label: "Pop-up promo (home)", group: "Pop-ups", device: "pc", tab: "home", defaultSrc: "/popup-promo.png", dims: "800 × 800 px", maxSize: "2 MB" },
+  { key: "popup-uniparceros", label: "Pop-up Uniparceros", group: "Pop-ups", device: "pc", tab: "home", defaultSrc: "/servicio-reparacion/popup-uniparceros.png", dims: "600 × 600 px", maxSize: "2 MB" },
+  // Ofertas
+  { key: "promo-h-1", label: "Promo horizontal 1", group: "Promos horizontales", device: "pc", tab: "ofertas", defaultSrc: "/promo-brocha.png", dims: "600 × 600 px", maxSize: "1 MB" },
+  { key: "promo-h-2", label: "Promo horizontal 2", group: "Promos horizontales", device: "pc", tab: "ofertas", defaultSrc: "/promo-cera.png", dims: "600 × 600 px", maxSize: "1 MB" },
+  { key: "promo-h-3", label: "Promo horizontal 3", group: "Promos horizontales", device: "pc", tab: "ofertas", defaultSrc: "/promo-espatula.png", dims: "600 × 600 px", maxSize: "1 MB" },
+  { key: "promo-v-1", label: "Promo vertical 1", group: "Promos verticales", device: "pc", tab: "ofertas", defaultSrc: "/promo-totalpars.png", vertical: true, dims: "500 × 700 px", maxSize: "1 MB" },
+  { key: "promo-v-2", label: "Promo vertical 2", group: "Promos verticales", device: "pc", tab: "ofertas", defaultSrc: "/promo-tecnomotor.png", vertical: true, dims: "500 × 700 px", maxSize: "1 MB" },
+  { key: "promo-v-3", label: "Promo vertical 3", group: "Promos verticales", device: "pc", tab: "ofertas", defaultSrc: "/promo-autoprime.png", vertical: true, dims: "500 × 700 px", maxSize: "1 MB" },
+  { key: "promo-v-4", label: "Promo vertical 4", group: "Promos verticales", device: "pc", tab: "ofertas", defaultSrc: "/promo-cauchos.png", vertical: true, dims: "500 × 700 px", maxSize: "1 MB" },
+  // Categorías
+  { key: "banner-categorias", label: "Banner principal categorías", group: "Banners de página", device: "pc", tab: "categorias", defaultSrc: "/banner-categorias-v2.jpg", dims: "2400 × 675 px", maxSize: "2 MB" },
+  { key: "banner-ofertas", label: "Banner página Ofertas", group: "Banners de página", device: "pc", tab: "categorias", defaultSrc: "/banner-ofertas.jpg", dims: "2400 × 675 px", maxSize: "2 MB" },
+  { key: "banner-uniparceros-page", label: "Banner página Uniparceros", group: "Banners de página", device: "pc", tab: "categorias", defaultSrc: "/banner-principal-v2.jpg", dims: "1920 × 540 px", maxSize: "2 MB" },
+  { key: "cat-banner-espejos-retrovisores-y-soportes", label: "Espejos retrovisores", group: "Banners por categoría", device: "pc", tab: "categorias", defaultSrc: "/category-banner-espejo-v2.jpg", dims: "1920 × 500 px", maxSize: "1.5 MB" },
+  { key: "cat-banner-motores-y-ventiladores", label: "Motores y ventiladores", group: "Banners por categoría", device: "pc", tab: "categorias", defaultSrc: "/category-banner-motor.jpg", dims: "1920 × 500 px", maxSize: "1.5 MB" },
+  { key: "cat-banner-luces-y-direccionales", label: "Luces y direccionales", group: "Banners por categoría", device: "pc", tab: "categorias", defaultSrc: "/category-banner-luces.jpg", dims: "1920 × 500 px", maxSize: "1.5 MB" },
+  { key: "cat-banner-sistemas-limpiaparabrisas", label: "Sistemas limpiaparabrisas", group: "Banners por categoría", device: "pc", tab: "categorias", defaultSrc: "/category-banner-limpiaparabrisas.jpg", dims: "1920 × 500 px", maxSize: "1.5 MB" },
+  { key: "cat-banner-linea-neumatica", label: "Línea neumática", group: "Banners por categoría", device: "pc", tab: "categorias", defaultSrc: "/category-banner-neumatica.jpg", dims: "1920 × 500 px", maxSize: "1.5 MB" },
+  { key: "cat-banner-linea-inyeccion-y-extrusion", label: "Línea inyección y extrusión", group: "Banners por categoría", device: "pc", tab: "categorias", defaultSrc: "/category-banner-inyeccion-extrusion.jpg", dims: "1920 × 500 px", maxSize: "1.5 MB" },
+  { key: "cat-banner-linea-mecanizado", label: "Línea mecanizado", group: "Banners por categoría", device: "pc", tab: "categorias", defaultSrc: "/category-banner-mecanizado.jpg", dims: "1920 × 500 px", maxSize: "1.5 MB" },
+  { key: "cat-banner-linea-cauchos", label: "Línea cauchos", group: "Banners por categoría", device: "pc", tab: "categorias", defaultSrc: "/category-banner-cauchos.jpg", dims: "1920 × 500 px", maxSize: "1.5 MB" },
+  { key: "cat-banner-adhesivos-lubricantes-y-sellantes", label: "Adhesivos y sellantes", group: "Banners por categoría", device: "pc", tab: "categorias", defaultSrc: "/category-banner-adhesivos.png", dims: "1920 × 500 px", maxSize: "1.5 MB" },
+  { key: "cat-banner-linea-electrica", label: "Línea eléctrica", group: "Banners por categoría", device: "pc", tab: "categorias", defaultSrc: "/category-banner-electrica.jpg", dims: "1920 × 500 px", maxSize: "1.5 MB" },
+  // Responsive (mobile) — Home
+  { key: "hero-1-mobile", label: "Hero Banner 1 — móvil", group: "Carrusel principal", device: "responsive", tab: "home", defaultSrc: "/banner-ruta-correcta.jpg", dims: "768 × 400 px", maxSize: "1 MB" },
+  { key: "hero-2-mobile", label: "Hero Banner 2 — móvil", group: "Carrusel principal", device: "responsive", tab: "home", defaultSrc: "/hero-banner-2-v2.jpg", dims: "768 × 400 px", maxSize: "1 MB" },
+  { key: "hero-3-mobile", label: "Hero Banner 3 — móvil", group: "Carrusel principal", device: "responsive", tab: "home", defaultSrc: "/hero-banner-3-v2.jpg", dims: "768 × 400 px", maxSize: "1 MB" },
+  { key: "banner-cobertura-mobile", label: "Banner Cobertura — móvil", group: "Banners estáticos", device: "responsive", tab: "home", defaultSrc: "/banner-cobertura.jpg", dims: "768 × 380 px", maxSize: "1 MB" },
+  { key: "banner-lo-tenemos-mobile", label: "Banner Lo tenemos — móvil", group: "Banners estáticos", device: "responsive", tab: "home", defaultSrc: "/banner-lo-tenemos.jpg", dims: "768 × 380 px", maxSize: "1 MB" },
+  { key: "banner-uniparceros-mobile", label: "Banner Uniparceros — móvil", group: "Banners estáticos", device: "responsive", tab: "home", defaultSrc: "/banner-uniparceros-nuevo.jpg", dims: "768 × 340 px", maxSize: "1 MB" },
+  // Responsive (mobile) — Categorías
+  { key: "banner-categorias-mobile", label: "Banner Categorías — móvil", group: "Página categorías", device: "responsive", tab: "categorias", defaultSrc: "/banner-categorias-v2.jpg", dims: "768 × 300 px", maxSize: "1 MB" },
+  { key: "banner-ofertas-mobile", label: "Banner Ofertas — móvil", group: "Página categorías", device: "responsive", tab: "categorias", defaultSrc: "/banner-ofertas.jpg", dims: "768 × 300 px", maxSize: "1 MB" },
+];
+
+const IMG_SUB_TABS: { id: "home" | "ofertas" | "categorias"; label: string }[] = [
+  { id: "home", label: "Home" },
+  { id: "ofertas", label: "Ofertas" },
+  { id: "categorias", label: "Categorías" },
+];
+
+function ImagesPanel() {
+  const [images, setImages] = useState<Record<string, string>>({});
+  const [uploading, setUploading] = useState<string | null>(null);
+  const [saved, setSaved] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [videoUploading, setVideoUploading] = useState<string | null>(null);
+  const [videoSaved, setVideoSaved] = useState<string | null>(null);
+  const [imgDevice, setImgDevice] = useState<"pc" | "responsive">("pc");
+  const [imgTab, setImgTab] = useState<"home" | "ofertas" | "categorias">("home");
+
+  useEffect(() => {
+    fetch("/api/master/images")
+      .then((r) => r.json())
+      .then((d: { images?: Record<string, string> }) => { if (d.images) setImages(d.images); })
+      .catch(() => {});
+  }, []);
+
+  const handleUpload = async (slot: ImgSlot, file: File) => {
+    setUploading(slot.key);
+    setError(null);
+    try {
+      const form = new FormData();
+      form.append("file", file);
+      form.append("key", slot.key);
+      const r1 = await fetch("/api/master/images/upload", { method: "POST", body: form });
+      const d1 = await r1.json() as { publicUrl?: string; error?: string };
+      if (!r1.ok || !d1.publicUrl) throw new Error(d1.error ?? "No se pudo subir la imagen.");
+      const r2 = await fetch("/api/master/images", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ key: slot.key, url: d1.publicUrl }),
+      });
+      if (!r2.ok) throw new Error("No se pudo guardar la URL.");
+      setImages((prev) => ({ ...prev, [slot.key]: d1.publicUrl! }));
+      setSaved(slot.key);
+      window.setTimeout(() => setSaved(null), 2500);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Error al subir.");
+    } finally {
+      setUploading(null);
+    }
+  };
+
+  const handleSaveLink = async (key: string, url: string) => {
+    await fetch("/api/master/images", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ key, url }),
+    });
+    setImages((prev) => ({ ...prev, [key]: url }));
+  };
+
+  const handleAddPromo = async (type: "h" | "v") => {
+    const countKey = `promo-${type}-count`;
+    const defaults = type === "h" ? 3 : 4;
+    const current = parseInt(images[countKey] ?? String(defaults));
+    const next = current + 1;
+    const r = await fetch("/api/master/images", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ key: countKey, url: String(next) }),
+    });
+    if (r.ok) setImages((prev) => ({ ...prev, [countKey]: String(next) }));
+  };
+
+  const handleVideoUpload = async (slotKey: string, file: File) => {
+    const videoKey = `${slotKey}-video`;
+    setVideoUploading(slotKey);
+    setError(null);
+    try {
+      const form = new FormData();
+      form.append("file", file);
+      form.append("key", videoKey);
+      const r1 = await fetch("/api/master/images/upload", { method: "POST", body: form });
+      const d1 = await r1.json() as { publicUrl?: string; error?: string };
+      if (!r1.ok || !d1.publicUrl) throw new Error(d1.error ?? "No se pudo subir el video.");
+      const r2 = await fetch("/api/master/images", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ key: videoKey, url: d1.publicUrl }),
+      });
+      if (!r2.ok) throw new Error("No se pudo guardar el video.");
+      setImages((prev) => ({ ...prev, [videoKey]: d1.publicUrl! }));
+      setVideoSaved(slotKey);
+      window.setTimeout(() => setVideoSaved(null), 2500);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Error al subir video.");
+    } finally {
+      setVideoUploading(null);
+    }
+  };
+
+  const availableSubTabs = imgDevice === "responsive"
+    ? IMG_SUB_TABS.filter((t) => t.id !== "ofertas")
+    : IMG_SUB_TABS;
+  const tabSlots: ImgSlot[] = (() => {
+    if (imgDevice === "pc" && imgTab === "ofertas") {
+      const hCount = Math.max(3, parseInt(images["promo-h-count"] ?? "3"));
+      const vCount = Math.max(4, parseInt(images["promo-v-count"] ?? "4"));
+      const hDefaults = ["/promo-brocha.png", "/promo-cera.png", "/promo-espatula.png"];
+      const vDefaults = ["/promo-totalpars.png", "/promo-tecnomotor.png", "/promo-autoprime.png", "/promo-cauchos.png"];
+      const h: ImgSlot[] = Array.from({ length: hCount }, (_, i) => ({
+        key: `promo-h-${i + 1}`, label: `Promo horizontal ${i + 1}`,
+        group: "Promos horizontales", device: "pc" as const, tab: "ofertas" as const,
+        defaultSrc: hDefaults[i] ?? "", dims: "600 × 600 px", maxSize: "1 MB",
+      }));
+      const v: ImgSlot[] = Array.from({ length: vCount }, (_, i) => ({
+        key: `promo-v-${i + 1}`, label: `Promo vertical ${i + 1}`,
+        group: "Promos verticales", device: "pc" as const, tab: "ofertas" as const,
+        defaultSrc: vDefaults[i] ?? "", dims: "500 × 700 px", maxSize: "1 MB", vertical: true,
+      }));
+      return [...h, ...v];
+    }
+    return IMG_SLOTS.filter((s) => s.device === imgDevice && s.tab === imgTab);
+  })();
+  const groups = Array.from(new Set(tabSlots.map((s) => s.group)));
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div>
+        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#8b8d91]">Panel maestro</p>
+        <h2 className="mt-1 text-2xl font-semibold tracking-[-0.04em] text-[#16384f]">Gestión de imágenes</h2>
+        <p className="mt-2 text-sm text-[#6e7379]">Sube o reemplaza imágenes del sitio. JPG · PNG · WEBP · máx. 5 MB.</p>
+      </div>
+
+      {/* Nivel 1 — selector de dispositivo */}
+      <div className="flex gap-2">
+        {([{ id: "pc", label: "💻 Escritorio" }, { id: "responsive", label: "📱 Responsive" }] as const).map((d) => (
+          <button
+            key={d.id}
+            type="button"
+            onClick={() => { setImgDevice(d.id); setImgTab("home"); }}
+            className={`rounded-full px-5 py-2 text-sm font-semibold transition-colors ${
+              imgDevice === d.id
+                ? "bg-[#16384f] text-white"
+                : "border border-black/10 bg-white text-[#8b8d91] hover:text-[#16384f]"
+            }`}
+          >
+            {d.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Nivel 2 — sub-tabs de contenido */}
+      <div className="flex gap-2 border-b border-black/8 pb-0">
+        {availableSubTabs.map((t) => (
+          <button
+            key={t.id}
+            type="button"
+            onClick={() => setImgTab(t.id)}
+            className={`rounded-t-xl px-5 py-2.5 text-sm font-semibold transition-colors ${
+              imgTab === t.id
+                ? "border border-b-0 border-black/8 bg-white text-[#16384f]"
+                : "text-[#8b8d91] hover:text-[#16384f]"
+            }`}
+          >
+            {t.label}
+          </button>
+        ))}
+      </div>
+
+      {error && <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-600">{error}</p>}
+
+      {/* Slot groups */}
+      {groups.map((group) => {
+        const groupSlots = tabSlots.filter((s) => s.group === group);
+        const isVertical = groupSlots.some((s) => s.vertical);
+        return (
+          <div key={group} className="space-y-4">
+            <h3 className="text-sm font-semibold uppercase tracking-[0.16em] text-[#8b8d91]">{group}</h3>
+            <div className={`grid gap-4 ${isVertical ? "grid-cols-2 sm:grid-cols-4" : "sm:grid-cols-2 lg:grid-cols-3"}`}>
+              {groupSlots.map((slot) => {
+                const currentSrc = images[slot.key] ?? slot.defaultSrc;
+                const isUploading = uploading === slot.key;
+                const isSaved = saved === slot.key;
+                return (
+                  <div key={slot.key} className="overflow-hidden rounded-[1.2rem] border border-black/8 bg-white shadow-sm">
+                    <div className="relative overflow-hidden bg-[#f0f2f4]" style={{ paddingBottom: slot.vertical ? "130%" : "56.25%" }}>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={currentSrc} alt={slot.label} className="absolute inset-0 h-full w-full object-cover" />
+                      {isUploading && (
+                        <div className="absolute inset-0 flex items-center justify-center bg-black/50">
+                          <div className="h-7 w-7 animate-spin rounded-full border-4 border-white border-t-transparent" />
+                        </div>
+                      )}
+                      {isSaved && (
+                        <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+                          <div className="rounded-full bg-white/90 p-2">
+                            <svg viewBox="0 0 24 24" className="h-5 w-5 text-green-600" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                    <div className="p-3">
+                      <p className="truncate text-xs font-semibold text-[#1f2328]">{slot.label}</p>
+                      <div className="mt-1 flex items-center gap-2">
+                        <span className="inline-flex items-center gap-1 rounded-md bg-[#f0f2f4] px-1.5 py-0.5 text-[10px] font-semibold text-[#5d6167]">
+                          <svg viewBox="0 0 24 24" className="h-2.5 w-2.5" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+                          {slot.dims}
+                        </span>
+                        <span className="inline-flex items-center gap-1 rounded-md bg-[#f0f2f4] px-1.5 py-0.5 text-[10px] font-semibold text-[#5d6167]">
+                          máx {slot.maxSize}
+                        </span>
+                      </div>
+                      <label className={`mt-2 flex cursor-pointer items-center justify-center gap-1.5 rounded-full py-2 text-xs font-semibold transition-colors ${
+                        isSaved ? "bg-[#effaf2] text-[#1f6b39]" : "bg-[#ed8435] text-white hover:bg-[#d67024]"
+                      } ${isUploading ? "pointer-events-none opacity-60" : ""}`}>
+                        {isSaved ? "✓ Guardado" : isUploading ? "Subiendo..." : (
+                          <>
+                            <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                            Cambiar
+                          </>
+                        )}
+                        <input type="file" accept="image/jpeg,image/png,image/webp" className="sr-only" disabled={isUploading}
+                          onChange={(e) => { const f = e.target.files?.[0]; if (f) void handleUpload(slot, f); e.target.value = ""; }} />
+                      </label>
+                      {slot.key.startsWith("promo-") && (
+                        <div className="mt-2">
+                          <p className="mb-1 text-[10px] font-semibold text-[#8b8d91]">Enlace al hacer clic</p>
+                          <input
+                            key={`${slot.key}-link-${images[`${slot.key}-link`] ?? ""}`}
+                            type="text"
+                            defaultValue={images[`${slot.key}-link`] ?? ""}
+                            placeholder="/producto/mi-producto"
+                            onBlur={(e) => void handleSaveLink(`${slot.key}-link`, e.target.value)}
+                            className="w-full rounded-lg border border-black/10 bg-[#fafaf9] px-2.5 py-1.5 text-xs outline-none focus:border-[#16384f]"
+                          />
+                        </div>
+                      )}
+                      {slot.key.startsWith("promo-v-") && (
+                        <div className="mt-2">
+                          <p className="mb-1 text-[10px] font-semibold text-[#8b8d91]">Video al hacer hover</p>
+                          <div className="flex items-center gap-2">
+                            {images[`${slot.key}-video`] ? (
+                              <span className="flex items-center gap-1 text-[10px] font-medium text-[#1f6b39]">
+                                <svg viewBox="0 0 16 16" className="h-3 w-3" fill="currentColor"><path d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1zm-.5 4.5 4 2.5-4 2.5V5.5z"/></svg>
+                                {videoSaved === slot.key ? "✓ Guardado" : "Video activo"}
+                              </span>
+                            ) : (
+                              <span className="text-[10px] text-[#a2a5aa]">Sin video</span>
+                            )}
+                            <label className={`ml-auto flex cursor-pointer items-center gap-1 rounded-full border border-black/10 px-3 py-1.5 text-[11px] font-semibold text-[#16384f] transition-colors hover:bg-[#f0f4f7] ${videoUploading === slot.key ? "pointer-events-none opacity-60" : ""}`}>
+                              <svg viewBox="0 0 16 16" className="h-3 w-3" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M8 2v8M5 5l3-3 3 3"/><path d="M2 12h12"/></svg>
+                              {videoUploading === slot.key ? "Subiendo..." : "Subir video"}
+                              <input type="file" accept="video/mp4,video/webm" className="sr-only" disabled={videoUploading === slot.key}
+                                onChange={(e) => { const f = e.target.files?.[0]; if (f) void handleVideoUpload(slot.key, f); e.target.value = ""; }} />
+                            </label>
+                          </div>
+                          <p className="mt-0.5 text-[9px] text-[#c5c7cb]">MP4 · WEBM · máx. 50 MB</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            {imgTab === "ofertas" && group === "Promos horizontales" && (
+              <button
+                type="button"
+                onClick={() => void handleAddPromo("h")}
+                className="flex items-center gap-1.5 rounded-xl border border-dashed border-[#16384f]/30 px-4 py-2.5 text-xs font-semibold text-[#16384f] transition-colors hover:border-[#16384f] hover:bg-[#f0f4f7]"
+              >
+                <svg viewBox="0 0 16 16" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M8 2v12M2 8h12"/></svg>
+                Agregar promo horizontal
+              </button>
+            )}
+            {imgTab === "ofertas" && group === "Promos verticales" && (
+              <button
+                type="button"
+                onClick={() => void handleAddPromo("v")}
+                className="flex items-center gap-1.5 rounded-xl border border-dashed border-[#16384f]/30 px-4 py-2.5 text-xs font-semibold text-[#16384f] transition-colors hover:border-[#16384f] hover:bg-[#f0f4f7]"
+              >
+                <svg viewBox="0 0 16 16" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M8 2v12M2 8h12"/></svg>
+                Agregar promo vertical
+              </button>
+            )}
+          </div>
+        );
+      })}
     </div>
   );
 }
@@ -1075,7 +1499,7 @@ export default function MasterPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [expandedId, setExpandedId] = useState<string | null>(null);
-  const [view, setView] = useState<"activos" | "solicitudes" | "uniparceros" | "encuesta" | "exclusivos">("activos");
+  const [view, setView] = useState<"activos" | "solicitudes" | "uniparceros" | "encuesta" | "exclusivos" | "imagenes">("activos");
   const [exclusiveSearch, setExclusiveSearch] = useState("");
   const [exclusiveUsers, setExclusiveUsers] = useState<{ id: string; fullName: string; email: string; company: string | null; role: string }[]>([]);
   const [exclusiveLoaded, setExclusiveLoaded] = useState(false);
@@ -1129,11 +1553,7 @@ export default function MasterPage() {
   }, [router]);
 
   if (loading) {
-    return (
-      <main className="flex min-h-screen items-center justify-center bg-[#f5f5f5]">
-        <p className="text-sm text-[#6e7379]">Cargando panel maestro...</p>
-      </main>
-    );
+    return <AccountEntryLoading message="Cargando panel maestro" detail="Estamos verificando tu acceso y preparando los datos." />;
   }
 
   if (error || !data) {
@@ -1221,6 +1641,7 @@ export default function MasterPage() {
               { id: "uniparceros", label: "Uniparceros", count: talleres.length + arriendos.length + maquinarias.length },
               { id: "encuesta", label: "¿Cómo nos conocieron?", count: encuesta?.total ?? 0 },
               { id: "exclusivos", label: "Clientes exclusivos", count: null },
+              { id: "imagenes", label: "🖼 Imágenes del sitio", count: null },
             ] as const).map((tab) => (
               <button
                 key={tab.id}
@@ -1447,8 +1868,10 @@ export default function MasterPage() {
             </div>
           )}
 
+          {view === "imagenes" && <ImagesPanel />}
+
           <div className="space-y-3">
-            {view !== "uniparceros" && view !== "encuesta" && view !== "exclusivos" && allVendors.filter((v) =>
+            {view !== "uniparceros" && view !== "encuesta" && view !== "exclusivos" && view !== "imagenes" && allVendors.filter((v) =>
               view === "activos"
                 ? v.isTotalpars || v.estado === "APROBADA" || v.estado === "ACTIVO"
                 : !v.isTotalpars && (v.estado === "PENDIENTE" || v.estado === "EN_REVISION" || v.estado === "RECHAZADA")
@@ -1522,7 +1945,7 @@ export default function MasterPage() {
                       {!v.isTotalpars && (
                         <div className="mt-2 flex items-center gap-2">
                           <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#a2a5aa]">Calificación</span>
-                          <StarRating vendorId={v.id} initial={v.calificacion} />
+                          <StarRating vendorId={v.id} initial={v.calificacion} itemsSold={v.itemsSold ?? 0} />
                         </div>
                       )}
                     </div>

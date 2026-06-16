@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { departamentosColombia, getCitiesForDepartment } from "@/lib/colombia-locations";
 import FacturaElectronica from "../checkout/exito/factura-electronica";
 import { useProducts } from "../components/products-provider";
+import AddToCartButton from "../components/add-to-cart-button";
 
 type AccountUser = {
   id: string;
@@ -24,6 +25,7 @@ type AccountUser = {
 
 type AccountOrder = {
   id: string;
+  orderNumber: number;
   status: "PENDING" | "PAID" | "CANCELLED";
   paymentStatus: "PENDING" | "PAID" | "FAILED";
   shippingStatus: "PENDING" | "PREPARING" | "SHIPPED" | "DELIVERED" | "CANCELLED";
@@ -280,6 +282,7 @@ export default function AccountProfileForm({
 }) {
   const router = useRouter();
   const [activePanel, setActivePanel] = useState<AccountPanel>("summary");
+  const [tabMenuOpen, setTabMenuOpen] = useState(false);
   const [showFullOrderHistory, setShowFullOrderHistory] = useState(false);
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
   const [form, setForm] = useState<FormState>({
@@ -367,6 +370,12 @@ export default function AccountProfileForm({
     });
   };
 
+  const handleLogout = async () => {
+    await fetch("/api/auth/logout", { method: "POST" });
+    router.push("/");
+    router.refresh();
+  };
+
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setInlineError("");
@@ -416,7 +425,7 @@ export default function AccountProfileForm({
   };
 
   return (
-    <main className="bg-[#f5f5f5] px-6 py-16">
+    <main className="bg-[#f5f5f5] px-3 py-8 md:px-6 md:py-16">
       {toast && (
         <div className="fixed right-5 top-5 z-[80] w-[min(92vw,380px)]">
           <div
@@ -447,159 +456,232 @@ export default function AccountProfileForm({
       )}
 
       <section className="mx-auto w-full max-w-6xl space-y-8">
-        <section className="rounded-[2rem] bg-white p-8 shadow-lg shadow-black/10 md:p-10">
-          <div className="flex flex-wrap items-center justify-between gap-4">
-            <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[#ed8435]">
-                Cuenta cliente
-              </p>
-              <h1 className="mt-2 text-3xl font-bold text-[#16384f] md:text-4xl">
-                Mi cuenta
-              </h1>
-              <p className="mt-3 max-w-xl text-sm leading-7 text-slate-600">
-                Aquí puedes revisar y actualizar tus datos principales.
-              </p>
-            </div>
+        <section className="overflow-hidden rounded-[2rem] shadow-[0_24px_64px_rgba(15,23,42,0.14)]">
 
-            <div className="flex flex-wrap gap-3">
-              <button
-                type="button"
-                onClick={() => setActivePanel("summary")}
-                className={`rounded-full px-5 py-3 text-sm font-semibold transition-colors duration-200 ${
-                  activePanel === "summary"
-                    ? "bg-[#16384f] text-white"
-                    : "border border-[#16384f]/20 text-[#16384f] hover:bg-[#16384f] hover:text-white"
-                }`}
-              >
-                Resumen
-              </button>
-              <button
-                type="button"
-                onClick={() => setActivePanel("details")}
-                className={`rounded-full px-5 py-3 text-sm font-semibold transition-colors duration-200 ${
-                  activePanel === "details"
-                    ? "bg-[#16384f] text-white"
-                    : "border border-[#16384f]/20 text-[#16384f] hover:bg-[#16384f] hover:text-white"
-                }`}
-              >
-                Datos
-              </button>
-              <button
-                type="button"
-                onClick={() => setActivePanel("orders")}
-                className={`rounded-full px-5 py-3 text-sm font-semibold transition-colors duration-200 ${
-                  activePanel === "orders"
-                    ? "bg-[#16384f] text-white"
-                    : "border border-[#16384f]/20 text-[#16384f] hover:bg-[#16384f] hover:text-white"
-                }`}
-              >
-                Pedidos
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setActivePanel("direcciones");
-                  if (!addressesLoaded) {
-                    fetch("/api/mi-cuenta/direcciones")
-                      .then((r) => r.ok ? r.json() : { addresses: [] })
-                      .then((d: { addresses?: SavedAddress[] }) => {
-                        setSavedAddresses(d.addresses ?? []);
-                        setAddressesLoaded(true);
-                      })
-                      .catch(() => setAddressesLoaded(true));
-                  }
-                }}
-                className={`rounded-full px-5 py-3 text-sm font-semibold transition-colors duration-200 ${
-                  activePanel === "direcciones"
-                    ? "bg-[#16384f] text-white"
-                    : "border border-[#16384f]/20 text-[#16384f] hover:bg-[#16384f] hover:text-white"
-                }`}
-              >
-                Direcciones
-              </button>
-              {user.role === "EXCLUSIVE" && (
-                <>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setActivePanel("catalogo");
-                      if (!codesLoaded) {
-                        fetch("/api/mi-cuenta/codigos")
-                          .then((r) => r.json())
-                          .then((data: { codes?: ClientCode[] }) => {
-                            setClientCodes(data.codes ?? []);
-                            const inputs: Record<string, string> = {};
-                            for (const c of data.codes ?? []) inputs[c.productSlug] = c.customCode;
-                            setInlineInputs(inputs);
-                            setCodesLoaded(true);
-                          })
-                          .catch(() => setCodesLoaded(true));
-                      }
-                    }}
-                    className={`rounded-full px-5 py-3 text-sm font-semibold transition-colors duration-200 ${
-                      activePanel === "catalogo"
-                        ? "bg-[#16384f] text-white"
-                        : "border border-[#16384f]/20 text-[#16384f] hover:bg-[#16384f] hover:text-white"
-                    }`}
-                  >
-                    Catálogo
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setActivePanel("referencias");
-                      if (!codesLoaded) {
-                        fetch("/api/mi-cuenta/codigos")
-                          .then((r) => r.json())
-                          .then((data: { codes?: ClientCode[] }) => {
-                            setClientCodes(data.codes ?? []);
-                            setCodesLoaded(true);
-                          })
-                          .catch(() => setCodesLoaded(true));
-                      }
-                    }}
-                    className={`rounded-full px-5 py-3 text-sm font-semibold transition-colors duration-200 ${
-                      activePanel === "referencias"
-                        ? "bg-[#16384f] text-white"
-                        : "border border-[#16384f]/20 text-[#16384f] hover:bg-[#16384f] hover:text-white"
-                    }`}
-                  >
-                    Mis referencias
-                  </button>
-                </>
-              )}
-            </div>
-          </div>
+          {/* ─── HERO HEADER ─── */}
+          <div className="relative overflow-hidden bg-[#091c2d]" style={{ backgroundColor: "#091c2d" }}>
+            <div className="relative px-5 pt-6 pb-0 md:px-10 md:pt-8">
+              {/* Avatar + user info + stats */}
+              <div className="flex items-center gap-4 md:gap-7">
+                {/* Avatar con triple ring glow */}
+                <div className="relative flex-shrink-0">
+                  <div className="flex h-[66px] w-[66px] items-center justify-center rounded-[1.15rem] bg-gradient-to-br from-[#f0a060] to-[#bf5e0c] text-[1.7rem] font-black text-white shadow-[0_0_0_2px_rgba(237,132,53,0.5),0_0_0_5px_rgba(237,132,53,0.15),0_14px_36px_rgba(237,132,53,0.45)] md:h-[86px] md:w-[86px] md:rounded-[1.4rem] md:text-[2.1rem]">
+                    {user.fullName?.charAt(0)?.toUpperCase() ?? "U"}
+                  </div>
+                  {user.role === "EXCLUSIVE" && (
+                    <span className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-gradient-to-br from-[#f4a94b] to-[#c96b10] text-[8px] font-black text-white shadow-[0_4px_10px_rgba(237,132,53,0.6)]">★</span>
+                  )}
+                </div>
 
-          {/* Siempre visible: datos clave del usuario */}
-          <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-            {summaryItems.map((item) => (
-              <div
-                key={item.label}
-                className="rounded-[1.3rem] border border-black/8 bg-[#fafaf9] px-5 py-4"
-              >
-                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#8b8d91]">
-                  {item.label}
-                </p>
-                <p className="mt-3 text-sm font-semibold leading-7 text-[#16384f]">
-                  {item.value}
-                </p>
+                {/* Name + meta */}
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <h1 className="truncate text-xl font-black leading-tight text-white md:text-[1.7rem]">{user.fullName}</h1>
+                    {user.role === "EXCLUSIVE" && (
+                      <span className="rounded-full bg-[#ed8435] px-2.5 py-0.5 text-[9px] font-black uppercase tracking-[0.18em] text-white shadow-[0_2px_8px_rgba(237,132,53,0.5)]">
+                        Exclusivo ★
+                      </span>
+                    )}
+                  </div>
+                  <p className="mt-1 truncate text-[12px] text-white/45 md:text-sm">{user.email}</p>
+                  <p className="mt-1.5 text-[10px] text-white/25">
+                    Miembro desde {new Date(user.createdAt).toLocaleDateString("es-CO", { month: "long", year: "numeric" })}
+                  </p>
+                </div>
+
+                {/* Quick stats desktop — números naranja sin caja genérica */}
+                <div className="ml-auto hidden items-center gap-1 md:flex">
+                  {[
+                    { value: paidOrders, label: "Pedidos" },
+                    { value: deliveredOrders, label: "Entregados" },
+                    { value: activeShipments, label: "En camino" },
+                  ].map((s, i) => (
+                    <div key={s.label} className="flex items-center">
+                      {i > 0 && <div className="mx-4 h-8 w-px bg-white/[0.1]" />}
+                      <div className="text-center">
+                        <p className="text-[2rem] font-black leading-none tracking-tight text-[#ed8435]">{s.value}</p>
+                        <p className="mt-1 text-[9px] font-bold uppercase tracking-[0.18em] text-white/30">{s.label}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
-            ))}
-          </div>
 
-          <div className="mt-4 rounded-[1.25rem] border border-black/8 bg-[#fafaf9] px-5 py-3 text-sm text-[#5d6167]">
-            Cuenta creada el{" "}
-            <span className="font-semibold text-[#16384f]">
-              {new Date(user.createdAt).toLocaleDateString("es-CO")}
-            </span>
-            {activePanel === "summary" && (
+              {/* Quick stats móvil — naranja, sin borde */}
+              <div className="mt-5 grid grid-cols-3 md:hidden">
+                {[
+                  { value: paidOrders, label: "Pedidos" },
+                  { value: deliveredOrders, label: "Entregados" },
+                  { value: activeShipments, label: "En camino" },
+                ].map((s) => (
+                  <div key={s.label} className="text-center">
+                    <p className="text-2xl font-black leading-none text-[#ed8435]">{s.value}</p>
+                    <p className="mt-1 text-[9px] font-bold uppercase tracking-wider text-white/30">{s.label}</p>
+                  </div>
+                ))}
+              </div>
+
+              {/* ── TAB BAR — desktop only ── */}
+              <div className="relative -mx-5 mt-3 border-t border-white/[0.08] md:-mx-10 md:mt-0">
+                <div className="hidden overflow-x-auto scrollbar-hidden md:block">
+                  <div className="flex min-w-max md:px-10">
+                    <button type="button" onClick={() => setActivePanel("summary")}
+                      className={`whitespace-nowrap border-b-2 px-3.5 py-3 text-xs font-semibold transition-colors duration-200 md:px-5 md:py-3.5 md:text-sm ${activePanel === "summary" ? "border-[#ed8435] text-white" : "border-transparent text-white/45 hover:text-white/80"}`}>
+                      Resumen
+                    </button>
+                    <button type="button" onClick={() => setActivePanel("details")}
+                      className={`whitespace-nowrap border-b-2 px-3.5 py-3 text-xs font-semibold transition-colors duration-200 md:px-5 md:py-3.5 md:text-sm ${activePanel === "details" ? "border-[#ed8435] text-white" : "border-transparent text-white/45 hover:text-white/80"}`}>
+                      Datos
+                    </button>
+                    <button type="button" onClick={() => setActivePanel("orders")}
+                      className={`whitespace-nowrap border-b-2 px-3.5 py-3 text-xs font-semibold transition-colors duration-200 md:px-5 md:py-3.5 md:text-sm ${activePanel === "orders" ? "border-[#ed8435] text-white" : "border-transparent text-white/45 hover:text-white/80"}`}>
+                      Pedidos
+                    </button>
+                    <button type="button" onClick={() => {
+                      setActivePanel("direcciones");
+                      if (!addressesLoaded) {
+                        fetch("/api/mi-cuenta/direcciones")
+                          .then((r) => r.ok ? r.json() : { addresses: [] })
+                          .then((d: { addresses?: SavedAddress[] }) => { setSavedAddresses(d.addresses ?? []); setAddressesLoaded(true); })
+                          .catch(() => setAddressesLoaded(true));
+                      }
+                    }}
+                      className={`whitespace-nowrap border-b-2 px-3.5 py-3 text-xs font-semibold transition-colors duration-200 md:px-5 md:py-3.5 md:text-sm ${activePanel === "direcciones" ? "border-[#ed8435] text-white" : "border-transparent text-white/45 hover:text-white/80"}`}>
+                      Direcciones
+                    </button>
+                    {user.role === "EXCLUSIVE" && (
+                      <>
+                        <button type="button" onClick={() => {
+                          setActivePanel("catalogo");
+                          if (!codesLoaded) {
+                            fetch("/api/mi-cuenta/codigos").then((r) => r.json())
+                              .then((data: { codes?: ClientCode[] }) => {
+                                setClientCodes(data.codes ?? []);
+                                const inputs: Record<string, string> = {};
+                                for (const c of data.codes ?? []) inputs[c.productSlug] = c.customCode;
+                                setInlineInputs(inputs);
+                                setCodesLoaded(true);
+                              }).catch(() => setCodesLoaded(true));
+                          }
+                        }}
+                          className={`whitespace-nowrap border-b-2 px-3.5 py-3 text-xs font-semibold transition-colors duration-200 md:px-5 md:py-3.5 md:text-sm ${activePanel === "catalogo" ? "border-[#ed8435] text-white" : "border-transparent text-white/45 hover:text-white/80"}`}>
+                          Catálogo
+                        </button>
+                        <button type="button" onClick={() => {
+                          setActivePanel("referencias");
+                          if (!codesLoaded) {
+                            fetch("/api/mi-cuenta/codigos").then((r) => r.json())
+                              .then((data: { codes?: ClientCode[] }) => { setClientCodes(data.codes ?? []); setCodesLoaded(true); })
+                              .catch(() => setCodesLoaded(true));
+                          }
+                        }}
+                          className={`whitespace-nowrap border-b-2 px-3.5 py-3 text-xs font-semibold transition-colors duration-200 md:px-5 md:py-3.5 md:text-sm ${activePanel === "referencias" ? "border-[#ed8435] text-white" : "border-transparent text-white/45 hover:text-white/80"}`}>
+                          Referencias
+                        </button>
+                      </>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>{/* /inner padding */}
+          </div>{/* /dark header */}
+
+          {/* ─── WHITE BODY ─── */}
+          <div className="bg-white px-4 py-5 md:px-10 md:py-8">
+
+            {/* ── Selector de sección — solo móvil ── */}
+            {(() => {
+              const allTabs = [
+                { id: "summary" as AccountPanel, label: "Resumen" },
+                { id: "details" as AccountPanel, label: "Datos" },
+                { id: "orders" as AccountPanel, label: "Pedidos" },
+                { id: "direcciones" as AccountPanel, label: "Direcciones" },
+                ...(user.role === "EXCLUSIVE" ? [
+                  { id: "catalogo" as AccountPanel, label: "Catálogo" },
+                  { id: "referencias" as AccountPanel, label: "Referencias" },
+                ] : []),
+              ];
+              const activeLabel = allTabs.find((t) => t.id === activePanel)?.label ?? "Resumen";
+              return (
+                <div className="relative mb-5 md:hidden">
+                  <button
+                    type="button"
+                    onClick={() => setTabMenuOpen((v) => !v)}
+                    className="flex w-full items-center justify-between rounded-2xl border border-black/10 bg-[#f4f6f8] px-4 py-3 text-sm font-bold text-[#16384f]"
+                  >
+                    <span>{activeLabel}</span>
+                    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`h-4 w-4 shrink-0 text-[#7c8a94] transition-transform duration-200 ${tabMenuOpen ? "rotate-180" : ""}`}>
+                      <path d="M4 6l4 4 4-4" />
+                    </svg>
+                  </button>
+                  {tabMenuOpen && (
+                    <>
+                      <div className="fixed inset-0 z-40" onClick={() => setTabMenuOpen(false)} />
+                      <div className="absolute left-0 right-0 top-[calc(100%+6px)] z-50 overflow-hidden rounded-2xl border border-black/10 bg-white shadow-[0_12px_32px_rgba(15,23,42,0.14)]">
+                        {allTabs.map((tab) => (
+                          <button
+                            key={tab.id}
+                            type="button"
+                            onClick={() => {
+                              if (tab.id === "direcciones" && !addressesLoaded) {
+                                fetch("/api/mi-cuenta/direcciones")
+                                  .then((r) => r.ok ? r.json() : { addresses: [] })
+                                  .then((d: { addresses?: SavedAddress[] }) => { setSavedAddresses(d.addresses ?? []); setAddressesLoaded(true); })
+                                  .catch(() => setAddressesLoaded(true));
+                              }
+                              if ((tab.id === "catalogo" || tab.id === "referencias") && !codesLoaded) {
+                                fetch("/api/mi-cuenta/codigos").then((r) => r.json())
+                                  .then((data: { codes?: ClientCode[] }) => {
+                                    setClientCodes(data.codes ?? []);
+                                    const inputs: Record<string, string> = {};
+                                    for (const c of data.codes ?? []) inputs[c.productSlug] = c.customCode;
+                                    setInlineInputs(inputs);
+                                    setCodesLoaded(true);
+                                  }).catch(() => setCodesLoaded(true));
+                              }
+                              setActivePanel(tab.id);
+                              setTabMenuOpen(false);
+                            }}
+                            className={`flex w-full items-center justify-between px-4 py-3.5 text-sm font-semibold transition-colors ${tab.id === activePanel ? "bg-[#f0f7ff] text-[#16384f]" : "text-[#3d4b56] hover:bg-[#f8f9fa]"}`}
+                          >
+                            <span>{tab.label}</span>
+                            {tab.id === activePanel && (
+                              <svg viewBox="0 0 16 16" fill="none" stroke="#ed8435" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4"><path d="M3 8l3.5 3.5L13 5" /></svg>
+                            )}
+                          </button>
+                        ))}
+                      </div>
+                    </>
+                  )}
+                </div>
+              );
+            })()}
+
+            {/* Datos clave — en móvil solo visible en Resumen */}
+            <div className={activePanel !== "summary" ? "hidden md:block" : ""}>
+            <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+              {summaryItems.map((item) => (
+                <div key={item.label} className="rounded-[1.3rem] border border-black/[0.07] bg-[#f8f9fa] px-5 py-4 transition-shadow hover:shadow-[0_4px_16px_rgba(15,23,42,0.07)]">
+                  <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#a2a5aa]">{item.label}</p>
+                  <p className="mt-2.5 text-sm font-semibold leading-snug text-[#16384f]">{item.value}</p>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-4 flex items-center gap-2 rounded-[1.25rem] border border-black/[0.07] bg-[#f8f9fa] px-5 py-3 text-sm text-[#6e7379]">
+              <svg viewBox="0 0 16 16" className="h-3.5 w-3.5 shrink-0 text-[#c5c7cb]" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="8" cy="8" r="6"/><path d="M8 7v3.5M8 5.5v.5"/></svg>
               <span>
-                {" "}· Usa <span className="font-semibold text-[#16384f]">Datos</span> para editar tu perfil o{" "}
-                <span className="font-semibold text-[#16384f]">Pedidos</span> para revisar tus compras.
+                Miembro desde{" "}
+                <span className="font-semibold text-[#16384f]">{new Date(user.createdAt).toLocaleDateString("es-CO")}</span>
+                {activePanel === "summary" && (
+                  <span className="text-[#8b8d91]">
+                    {" "}· Usa <span className="font-semibold text-[#16384f]">Datos</span> para editar tu perfil o{" "}
+                    <span className="font-semibold text-[#16384f]">Pedidos</span> para revisar tus compras.
+                  </span>
+                )}
               </span>
-            )}
-          </div>
+            </div>
+            </div>{/* /datos clave wrapper */}
 
           {activePanel === "details" && (
             <form onSubmit={handleSubmit} className="mt-8 grid gap-5 md:grid-cols-2">
@@ -886,7 +968,7 @@ export default function AccountProfileForm({
                           Pedido
                         </p>
                         <p className="mt-3 truncate text-[1.45rem] font-semibold leading-tight">
-                          {order.id}
+                          #{String(order.orderNumber).padStart(4, "0")}
                         </p>
                         <p
                           className={`mt-2 text-sm ${
@@ -949,7 +1031,7 @@ export default function AccountProfileForm({
                         Pedido seleccionado
                       </p>
                       <h3 className="mt-2 text-3xl font-semibold tracking-[-0.04em] text-[#16384f]">
-                        {selectedOrder.id}
+                        #{String(selectedOrder.orderNumber).padStart(4, "0")}
                       </h3>
                       <p className="mt-3 text-sm leading-7 text-[#6e7379]">
                         {user.fullName} · {user.email}
@@ -1139,7 +1221,7 @@ export default function AccountProfileForm({
               className="w-full rounded-2xl border border-black/10 bg-white px-5 py-3 text-sm outline-none focus:border-[#16384f]/40 shadow-sm"
             />
 
-            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+            <div className="grid min-w-0 gap-3 sm:grid-cols-2 xl:grid-cols-3">
               {products
                 .filter((p) => {
                   const q = catalogSearch.toLowerCase();
@@ -1150,7 +1232,7 @@ export default function AccountProfileForm({
                   const saved = clientCodes.find((c) => c.productSlug === p.slug);
                   const inputVal = inlineInputs[p.slug] ?? saved?.customCode ?? "";
                   return (
-                    <div key={p.slug} className="flex items-center gap-3 rounded-2xl border border-black/8 bg-white p-3 shadow-sm">
+                    <div key={p.slug} className="flex min-w-0 items-center gap-3 overflow-hidden rounded-2xl border border-black/8 bg-white p-3 shadow-sm">
                       <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-[#f0f2f4]">
                         <Image src={p.imagen} alt={p.nombre} fill className="object-contain p-1" sizes="56px" />
                       </div>
@@ -1241,24 +1323,36 @@ export default function AccountProfileForm({
                 {clientCodes.map((c) => {
                   const prod = products.find((p) => p.slug === c.productSlug);
                   return (
-                    <a key={c.id} href={`/producto/${c.productSlug}`}
-                      className="group flex gap-4 rounded-[1.4rem] border border-black/8 bg-white p-4 shadow-sm transition-shadow hover:shadow-md">
-                      <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-[#f0f2f4]">
-                        {prod && (
-                          <Image src={prod.imagen} alt={c.productName} fill className="object-contain p-2" sizes="80px" />
-                        )}
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm font-semibold text-[#1f2328] group-hover:text-[#16384f]">{c.productName}</p>
-                        {prod && (
-                          <p className="mt-0.5 text-base font-bold text-[#ed8435]">{prod.precio}</p>
-                        )}
-                        <span className="mt-2 inline-flex items-center gap-1 rounded-lg bg-[#e8f0fe] px-2.5 py-1 text-xs font-bold text-[#16384f]">
-                          <svg viewBox="0 0 24 24" className="h-3 w-3" fill="none" stroke="currentColor" strokeWidth="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                          {c.customCode}
-                        </span>
-                      </div>
-                    </a>
+                    <div key={c.id} className="group flex flex-col rounded-[1.4rem] border border-black/8 bg-white p-4 shadow-sm transition-shadow hover:shadow-md">
+                      <a href={`/producto/${c.productSlug}`} className="flex gap-4">
+                        <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-[#f0f2f4]">
+                          {prod && (
+                            <Image src={prod.imagen} alt={c.productName} fill className="object-contain p-2" sizes="80px" />
+                          )}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-sm font-semibold text-[#1f2328] group-hover:text-[#16384f]">{c.productName}</p>
+                          {prod && (
+                            <p className="mt-0.5 text-base font-bold text-[#ed8435]">{prod.precio}</p>
+                          )}
+                          <span className="mt-2 inline-flex items-center gap-1 rounded-lg bg-[#e8f0fe] px-2.5 py-1 text-xs font-bold text-[#16384f]">
+                            <svg viewBox="0 0 24 24" className="h-3 w-3" fill="none" stroke="currentColor" strokeWidth="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                            {c.customCode}
+                          </span>
+                        </div>
+                      </a>
+                      {prod && (
+                        <div className="mt-3 border-t border-black/6 pt-3">
+                          <AddToCartButton
+                            id={c.productSlug}
+                            nombre={c.productName}
+                            precio={prod.precio}
+                            imagen={prod.imagen}
+                            className="w-full text-xs"
+                          />
+                        </div>
+                      )}
+                    </div>
                   );
                 })}
               </div>
@@ -1413,6 +1507,22 @@ export default function AccountProfileForm({
               )}
             </div>
           )}
+            {/* Cerrar sesión */}
+            <div className="mt-8 border-t border-black/[0.06] pt-6">
+              <button
+                type="button"
+                onClick={() => void handleLogout()}
+                className="flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-2.5 text-sm font-semibold text-red-600 transition-colors hover:bg-red-100"
+              >
+                <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4">
+                  <path d="M13 4.5H16.5a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H13" />
+                  <path d="M8.5 13.5 13 10l-4.5-3.5" />
+                  <path d="M13 10H3" />
+                </svg>
+                Cerrar sesión
+              </button>
+            </div>
+          </div>{/* /white body */}
         </section>
       </section>
     </main>

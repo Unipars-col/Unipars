@@ -109,6 +109,7 @@ type ToastState = {
 
 type AdminOrder = {
   id: string;
+  orderNumber: number;
   status: "PENDING" | "PAID" | "CANCELLED";
   paymentStatus: "PENDING" | "PAID" | "FAILED";
   shippingStatus: ShippingStatus;
@@ -610,7 +611,7 @@ export default function AdminPage() {
     adjustInventory,
   } = useProducts();
   const [activeTab, setActiveTab] = useState<
-    "create" | "edit" | "inventory" | "orders" | "vendors" | null
+    "create" | "edit" | "inventory" | "orders" | "vendors" | "ventas" | null
   >(null);
   const [editSearch, setEditSearch] = useState("");
   const [editCategoryFilter, setEditCategoryFilter] = useState<"Todas" | Categoria>("Todas");
@@ -655,6 +656,13 @@ export default function AdminPage() {
   });
   const [userName, setUserName] = useState("");
   const [isSavingOrder, setIsSavingOrder] = useState(false);
+  const [adminStats, setAdminStats] = useState<{
+    totalRevenue: number;
+    totalUnits: number;
+    totalOrders: number;
+    topProducts: { id: string; name: string; slug: string; category: string; units: number; revenue: number }[];
+    monthlySales: { label: string; revenue: number; units: number }[];
+  } | null>(null);
   const [vendors, setVendors] = useState<VendorWithMetrics[]>([]);
   const [isLoadingVendors, setIsLoadingVendors] = useState(false);
   const [vendorNotes, setVendorNotes] = useState<Record<string, string>>({});
@@ -742,6 +750,7 @@ export default function AdminPage() {
       const matchesSearch =
         search.length === 0 ||
         order.id.toLowerCase().includes(search) ||
+        String(order.orderNumber).includes(search) ||
         order.customerName.toLowerCase().includes(search) ||
         order.customerEmail.toLowerCase().includes(search) ||
         order.city.toLowerCase().includes(search) ||
@@ -840,6 +849,18 @@ export default function AdminPage() {
       router.replace("/login?next=/admin");
     }
   }, [isAuthenticated, isCheckingSession, router]);
+
+  useEffect(() => {
+    void (async () => {
+      try {
+        const res = await fetch("/api/admin/stats");
+        if (res.ok) {
+          const data = await res.json() as typeof adminStats;
+          setAdminStats(data);
+        }
+      } catch { /* silent */ }
+    })();
+  }, []);
 
   const handleChange = (
     event: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>,
@@ -1274,6 +1295,13 @@ export default function AdminPage() {
     void loadVendors();
   };
 
+  const openVentasView = () => {
+    setSelectedImage(null);
+    setRequestError("");
+    setEditingSlug(null);
+    setActiveTab("ventas");
+  };
+
   const handleVendorEstado = async (
     id: string,
     estado: VendorWithMetrics["estado"],
@@ -1552,6 +1580,17 @@ export default function AdminPage() {
                     ),
                     onClick: openOrdersView,
                   },
+                  {
+                    label: "Ventas",
+                    desc: `${adminStats?.totalUnits ?? "—"} uds vendidas · ${adminStats ? `$ ${adminStats.totalRevenue.toLocaleString("es-CO")}` : "—"} en ingresos`,
+                    iconBg: "bg-[#f0fdf4]",
+                    icon: (
+                      <svg aria-hidden="true" viewBox="0 0 24 24" className="h-6 w-6 text-[#1f8b45]" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                      </svg>
+                    ),
+                    onClick: openVentasView,
+                  },
                 ].map((item) => (
                   <button key={item.label} type="button" onClick={item.onClick} className="rounded-2xl border border-black/8 bg-white p-5 text-left shadow-sm transition-shadow hover:shadow-md">
                     <div className={`flex h-14 w-14 items-center justify-center rounded-2xl ${item.iconBg}`}>
@@ -1601,6 +1640,54 @@ export default function AdminPage() {
                 )}
               </div>
             </div>
+          {/* Ventas section moved to its own tab */}
+          <div id="ventas-section-placeholder" className="hidden">
+              <h2 className="text-base font-bold text-[#1f2328]">Ventas</h2>
+
+              {/* Métricas globales */}
+              <div className="mt-4 grid gap-4 sm:grid-cols-3">
+                {[
+                  { label: "Ingresos totales", value: adminStats ? `$ ${adminStats.totalRevenue.toLocaleString("es-CO")}` : "—", color: "text-[#1f8b45]" },
+                  { label: "Unidades vendidas", value: adminStats ? adminStats.totalUnits.toLocaleString("es-CO") : "—", color: "text-[#16384f]" },
+                  { label: "Pedidos pagados", value: adminStats ? adminStats.totalOrders.toLocaleString("es-CO") : "—", color: "text-[#16384f]" },
+                ].map((m) => (
+                  <div key={m.label} className="rounded-2xl border border-black/8 bg-white p-5 shadow-sm">
+                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#a2a5aa]">{m.label}</p>
+                    <p className={`mt-2 text-3xl font-bold tracking-[-0.03em] ${m.color}`}>{m.value}</p>
+                  </div>
+                ))}
+              </div>
+
+              {/* Top productos */}
+              {adminStats && adminStats.topProducts.length > 0 && (
+                <div className="mt-4 overflow-hidden rounded-2xl border border-black/8 bg-white shadow-sm">
+                  <div className="border-b border-black/[0.06] px-5 py-4">
+                    <p className="text-sm font-bold text-[#1f2328]">Productos más vendidos</p>
+                  </div>
+                  <div className="divide-y divide-black/[0.05]">
+                    {adminStats?.topProducts.map((p, i) => (
+                      <div key={p.id} className="flex items-center gap-4 px-5 py-3.5">
+                        <span className="w-5 shrink-0 text-center text-xs font-bold text-[#c5c7cb]">{i + 1}</span>
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-sm font-semibold text-[#1f2328]">{p.name}</p>
+                          <p className="text-xs text-[#9a9da2]">{p.category}</p>
+                        </div>
+                        <div className="shrink-0 text-right">
+                          <p className="text-sm font-bold text-[#16384f]">{p.units} uds</p>
+                          <p className="text-xs text-[#9a9da2]">${p.revenue.toLocaleString("es-CO")}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {(!adminStats || adminStats.topProducts.length === 0) && (
+                <div className="mt-4 rounded-2xl border border-black/8 bg-white px-5 py-8 text-center shadow-sm">
+                  <p className="text-sm text-[#a2a5aa]">{adminStats ? "Aún no hay ventas registradas." : "Cargando..."}</p>
+                </div>
+              )}
+          </div>
           </div>
         </section>
       ) : (
@@ -1644,10 +1731,10 @@ export default function AdminPage() {
               </button>
               <button
                 type="button"
-                onClick={openVendorsView}
-                className={`inline-flex min-h-10 items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition-all ${activeTab === "vendors" ? "border-[#16384f] bg-[#16384f] text-white" : "border-black/8 bg-white text-[#16384f] hover:bg-[#f8f8f7]"}`}
+                onClick={openVentasView}
+                className={`inline-flex min-h-10 items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition-all ${activeTab === "ventas" ? "border-[#16384f] bg-[#16384f] text-white" : "border-black/8 bg-white text-[#16384f] hover:bg-[#f8f8f7]"}`}
               >
-                Vendedores
+                Ventas
               </button>
             </div>
 
@@ -2551,7 +2638,7 @@ export default function AdminPage() {
                                   Pedido
                                 </p>
                                 <p className="mt-3 break-words text-[1.42rem] font-semibold leading-tight text-[#1f2328]">
-                                  {order.id}
+                                  #{String(order.orderNumber).padStart(4, "0")}
                                 </p>
                                 <p className="mt-3 text-[15px] text-[#5d6167]">
                                   {order.customerName} · {order.city}
@@ -2662,7 +2749,7 @@ export default function AdminPage() {
                               Pedido seleccionado
                             </p>
                             <h3 className="mt-2 text-3xl font-semibold tracking-[-0.04em] text-[#16384f]">
-                              {selectedOrderPreview.id}
+                              #{String(selectedOrderPreview.orderNumber).padStart(4, "0")}
                             </h3>
                             <p className="mt-3 text-sm leading-7 text-[#6e7379]">
                               {selectedOrderPreview.customerName} · {selectedOrderPreview.customerEmail} · {selectedOrderPreview.customerPhone}
@@ -3199,7 +3286,50 @@ export default function AdminPage() {
               </div>
             </div>
           )}
-          {activeTab === "vendors" && (
+          {activeTab === "ventas" && (
+            <div className="admin-fade-up space-y-6">
+              <div className="grid gap-4 sm:grid-cols-3">
+                {([
+                  { label: "Ingresos totales", value: adminStats ? `$ ${adminStats.totalRevenue.toLocaleString("es-CO")}` : "—", color: "text-[#1f8b45]" },
+                  { label: "Unidades vendidas", value: adminStats ? adminStats.totalUnits.toLocaleString("es-CO") : "—", color: "text-[#16384f]" },
+                  { label: "Pedidos pagados", value: adminStats ? adminStats.totalOrders.toLocaleString("es-CO") : "—", color: "text-[#16384f]" },
+                ] as const).map((m) => (
+                  <div key={m.label} className="rounded-2xl border border-black/8 bg-white p-5 shadow-sm">
+                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#a2a5aa]">{m.label}</p>
+                    <p className={`mt-2 text-3xl font-bold tracking-[-0.03em] ${m.color}`}>{m.value}</p>
+                  </div>
+                ))}
+              </div>
+              <div className="overflow-hidden rounded-2xl border border-black/8 bg-white shadow-sm">
+                <div className="border-b border-black/[0.06] px-5 py-4">
+                  <p className="text-sm font-bold text-[#1f2328]">Productos más vendidos</p>
+                </div>
+                {!adminStats && <p className="px-5 py-6 text-sm text-[#a2a5aa]">Cargando...</p>}
+                {adminStats && adminStats.topProducts.length === 0 && (
+                  <p className="px-5 py-6 text-sm text-[#a2a5aa]">Aún no hay ventas registradas.</p>
+                )}
+                {adminStats && adminStats.topProducts.length > 0 && (
+                  <div className="divide-y divide-black/[0.05]">
+                    {adminStats.topProducts.map((p, i) => (
+                      <div key={p.id} className="flex items-center gap-4 px-5 py-3.5">
+                        <span className="w-5 shrink-0 text-center text-xs font-bold text-[#c5c7cb]">{i + 1}</span>
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-sm font-semibold text-[#1f2328]">{p.name}</p>
+                          <p className="text-xs text-[#9a9da2]">{p.category}</p>
+                        </div>
+                        <div className="shrink-0 text-right">
+                          <p className="text-sm font-bold text-[#16384f]">{p.units} uds</p>
+                          <p className="text-xs text-[#9a9da2]">${p.revenue.toLocaleString("es-CO")}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {false && (
             <div className="admin-fade-up space-y-6">
 
               {/* Stat cards */}
