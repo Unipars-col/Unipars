@@ -146,6 +146,7 @@ model CartItem {
 
 model Order {
   id            String        @id @default(cuid())
+  orderNumber   Int           @default(autoincrement())
   userId        String
   user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   status        OrderStatus   @default(PENDING)
@@ -348,4 +349,10 @@ model EncuestaReferido {
   opcion    String
   orderId   String?
   createdAt DateTime @default(now())
+}
+
+model SiteImage {
+  key       String   @id
+  url       String
+  updatedAt DateTime @updatedAt
 }
