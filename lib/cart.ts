@@ -6,6 +6,8 @@ export type PersistedCartItem = {
   precio: string;
   imagen: string;
   cantidad: number;
+  sku?: string | null;
+  brand?: string | null;
 };
 
 export async function getCartItemsForUser(userId: string) {
@@ -18,12 +20,20 @@ export async function getCartItemsForUser(userId: string) {
     orderBy: { createdAt: "desc" },
   });
 
+  const slugs = items.map((i) => i.productId);
+  const products = slugs.length
+    ? await prisma.product.findMany({ where: { slug: { in: slugs } }, select: { slug: true, sku: true, brand: true } })
+    : [];
+  const productMap = Object.fromEntries(products.map((p) => [p.slug, p]));
+
   return items.map((item) => ({
     id: item.productId,
     nombre: item.name,
     precio: item.price,
     imagen: item.image,
     cantidad: item.quantity,
+    sku: productMap[item.productId]?.sku ?? null,
+    brand: productMap[item.productId]?.brand ?? null,
   }));
 }
 

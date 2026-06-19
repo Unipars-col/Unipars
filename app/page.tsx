@@ -12,6 +12,7 @@ import PromoCardHover from "./components/promo-card-hover";
 import SiteFooter from "./components/site-footer";
 import { slugCategoria } from "./data/catalog";
 import { getFeaturedProducts } from "@/lib/products";
+import { getSiteImages, resolveImage } from "@/lib/site-images";
 
 
 const beneficios = [
@@ -73,12 +74,15 @@ const soluciones = [
 ];
 
 export default async function Home() {
-  const productos = await getFeaturedProducts();
+  const [productos, siteImages] = await Promise.all([getFeaturedProducts(), getSiteImages()]);
 
   return (
     <main className="min-h-screen bg-[#f5f5f5] text-[#111]">
-      <PromoPopup />
-      <HeroCarousel />
+      <PromoPopup imageSrc={siteImages["popup-promo"]} />
+      <HeroCarousel
+        images={[resolveImage("hero-1", siteImages), resolveImage("hero-2", siteImages), resolveImage("hero-3", siteImages)]}
+        mobileImages={[resolveImage("hero-1-mobile", siteImages), resolveImage("hero-2-mobile", siteImages), resolveImage("hero-3-mobile", siteImages)]}
+      />
       <PromoRibbon />
 
       {/* 1 — CATEGORÍAS */}
@@ -98,18 +102,17 @@ export default async function Home() {
 
       {/* 1.5 — BANNER BÚSQUEDA POR IMAGEN */}
       <section className="mx-auto max-w-[1440px] px-6 pb-6">
-        <BannerBusquedaImagen />
+        <BannerBusquedaImagen src={siteImages["banner-busqueda"]} />
       </section>
 
       {/* 2 — PROMOS CUADRADAS */}
       {(() => {
-        const promos = [
-          { src: "/promo-brocha.png",   alt: "Brocha de 4\" 40% dto",       href: "/categorias" },
-          { src: "/promo-cera.png",     alt: "Cera para pulir 50% dto",      href: "/categorias" },
-          { src: "/promo-espatula.png", alt: "Espátula metálica 40% dto",    href: "/categorias" },
-          { src: "/promo-brocha.png",   alt: "Brocha de 4\" 40% dto",        href: "/categorias" },
-          { src: "/promo-cera.png",     alt: "Cera para pulir 50% dto",      href: "/categorias" },
-        ];
+        const hCount = parseInt(siteImages["promo-h-count"] ?? "3");
+        const promos = Array.from({ length: hCount }, (_, i) => ({
+          src: resolveImage(`promo-h-${i + 1}`, siteImages),
+          href: siteImages[`promo-h-${i + 1}-link`] ?? "/categorias",
+          alt: `Promo ${i + 1}`,
+        }));
         return (
           <section className="py-14">
             <PromoScroll promos={promos} />
@@ -155,22 +158,28 @@ export default async function Home() {
       <section className="mx-auto max-w-[1440px] px-6 py-14">
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <Link href="/servicio-de-reparacion" className="block overflow-hidden rounded-2xl transition-transform duration-300 hover:scale-[1.01]">
-            <Image
-              src="/banner-cobertura.jpg"
-              alt="Cobertura que llega a donde estés — Uniparceros"
-              width={900}
-              height={400}
-              className="h-full w-full object-cover"
-            />
+            <picture>
+              {siteImages["banner-cobertura-mobile"] && <source media="(max-width: 767px)" srcSet={siteImages["banner-cobertura-mobile"]} />}
+              <Image
+                src={resolveImage("banner-cobertura", siteImages)}
+                alt="Cobertura que llega a donde estés — Uniparceros"
+                width={900}
+                height={400}
+                className="h-full w-full object-cover"
+              />
+            </picture>
           </Link>
           <Link href="/categorias" className="block overflow-hidden rounded-2xl transition-transform duration-300 hover:scale-[1.01]">
-            <Image
-              src="/banner-lo-tenemos.jpg"
-              alt="Lo tenemos Totalpars"
-              width={900}
-              height={400}
-              className="h-full w-full object-cover"
-            />
+            <picture>
+              {siteImages["banner-lo-tenemos-mobile"] && <source media="(max-width: 767px)" srcSet={siteImages["banner-lo-tenemos-mobile"]} />}
+              <Image
+                src={resolveImage("banner-lo-tenemos", siteImages)}
+                alt="Lo tenemos Totalpars"
+                width={900}
+                height={400}
+                className="h-full w-full object-cover"
+              />
+            </picture>
           </Link>
         </div>
       </section>
@@ -183,17 +192,22 @@ export default async function Home() {
       {/* 9 — PROMOS VERTICALES */}
       <section className="mx-auto max-w-[1440px] px-6 py-14">
         <div className="hscroll-md cols-4" style={{ gap: "1.5rem", paddingLeft: "1.5rem", paddingRight: "1.5rem" }}>
-          {[
-            { src: "/promo-totalpars.png",    alt: "Bombín para tanque 30% off",   video: "/promo-hover-totalpars.mp4" },
-            { src: "/promo-tecnomotor.png", alt: "Amortiguador Tecnimotor 30% off",       video: "/promo-hover.mp4" },
-            { src: "/promo-autoprime.png",  alt: "Batería Autoprime 30% off",             video: "/promo-hover-autoprime.mp4" },
-            { src: "/promo-cauchos.png",    alt: "Cauchos Industriales 20% off",          video: "/promo-hover-tecnomotor.mp4" },
-          ].map((promo) => (
+          {(() => {
+            const vCount = parseInt(siteImages["promo-v-count"] ?? "4");
+            const vVideoDefaults = ["/promo-hover-totalpars.mp4", "/promo-hover.mp4", "/promo-hover-autoprime.mp4", "/promo-hover-tecnomotor.mp4"];
+            return Array.from({ length: vCount }, (_, i) => ({
+              src: resolveImage(`promo-v-${i + 1}`, siteImages),
+              href: siteImages[`promo-v-${i + 1}-link`] ?? "/categorias",
+              alt: `Promo vertical ${i + 1}`,
+              video: siteImages[`promo-v-${i + 1}-video`] ?? vVideoDefaults[i],
+            }));
+          })().map((promo) => (
             <PromoCardHover
               key={promo.src}
               src={promo.src}
               alt={promo.alt}
-              videoSrc={promo.video ?? undefined}
+              videoSrc={promo.video}
+              href={promo.href}
             />
           ))}
         </div>
@@ -203,7 +217,7 @@ export default async function Home() {
       <section className="mx-auto max-w-[1440px] px-6 pb-16">
         <Link href="/categorias" className="block overflow-hidden rounded-2xl transition-transform duration-300 hover:scale-[1.01]">
           <Image
-            src="/banner-uniparceros-nuevo.jpg"
+            src={resolveImage("banner-uniparceros", siteImages)}
             alt="Encuentra el repuesto y el taller ideal — Uniparceros"
             width={2560}
             height={720}

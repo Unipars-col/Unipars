@@ -20,12 +20,15 @@ export default function SiteHeader({ currentUser, isVendor }: SiteHeaderProps) {
   const [menuAbierto, setMenuAbierto] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
   const [clientCodes, setClientCodes] = useState<Record<string, string>>({});
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const menuRef = useRef<HTMLDivElement | null>(null);
   const searchRef = useRef<HTMLDivElement | null>(null);
+  const mobileInputRef = useRef<HTMLInputElement | null>(null);
+  const menuCloseTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { totalItems } = useCart();
   const { products } = useProducts();
 
@@ -88,11 +91,22 @@ export default function SiteHeader({ currentUser, isVendor }: SiteHeaderProps) {
     event.preventDefault();
     const query = searchQuery.trim();
     setShowSuggestions(false);
+    setSearchOpen(false);
     const params = new URLSearchParams();
     if (query) params.set("q", query);
     const targetUrl = params.toString() ? `/categorias?${params.toString()}` : "/categorias";
     if (pathname === "/categorias") { router.replace(targetUrl); return; }
     router.push(targetUrl);
+  };
+
+  const doMobileSearch = () => {
+    const query = searchQuery.trim();
+    setSearchOpen(false);
+    setShowSuggestions(false);
+    const params = new URLSearchParams();
+    if (query) params.set("q", query);
+    const targetUrl = params.toString() ? `/categorias?${params.toString()}` : "/categorias";
+    if (pathname === "/categorias") { router.replace(targetUrl); } else { router.push(targetUrl); }
   };
 
 
@@ -125,7 +139,8 @@ export default function SiteHeader({ currentUser, isVendor }: SiteHeaderProps) {
             />
           </Link>
 
-          <div className="flex flex-1 justify-center">
+          {/* Búsqueda desktop — oculta en móvil */}
+          <div className="hidden flex-1 justify-center md:flex">
           <div ref={searchRef} className="relative w-full max-w-[720px]">
             <form
               onSubmit={handleSearch}
@@ -194,14 +209,30 @@ export default function SiteHeader({ currentUser, isVendor }: SiteHeaderProps) {
           </div>
           </div>
 
+          {/* Lupa móvil — oculta en desktop (carrito y cuenta están en el bottom nav) */}
+          <button
+            type="button"
+            onClick={() => { setSearchOpen(true); setTimeout(() => mobileInputRef.current?.focus(), 80); }}
+            className="ml-auto flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-[#16384f] transition-colors hover:bg-[#f0f2f4] md:hidden"
+            aria-label="Buscar"
+          >
+            <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+            </svg>
+          </button>
         </div>
 
         {/* Fila desktop: nav + acciones */}
         <div className="mt-3 hidden items-center justify-between gap-3 md:flex">
           <nav className="flex shrink-0 items-center gap-4 text-[13px] font-semibold tracking-[0.01em] text-[#16384f] md:gap-5 lg:text-sm xl:gap-6">
             <div className="relative" ref={menuRef}
-              onMouseEnter={() => setMenuAbierto(true)}
-              onMouseLeave={() => setMenuAbierto(false)}
+              onMouseEnter={() => {
+                if (menuCloseTimer.current) clearTimeout(menuCloseTimer.current);
+                setMenuAbierto(true);
+              }}
+              onMouseLeave={() => {
+                menuCloseTimer.current = setTimeout(() => setMenuAbierto(false), 200);
+              }}
             >
               <div className="flex items-center gap-2">
                 <button type="button" onClick={() => irACategoria()}
@@ -215,7 +246,7 @@ export default function SiteHeader({ currentUser, isVendor }: SiteHeaderProps) {
                 </button>
               </div>
               {menuAbierto && (
-                <div className="absolute left-0 top-full mt-4 w-72 rounded-2xl border border-black/8 bg-white p-2 shadow-[0_18px_40px_rgba(15,23,42,0.12)]">
+                <div className="absolute left-0 top-full mt-1 w-72 rounded-2xl border border-black/8 bg-white p-2 shadow-[0_18px_40px_rgba(15,23,42,0.12)]">
                   {categorias.map((cat) => (
                     <button key={cat} type="button" onClick={() => irACategoria(cat)}
                       className="block w-full rounded-xl px-4 py-3 text-left text-sm font-medium normal-case tracking-normal text-[#16384f]/85 transition-colors duration-200 hover:bg-[#f8f8f7] hover:text-[#16384f]">
@@ -226,7 +257,6 @@ export default function SiteHeader({ currentUser, isVendor }: SiteHeaderProps) {
               )}
             </div>
             {[
-              { href: "/vender", label: "Vender" },
               { href: "/categorias?oferta=true", label: "Ofertas" },
               { href: "/servicio-de-reparacion", label: "Uniparceros" },
               { href: "/ayuda", label: "Ayuda / PQR" },
@@ -288,6 +318,74 @@ export default function SiteHeader({ currentUser, isVendor }: SiteHeaderProps) {
         </div>
       </div>
 
+      {/* ── OVERLAY BÚSQUEDA MÓVIL ── */}
+      {searchOpen && (
+        <div className="fixed inset-0 z-[200] flex flex-col bg-white md:hidden">
+          {/* Barra superior */}
+          <div className="flex items-center gap-2 border-b border-black/8 px-4 py-3">
+            <svg viewBox="0 0 24 24" className="h-5 w-5 shrink-0 text-[#a2a5aa]" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+            </svg>
+            <input
+              ref={mobileInputRef}
+              type="search"
+              value={searchQuery}
+              onChange={(e) => { setSearchQuery(e.target.value); setShowSuggestions(true); }}
+              onKeyDown={(e) => { if (e.key === "Escape") { setSearchOpen(false); setSearchQuery(""); } if (e.key === "Enter") doMobileSearch(); }}
+              placeholder="¿Qué estás buscando?"
+              className="flex-1 bg-transparent text-base text-[#16384f] outline-none placeholder:text-gray-400"
+              autoComplete="off"
+            />
+            {searchQuery && (
+              <button type="button" onClick={() => setSearchQuery("")} className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#f0f2f4] text-[#8b8d91]">
+                <svg viewBox="0 0 16 16" className="h-3.5 w-3.5" fill="currentColor"><path d="M12 4 8 8l-4-4-1 1 4 4-4 4 1 1 4-4 4 4 1-1-4-4 4-4z"/></svg>
+              </button>
+            )}
+            <button type="button" onClick={() => { openVisualSearch(); setSearchOpen(false); }} className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-black/10 text-[#16384f]" aria-label="Búsqueda por imagen">
+              <svg viewBox="0 0 24 24" className="h-4.5 w-4.5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M14.5 4H9.5L8 6H5a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-3l-1.5-2Z"/><circle cx="12" cy="12" r="3.5"/>
+              </svg>
+            </button>
+            <button type="button" onClick={() => { setSearchOpen(false); setSearchQuery(""); }} className="shrink-0 text-sm font-semibold text-[#ed8435]">
+              Cancelar
+            </button>
+          </div>
+
+          {/* Sugerencias */}
+          {suggestions.length > 0 ? (
+            <div className="flex-1 overflow-y-auto divide-y divide-black/[0.05]">
+              {suggestions.map((producto) => (
+                <Link
+                  key={producto.slug}
+                  href={`/producto/${producto.slug}`}
+                  onClick={() => { setSearchOpen(false); setSearchQuery(""); setShowSuggestions(false); }}
+                  className="flex items-center gap-3 px-4 py-3 transition-colors active:bg-[#f8f8f7]"
+                >
+                  <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-xl bg-[#f0f2f4]">
+                    <Image src={producto.imagen} alt={producto.nombre} fill className="object-contain p-1" sizes="48px" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-semibold text-[#16384f]">{producto.nombre}</p>
+                    <p className="text-xs text-[#8b8d91]">{producto.marca} · {producto.categoria}</p>
+                  </div>
+                  <p className="shrink-0 text-sm font-bold text-[#ed8435]">{producto.precio}</p>
+                </Link>
+              ))}
+              <button type="button" onClick={doMobileSearch}
+                className="w-full px-4 py-4 text-center text-sm font-medium text-[#ed8435]">
+                Ver todos los resultados para &quot;{searchQuery}&quot; →
+              </button>
+            </div>
+          ) : (
+            <div className="flex flex-1 flex-col items-center justify-center gap-2 text-center">
+              <svg viewBox="0 0 24 24" className="h-10 w-10 text-[#d1d5db]" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+              </svg>
+              <p className="text-sm text-[#a2a5aa]">Escribe para buscar repuestos…</p>
+            </div>
+          )}
+        </div>
+      )}
     </header>
   );
 }

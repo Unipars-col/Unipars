@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 
-export default function BannerBusquedaImagen() {
+export default function BannerBusquedaImagen({ src }: { src?: string }) {
   return (
     <button
       type="button"
@@ -10,7 +10,7 @@ export default function BannerBusquedaImagen() {
       onClick={() => window.dispatchEvent(new CustomEvent("totalpars:visual-search-toggle", { detail: { isOpen: true } }))}
     >
       <Image
-        src="/banner-busqueda-imagen-v3.jpg"
+        src={src ?? "/banner-busqueda-imagen-v3.jpg"}
         alt="Buscá más fácil, buscá por imagen"
         width={1440}
         height={540}

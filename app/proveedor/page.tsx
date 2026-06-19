@@ -109,6 +109,7 @@ type ToastState = {
 
 type AdminOrder = {
   id: string;
+  orderNumber: number;
   status: "PENDING" | "PAID" | "CANCELLED";
   paymentStatus: "PENDING" | "PAID" | "FAILED";
   shippingStatus: ShippingStatus;
@@ -2517,8 +2518,8 @@ export default function AdminPage() {
                                 <p className="text-[13px] font-semibold uppercase tracking-[0.22em] text-[#8b8d91]">
                                   Pedido
                                 </p>
-                                <p className="mt-3 font-mono text-[1.1rem] font-semibold uppercase leading-tight text-[#1f2328]">
-                                  #{order.id.slice(-8)}
+                                <p className="mt-3 text-[1.42rem] font-semibold leading-tight text-[#1f2328]">
+                                  #{String(order.orderNumber).padStart(4, "0")}
                                 </p>
                                 <p className="mt-3 text-[15px] text-[#5d6167]">
                                   {order.customerName} · {order.city}
@@ -2628,8 +2629,8 @@ export default function AdminPage() {
                             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#8b8d91]">
                               Pedido seleccionado
                             </p>
-                            <h3 className="mt-2 font-mono text-2xl font-semibold uppercase tracking-tight text-[#16384f]">
-                              #{selectedOrderPreview.id.slice(-8)}
+                            <h3 className="mt-2 text-3xl font-semibold tracking-[-0.04em] text-[#16384f]">
+                              #{String(selectedOrderPreview.orderNumber).padStart(4, "0")}
                             </h3>
                             <p className="mt-3 text-sm leading-7 text-[#6e7379]">
                               {selectedOrderPreview.customerName} · {selectedOrderPreview.customerEmail} · {selectedOrderPreview.customerPhone}

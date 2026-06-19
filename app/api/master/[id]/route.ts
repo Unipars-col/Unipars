@@ -73,13 +73,13 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     const { id } = await params;
     if (id === "totalpars") return Response.json({ error: "Totalpars no calificable." }, { status: 400 });
 
-    const body = await req.json() as { calificacion?: number; estado?: string; adminNotes?: string };
+    const body = await req.json() as { calificacion?: number | null; estado?: string; adminNotes?: string };
 
     const VALID_ESTADOS = ["PENDIENTE", "EN_REVISION", "APROBADA", "RECHAZADA"];
     const data: Record<string, unknown> = {};
 
     if (body.calificacion !== undefined) {
-      data.calificacion = Math.min(5, Math.max(1, Math.round(body.calificacion)));
+      data.calificacion = body.calificacion === null ? null : Math.min(5, Math.max(1, Math.round(body.calificacion)));
     }
     if (body.estado !== undefined) {
       if (!VALID_ESTADOS.includes(body.estado)) {

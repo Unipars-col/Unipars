@@ -69,11 +69,15 @@ export async function GET() {
           productIds.length > 0
             ? prisma!.order.findMany({
                 where: { items: { some: { productId: { in: productIds } } } },
-                select: { id: true, subtotal: true, paymentStatus: true },
+                select: {
+                  id: true, subtotal: true, paymentStatus: true,
+                  items: { where: { productId: { in: productIds } }, select: { quantity: true } },
+                },
               })
             : Promise.resolve([]),
         ]);
         const paidOrders = vendorOrders.filter((o) => o.paymentStatus === "PAID");
+        const itemsSold = paidOrders.reduce((sum, o) => sum + o.items.reduce((s, item) => s + item.quantity, 0), 0);
         return {
           id: s.id,
           nombre: s.nombreEmpresa,
@@ -87,6 +91,7 @@ export async function GET() {
           orderCount: vendorOrders.length,
           paidOrderCount: paidOrders.length,
           totalSales: paidOrders.reduce((sum, o) => sum + o.subtotal, 0),
+          itemsSold,
           isTotalpars: false,
           calificacion: s.calificacion,
           contactEmail: s.correoEmpresa,

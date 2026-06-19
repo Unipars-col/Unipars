@@ -27,7 +27,7 @@ const initialMessage: ChatMessage = {
   id: "welcome",
   role: "assistant",
   content:
-    "Hola, soy el asistente de Totalpars. Puedo ayudarte a encontrar repuestos, categorías, disponibilidad y orientarte sobre envíos o pagos.",
+    "Hola, soy Gloria, tu asistente de Totalpars. Puedo ayudarte a encontrar repuestos, categorías, disponibilidad y orientarte sobre envíos o pagos.",
 };
 
 export default function SupportChat() {
@@ -138,25 +138,21 @@ export default function SupportChat() {
     >
       {isOpen && (
         <div className="w-[min(92vw,380px)] overflow-hidden rounded-[1.6rem] border border-black/10 bg-white shadow-[0_24px_60px_rgba(15,23,42,0.18)]">
-          <div className="border-b border-[#ed8435]/35 bg-white px-4 py-4 text-[#16384f]">
-            <div className="flex items-start justify-between gap-4">
-              <div className="flex min-w-0 items-start gap-3">
-                <div className="relative h-16 w-14 shrink-0">
+          <div className="border-b border-[#ed8435]/35 bg-white px-5 py-4 text-[#16384f]">
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <div className="relative h-11 w-10 shrink-0">
                   <Image
                     src="/chatbot/uniparcero-bot.png"
-                    alt="Uniparcero"
+                    alt="Gloria"
                     fill
-                    sizes="56px"
+                    sizes="40px"
                     className="object-contain object-bottom"
                   />
                 </div>
-                <div className="min-w-0 pt-0.5">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[#7f8790]">
-                    Asistente Totalpars
-                  </p>
-                  <h3 className="mt-1 text-[1.55rem] font-semibold leading-[0.95] tracking-[-0.05em] text-[#16384f]">
-                    Habla con Uniparcero
-                  </h3>
+                <div>
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-[#7f8790]">Asistente Totalpars</p>
+                  <p className="text-base font-bold leading-tight text-[#16384f]">Gloria</p>
                 </div>
               </div>
               <button
@@ -167,8 +163,8 @@ export default function SupportChat() {
                 Cerrar
               </button>
             </div>
-            <div className="mt-4 h-[4px] w-full rounded-full bg-[#fff1e3]">
-              <div className="h-full w-20 rounded-full bg-[#ed8435]" />
+            <div className="mt-3 h-[3px] w-full rounded-full bg-[#fff1e3]">
+              <div className="h-full w-16 rounded-full bg-[#ed8435]" />
             </div>
           </div>
 
@@ -184,7 +180,7 @@ export default function SupportChat() {
                       <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-full border border-[#16384f]/10 bg-white shadow-[0_8px_18px_rgba(15,23,42,0.08)]">
                         <Image
                           src="/chatbot/uniparcero-icon.png"
-                          alt="Uniparcero"
+                          alt="Gloria"
                           fill
                           sizes="40px"
                           className="object-cover p-1"
@@ -192,7 +188,7 @@ export default function SupportChat() {
                       </div>
                       <div className="rounded-[1.25rem] border border-black/8 bg-white px-4 py-3 text-sm leading-6 text-[#243342] shadow-[0_10px_24px_rgba(15,23,42,0.05)]">
                         <p className="mb-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-[#ed8435]">
-                          Uniparcero
+                          Gloria
                         </p>
                         <p className="whitespace-pre-line">{message.content}</p>
                         {message.suggestions && message.suggestions.length > 0 && (
@@ -282,7 +278,7 @@ export default function SupportChat() {
         <span className="relative flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-white">
           <Image
             src="/chatbot/uniparcero-icon.png"
-            alt="Habla con Uniparcero"
+            alt="Habla con Gloria"
             fill
             sizes="40px"
             className="object-cover p-1"

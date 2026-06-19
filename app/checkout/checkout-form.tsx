@@ -11,6 +11,7 @@ type CheckoutItem = {
   precio: string;
   imagen: string;
   cantidad: number;
+  sku?: string | null;
 };
 
 type CheckoutUser = {
@@ -57,6 +58,21 @@ type PendingOrderState = {
   subtotal: number;
 } | null;
 
+type ItemAddress = {
+  id: string;
+  label: string;
+  addressLine1: string;
+  city: string;
+  department: string;
+};
+
+type Destination = {
+  key: string;
+  addressId: string;
+  customAddress: string;
+  quantities: Record<string, number>;
+};
+
 type WompiParams = {
   publicKey: string;
   reference: string;
@@ -99,6 +115,8 @@ export default function CheckoutForm({
     notes: "",
   });
   const [useDifferentAddress, setUseDifferentAddress] = useState(false);
+  const [splitShipping, setSplitShipping] = useState(false);
+  const [destinations, setDestinations] = useState<Destination[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [inlineError, setInlineError] = useState("");
   const [toast, setToast] = useState<ToastState>(null);
@@ -177,6 +195,92 @@ export default function CheckoutForm({
     if (addr) setForm((f) => ({ ...f, department: addr.department, city: addr.city, addressLine1: addr.addressLine1, addressLine2: addr.addressLine2 ?? "" }));
   };
 
+  const allAddressOptions = useMemo((): ItemAddress[] => {
+    const opts: ItemAddress[] = [];
+    if (hasSavedAddress && user.addressLine1) {
+      opts.push({ id: "profile", label: "Dirección principal", addressLine1: user.addressLine1, city: user.city || "", department: user.department || "" });
+    }
+    for (const a of savedAddresses) {
+      opts.push({ id: a.id, label: a.label || a.addressLine1, addressLine1: a.addressLine1, city: a.city, department: a.department });
+    }
+    return opts;
+  }, [hasSavedAddress, user, savedAddresses]);
+
+  const buildSplitNotes = () => {
+    const parts: string[] = [];
+    for (const dest of destinations) {
+      const label = dest.addressId === "custom"
+        ? dest.customAddress || "Dirección personalizada"
+        : (allAddressOptions.find((a) => a.id === dest.addressId)?.label ?? "Dirección");
+      const addr = dest.addressId === "custom"
+        ? dest.customAddress
+        : (() => { const a = allAddressOptions.find((o) => o.id === dest.addressId); return a ? `${a.addressLine1}, ${a.city}` : ""; })();
+      const productLines = items
+        .filter((item) => (dest.quantities[item.id] ?? 0) > 0)
+        .map((item) => `  - ${item.nombre} x${dest.quantities[item.id]}`)
+        .join("\n");
+      if (productLines) parts.push(`📍 ${label} (${addr}):\n${productLines}`);
+    }
+    return parts.join("\n\n");
+  };
+
+  const makeDestination = (addressId: string): Destination => ({
+    key: `dest-${Date.now()}-${Math.random()}`,
+    addressId,
+    customAddress: "",
+    quantities: Object.fromEntries(items.map((i) => [i.id, 0])),
+  });
+
+  const handleToggleSplitShipping = () => {
+    setSplitShipping((v) => {
+      if (!v) {
+        const defaultAddrId = allAddressOptions[0]?.id ?? "custom";
+        setDestinations([makeDestination(defaultAddrId)]);
+      } else {
+        setDestinations([]);
+      }
+      return !v;
+    });
+  };
+
+  const addDestination = () => {
+    const defaultAddrId = allAddressOptions[0]?.id ?? "custom";
+    setDestinations((prev) => [...prev, makeDestination(defaultAddrId)]);
+  };
+
+  const removeDestination = (key: string) => {
+    setDestinations((prev) => prev.filter((d) => d.key !== key));
+  };
+
+  const updateDestAddress = (key: string, addressId: string) => {
+    setDestinations((prev) => prev.map((d) => d.key === key ? { ...d, addressId } : d));
+  };
+
+  const updateDestCustomAddress = (key: string, value: string) => {
+    setDestinations((prev) => prev.map((d) => d.key === key ? { ...d, customAddress: value } : d));
+  };
+
+  const updateDestQty = (key: string, itemId: string, delta: number) => {
+    setDestinations((prev) => prev.map((d) => {
+      if (d.key !== key) return d;
+      const current = d.quantities[itemId] ?? 0;
+      const item = items.find((i) => i.id === itemId);
+      const max = item?.cantidad ?? 0;
+      const next = Math.max(0, Math.min(max, current + delta));
+      return { ...d, quantities: { ...d.quantities, [itemId]: next } };
+    }));
+  };
+
+  const splitTotals = useMemo(() => {
+    const totals: Record<string, number> = {};
+    for (const dest of destinations) {
+      for (const [itemId, qty] of Object.entries(dest.quantities)) {
+        totals[itemId] = (totals[itemId] ?? 0) + qty;
+      }
+    }
+    return totals;
+  }, [destinations]);
+
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setInlineError("");
@@ -189,10 +293,12 @@ export default function CheckoutForm({
 
       let response: Response;
       try {
+        const splitNotes = splitShipping ? buildSplitNotes() : null;
+        const finalNotes = [form.notes, splitNotes ? `ENVÍO DIVIDIDO:\n${splitNotes}` : null].filter(Boolean).join("\n\n");
         response = await fetch("/api/orders", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(form),
+          body: JSON.stringify({ ...form, notes: finalNotes }),
           signal: controller.signal,
         });
       } catch (fetchErr) {
@@ -599,6 +705,162 @@ export default function CheckoutForm({
                   className="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none transition-colors duration-200 focus:border-[#ed8435]"
                 />
               </div>
+
+              {items.length >= 2 && (
+                <div className="md:col-span-2 space-y-4">
+                  <button
+                    type="button"
+                    onClick={handleToggleSplitShipping}
+                    className={`flex w-full items-center gap-3 rounded-[1.25rem] border px-5 py-4 text-left transition-colors ${
+                      splitShipping
+                        ? "border-[#ed8435] bg-[#fff6ee]"
+                        : "border-dashed border-slate-300 hover:border-[#ed8435]/60 hover:bg-[#fffaf5]"
+                    }`}
+                  >
+                    <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full border ${splitShipping ? "border-[#ed8435] bg-[#ed8435] text-white" : "border-slate-300 text-[#16384f]"}`}>
+                      <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M3 12h18M3 6h18M3 18h18" />
+                        <path d="M17 3l4 3-4 3M7 18l-4 3 4 3" />
+                      </svg>
+                    </span>
+                    <div>
+                      <p className="text-sm font-semibold text-[#16384f]">
+                        {splitShipping ? "Envío personalizado activado" : "¿Deseas hacer un envío personalizado?"}
+                      </p>
+                      <p className="mt-0.5 text-xs text-[#6e7379]">
+                        Distribuye tus productos a distintas direcciones de entrega.
+                      </p>
+                    </div>
+                    {splitShipping && (
+                      <span className="ml-auto shrink-0 text-xs font-semibold text-[#ed8435]">Activo ✓</span>
+                    )}
+                  </button>
+
+                  {splitShipping && (
+                    <div className="space-y-4">
+                      {destinations.map((dest, idx) => {
+                        const selectedAddr = allAddressOptions.find((a) => a.id === dest.addressId);
+                        return (
+                          <div key={dest.key} className="rounded-[1.25rem] border border-black/10 bg-[#fafaf9] p-4">
+                            <div className="flex items-center justify-between gap-2 mb-3">
+                              <p className="text-xs font-semibold uppercase tracking-wide text-[#ed8435]">
+                                Destino {idx + 1}
+                              </p>
+                              {destinations.length > 1 && (
+                                <button type="button" onClick={() => removeDestination(dest.key)}
+                                  className="text-xs text-slate-400 hover:text-red-500 transition-colors">
+                                  × Eliminar
+                                </button>
+                              )}
+                            </div>
+
+                            {allAddressOptions.length > 0 ? (
+                              <select
+                                value={dest.addressId}
+                                onChange={(e) => updateDestAddress(dest.key, e.target.value)}
+                                className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-medium text-[#16384f] outline-none focus:border-[#ed8435] mb-3"
+                              >
+                                {allAddressOptions.map((addr) => (
+                                  <option key={addr.id} value={addr.id}>
+                                    {addr.label} — {addr.addressLine1}, {addr.city}
+                                  </option>
+                                ))}
+                                <option value="custom">Otra dirección...</option>
+                              </select>
+                            ) : (
+                              <input
+                                type="text"
+                                placeholder="Escribe la dirección de entrega"
+                                value={dest.customAddress}
+                                onChange={(e) => updateDestCustomAddress(dest.key, e.target.value)}
+                                className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm text-[#16384f] outline-none focus:border-[#ed8435] mb-3"
+                              />
+                            )}
+
+                            {dest.addressId === "custom" && allAddressOptions.length > 0 && (
+                              <input
+                                type="text"
+                                placeholder="Escribe la dirección de entrega"
+                                value={dest.customAddress}
+                                onChange={(e) => updateDestCustomAddress(dest.key, e.target.value)}
+                                className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm text-[#16384f] outline-none focus:border-[#ed8435] mb-3"
+                              />
+                            )}
+
+                            <div className="space-y-2">
+                              {items.map((item) => {
+                                const qty = dest.quantities[item.id] ?? 0;
+                                const assigned = splitTotals[item.id] ?? 0;
+                                const remaining = item.cantidad - assigned + qty;
+                                return (
+                                  <div key={item.id} className="flex items-center gap-3">
+                                    <p className="flex-1 min-w-0 text-xs font-medium text-[#16384f] truncate">
+                                      {item.nombre}
+                                      {item.sku && <span className="ml-2 font-mono text-[10px] text-[#8b8d91]">{item.sku}</span>}
+                                    </p>
+                                    <div className="flex items-center gap-1.5 shrink-0">
+                                      <button type="button" onClick={() => updateDestQty(dest.key, item.id, -1)}
+                                        disabled={qty === 0}
+                                        className="flex h-6 w-6 items-center justify-center rounded-full border border-slate-200 text-sm font-bold text-[#16384f] transition-colors hover:bg-[#16384f] hover:text-white disabled:opacity-30 disabled:cursor-not-allowed">
+                                        −
+                                      </button>
+                                      <input
+                                        type="number"
+                                        min={0}
+                                        max={item.cantidad}
+                                        value={qty}
+                                        onChange={(e) => {
+                                          const val = Math.max(0, Math.min(item.cantidad, Number(e.target.value) || 0));
+                                          setDestinations((prev) => prev.map((d) => d.key !== dest.key ? d : { ...d, quantities: { ...d.quantities, [item.id]: val } }));
+                                        }}
+                                        className="w-10 rounded-lg border border-slate-200 px-1 py-0.5 text-center text-sm font-semibold text-[#1f2328] outline-none focus:border-[#ed8435] [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                                      />
+                                      <button type="button" onClick={() => updateDestQty(dest.key, item.id, 1)}
+                                        disabled={remaining <= 0}
+                                        className="flex h-6 w-6 items-center justify-center rounded-full border border-slate-200 text-sm font-bold text-[#16384f] transition-colors hover:bg-[#16384f] hover:text-white disabled:opacity-30 disabled:cursor-not-allowed">
+                                        +
+                                      </button>
+                                    </div>
+                                    <span className="text-[11px] text-slate-400 w-14 text-right shrink-0">
+                                      de {item.cantidad}
+                                    </span>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        );
+                      })}
+
+                      <button type="button" onClick={addDestination}
+                        className="flex w-full items-center justify-center gap-2 rounded-[1.25rem] border border-dashed border-slate-300 py-3 text-sm font-semibold text-[#16384f] transition-colors hover:border-[#ed8435] hover:bg-[#fffaf5]">
+                        <span className="text-lg leading-none">+</span> Agregar otro destino
+                      </button>
+
+                      <div className="rounded-xl border border-black/8 bg-white px-4 py-3">
+                        <p className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-[#8b8d91]">Resumen de asignación</p>
+                        <div className="space-y-1">
+                          {items.map((item) => {
+                            const assigned = splitTotals[item.id] ?? 0;
+                            const ok = assigned === item.cantidad;
+                            return (
+                              <div key={item.id} className="flex items-center justify-between gap-2 text-xs">
+                                <span className="truncate text-[#16384f] font-medium">
+                                  {item.nombre}
+                                  {item.sku && <span className="ml-1.5 font-mono text-[10px] text-[#8b8d91]">{item.sku}</span>}
+                                </span>
+                                <span className={`shrink-0 font-semibold ${ok ? "text-green-600" : assigned > item.cantidad ? "text-red-500" : "text-amber-500"}`}>
+                                  {assigned}/{item.cantidad} {ok ? "✓" : assigned > item.cantidad ? "excedido" : "pendiente"}
+                                </span>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
 
             {inlineError && (
@@ -622,6 +884,19 @@ export default function CheckoutForm({
               >
                 Volver al carrito
               </button>
+              <a
+                href="/api/cart/pdf"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 rounded-full border border-[#16384f]/18 px-6 py-3 text-sm font-semibold text-[#16384f] transition-colors duration-200 hover:bg-[#16384f] hover:text-white"
+              >
+                <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                  <polyline points="7 10 12 15 17 10"/>
+                  <line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+                Ver orden
+              </a>
             </div>
           </form>
 

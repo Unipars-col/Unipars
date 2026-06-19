@@ -35,6 +35,14 @@ export default function CategoriasPage() {
   const [clipWidth, setClipWidth] = useState(0);
   const [isExclusive, setIsExclusive] = useState(false);
   const [clientCodes, setClientCodes] = useState<Record<string, string>>({});
+  const [siteImages, setSiteImages] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    fetch("/api/site-images")
+      .then((r) => r.json())
+      .then((d: { images?: Record<string, string> }) => { if (d.images) setSiteImages(d.images); })
+      .catch(() => {});
+  }, []);
   const [ordenActivo, setOrdenActivo] = useState<"recomendados" | "mas-vendidos" | "menor-precio" | "mayor-precio" | "nombre" | "marca">("recomendados");
   const [showOrdenDropdown, setShowOrdenDropdown] = useState(false);
   const [marcasActivas, setMarcasActivas] = useState<string[]>([]);
@@ -49,10 +57,9 @@ export default function CategoriasPage() {
     if (!isExclusive) return products;
     const fmt = (v: number) => new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", maximumFractionDigits: 0 }).format(v);
     return products.map((p) => {
-      if (p.marca.toLowerCase() === "unipars") return p;
       const nuevoPrecio = Math.ceil(p.precioValor * 1.1);
       const nuevoPrecioAnterior = Math.ceil(p.precioAnteriorValor * 1.1);
-      return { ...p, marca: "Unipars", precioValor: nuevoPrecio, precio: fmt(nuevoPrecio), precioAnteriorValor: nuevoPrecioAnterior, precioAnterior: fmt(nuevoPrecioAnterior) };
+      return { ...p, precioValor: nuevoPrecio, precio: fmt(nuevoPrecio), precioAnteriorValor: nuevoPrecioAnterior, precioAnterior: fmt(nuevoPrecioAnterior) };
     });
   }, [products, isExclusive]);
 
@@ -444,7 +451,7 @@ export default function CategoriasPage() {
           {soloOfertas ? (
             <div className="overflow-hidden">
               <Image
-                src="/banner-ofertas.jpg"
+                src={siteImages["banner-ofertas"] ?? "/banner-ofertas.jpg"}
                 alt="Ofertas del mes — Abre la caja de las mejores ofertas"
                 width={2400}
                 height={675}
@@ -456,7 +463,7 @@ export default function CategoriasPage() {
           ) : !categoriaActiva ? (
             <div className="overflow-hidden">
               <Image
-                src="/banner-categorias-v2.jpg"
+                src={siteImages["banner-categorias"] ?? "/banner-categorias-v2.jpg"}
                 alt="Todo lo que buscas para tu vehículo está aquí"
                 width={2400}
                 height={675}
@@ -469,7 +476,7 @@ export default function CategoriasPage() {
             <div className="relative aspect-[1920/500] min-h-[252px] overflow-hidden">
               {categoriaVisual.bannerImagen ? (
                 <Image
-                  src={categoriaVisual.bannerImagen}
+                  src={siteImages[`cat-banner-${slugCategoria(categoriaVisual.nombre)}`] ?? categoriaVisual.bannerImagen}
                   alt={categoriaVisual.nombre}
                   fill
                   priority

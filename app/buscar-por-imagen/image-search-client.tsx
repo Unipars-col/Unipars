@@ -133,7 +133,7 @@ export default function ImageSearchClient({ fallbackProduct, onNavigate }: Props
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
-        className={`flex min-h-[360px] cursor-pointer flex-col items-center justify-center rounded-[4px] border-2 border-dashed px-6 py-8 text-center transition-colors ${
+        className={`flex min-h-[180px] cursor-pointer flex-col items-center justify-center rounded-[4px] border-2 border-dashed px-6 py-6 text-center transition-colors sm:min-h-[280px] ${
           isDragging
             ? "border-[#ed8435] bg-[#fff6ee]"
             : "border-[#a8adb3] bg-[#f7f7f7] hover:border-[#ed8435]/80 hover:bg-[#fffaf5]"
@@ -153,7 +153,7 @@ export default function ImageSearchClient({ fallbackProduct, onNavigate }: Props
             width={320}
             height={220}
             unoptimized
-            className="max-h-[210px] w-auto max-w-full rounded-[4px] object-contain"
+            className="max-h-[140px] w-auto max-w-full rounded-[4px] object-contain sm:max-h-[180px]"
           />
         ) : (
           <div className="flex h-28 w-36 items-center justify-center rounded-[6px] border border-[#c8d8ef] bg-white text-[#2877cf]">

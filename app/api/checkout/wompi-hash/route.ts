@@ -22,7 +22,7 @@ export async function GET(request: Request) {
 
     const order = await prisma.order.findUnique({
       where: { id: orderId },
-      select: { id: true, userId: true, subtotal: true, paymentStatus: true },
+      select: { id: true, orderNumber: true, userId: true, subtotal: true, paymentStatus: true },
     });
 
     if (!order || order.userId !== session.userId) {
@@ -45,7 +45,7 @@ export async function GET(request: Request) {
       amountInCents,
       currency,
       integrityHash,
-      redirectUrl: `${appUrl}/checkout/exito?pedido=${order.id}`,
+      redirectUrl: `${appUrl}/checkout/exito?pedido=${order.id}&num=${order.orderNumber}`,
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Error interno al generar el pago.";

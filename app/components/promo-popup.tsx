@@ -6,7 +6,7 @@ import Link from "next/link";
 
 const STORAGE_KEY = "totalpars_promo_popup_seen";
 
-export default function PromoPopup() {
+export default function PromoPopup({ imageSrc }: { imageSrc?: string }) {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -41,8 +41,8 @@ export default function PromoPopup() {
 
         <Link href="/categorias" onClick={close}>
           <Image
-            src="/popup-promo.png"
-            alt="30% OFF Bombín para tanque de agua"
+            src={imageSrc ?? "/popup-promo.png"}
+            alt="Promo popup"
             width={800}
             height={800}
             className="w-full h-auto cursor-pointer"

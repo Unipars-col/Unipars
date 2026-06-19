@@ -1,15 +1,17 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useRef, useState } from "react";
 
 type PromoCardHoverProps = {
   src: string;
   alt: string;
   videoSrc?: string;
+  href?: string;
 };
 
-export default function PromoCardHover({ src, alt, videoSrc }: PromoCardHoverProps) {
+export default function PromoCardHover({ src, alt, videoSrc, href }: PromoCardHoverProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [active, setActive] = useState(false);
 
@@ -30,10 +32,9 @@ export default function PromoCardHover({ src, alt, videoSrc }: PromoCardHoverPro
     }
   };
 
-  return (
+  const inner = (
     <div
       className="relative aspect-[941/1672] overflow-hidden rounded-2xl cursor-pointer"
-      style={{ width: "55vw" }}
       onMouseEnter={handleEnter}
       onMouseLeave={handleLeave}
     >
@@ -57,4 +58,8 @@ export default function PromoCardHover({ src, alt, videoSrc }: PromoCardHoverPro
       )}
     </div>
   );
+
+  return href
+    ? <Link href={href} style={{ minWidth: "55vw" }}>{inner}</Link>
+    : <div style={{ minWidth: "55vw" }}>{inner}</div>;
 }

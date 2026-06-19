@@ -2,20 +2,22 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import SiteFooter from "@/app/components/site-footer";
 import ServiceCards from "./service-cards";
+import { getSiteImages, resolveImage } from "@/lib/site-images";
 
 export const metadata: Metadata = {
   title: "Servicios Totalpars — Talleres, Arriendo y Maquinaria",
   description: "Encuentra talleres aliados, arrienda buses y camiones o alquila maquinaria pesada con Totalpars.",
 };
 
-export default function ServiciosPage() {
+export default async function ServiciosPage() {
+  const siteImages = await getSiteImages();
   return (
     <main className="min-h-screen bg-[#f5f5f5] text-[#111]">
 
       {/* Banner principal */}
       <div className="w-full overflow-hidden">
         <Image
-          src="/banner-principal-v2.jpg"
+          src={resolveImage("banner-uniparceros-page", siteImages)}
           alt="Movilidad que avanza contigo — Totalpars"
           width={1920}
           height={540}

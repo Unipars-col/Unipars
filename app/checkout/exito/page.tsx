@@ -5,7 +5,7 @@ import FacturaElectronica from "./factura-electronica";
 export default async function CheckoutSuccessPage({
   searchParams,
 }: {
-  searchParams: Promise<{ pedido?: string; pagado?: string; id?: string }>;
+  searchParams: Promise<{ pedido?: string; pagado?: string; id?: string; num?: string }>;
 }) {
   const params = await searchParams;
   const fromWompi = Boolean(params.id);
@@ -31,9 +31,11 @@ export default async function CheckoutSuccessPage({
         {params.pedido && (
           <div className="mt-8 rounded-[1.4rem] border border-black/8 bg-[#fafaf9] px-5 py-4">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#8b8d91]">
-              Código de pedido
+              Número de pedido
             </p>
-            <p className="mt-2 text-lg font-semibold text-[#16384f]">{params.pedido}</p>
+            <p className="mt-2 text-lg font-semibold text-[#16384f]">
+              #{params.num ? String(params.num).padStart(4, "0") : params.pedido.slice(-8)}
+            </p>
           </div>
         )}
 
@@ -48,6 +50,21 @@ export default async function CheckoutSuccessPage({
           >
             Ver mis pedidos
           </Link>
+          {params.pedido && (
+            <a
+              href={`/api/orders/${params.pedido}/pdf`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 rounded-full border border-[#16384f]/20 px-6 py-3 text-sm font-semibold text-[#16384f] transition-colors duration-200 hover:bg-[#16384f] hover:text-white"
+            >
+              <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="7 10 12 15 17 10"/>
+                <line x1="12" y1="15" x2="12" y2="3"/>
+              </svg>
+              Descargar orden
+            </a>
+          )}
           <Link
             href="/categorias"
             className="rounded-full border border-[#16384f]/20 px-6 py-3 text-sm font-semibold text-[#16384f] transition-colors duration-200 hover:bg-[#16384f] hover:text-white"

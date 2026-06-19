@@ -173,6 +173,14 @@ export async function createOrderFromCart(userId: string, input: CheckoutInput) 
   return order;
 }
 
+export async function getOrderByIdForUser(orderId: string, userId: string) {
+  if (!prisma) throw new Error("DATABASE_NOT_CONFIGURED");
+  return await prisma.order.findFirst({
+    where: { id: orderId, userId },
+    include: { items: { orderBy: { createdAt: "asc" } } },
+  });
+}
+
 export async function getOrdersForUser(userId: string) {
   if (!prisma) {
     throw new Error("DATABASE_NOT_CONFIGURED");

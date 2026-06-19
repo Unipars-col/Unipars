@@ -19,40 +19,30 @@ type Slide = {
   };
 };
 
-const slides: Slide[] = [
-  {
-    id: 1,
-    title: "",
-    titleHighlight: "",
-    cta: null,
-    image: "/banner-ruta-correcta.jpg",
-    textAlign: "left",
-    darkText: true,
-  },
-  {
-    id: 2,
-    title: "",
-    titleHighlight: "",
-    cta: null,
-    href: "/categorias",
-    image: "/hero-banner-2-v2.jpg",
-    textAlign: "left",
-    darkText: false,
-  },
-  {
-    id: 3,
-    title: "",
-    titleHighlight: "",
-    cta: null,
-    image: "/hero-banner-3-v2.jpg",
-    textAlign: "right",
-    darkText: true,
-  },
+const DEFAULT_IMAGES = [
+  "/banner-ruta-correcta.jpg",
+  "/hero-banner-2-v2.jpg",
+  "/hero-banner-3-v2.jpg",
 ];
 
 const AUTO_PLAY_MS = 8000;
 
-export default function HeroCarousel() {
+export default function HeroCarousel({ images, mobileImages }: { images?: string[]; mobileImages?: string[] }) {
+  const resolvedImages = [
+    images?.[0] ?? DEFAULT_IMAGES[0],
+    images?.[1] ?? DEFAULT_IMAGES[1],
+    images?.[2] ?? DEFAULT_IMAGES[2],
+  ];
+  const resolvedMobile = [
+    mobileImages?.[0] ?? resolvedImages[0],
+    mobileImages?.[1] ?? resolvedImages[1],
+    mobileImages?.[2] ?? resolvedImages[2],
+  ];
+  const slides: Slide[] = [
+    { id: 1, title: "", titleHighlight: "", cta: null, image: resolvedImages[0], textAlign: "left", darkText: true },
+    { id: 2, title: "", titleHighlight: "", cta: null, href: "/categorias", image: resolvedImages[1], textAlign: "left", darkText: false },
+    { id: 3, title: "", titleHighlight: "", cta: null, image: resolvedImages[2], textAlign: "right", darkText: true },
+  ];
   const [current, setCurrent] = useState(0);
   const [paused, setPaused] = useState(false);
   const pausedRef = useRef(false);
@@ -94,13 +84,18 @@ export default function HeroCarousel() {
             zIndex: i === current ? 1 : 0,
           }}
         >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={slide.image}
-            alt=""
-            loading={i === 0 ? "eager" : "lazy"}
-            style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center" }}
-          />
+          <picture style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%" }}>
+            {resolvedMobile[i] !== resolvedImages[i] && (
+              <source media="(max-width: 767px)" srcSet={resolvedMobile[i]} />
+            )}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={slide.image}
+              alt=""
+              loading={i === 0 ? "eager" : "lazy"}
+              style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center" }}
+            />
+          </picture>
 
           {slide.href && (
             <Link

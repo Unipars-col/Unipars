@@ -56,7 +56,7 @@ export default function VisualSearchModal() {
   if (!isOpen || !fallbackProduct) return null;
 
   return (
-    <div className="fixed inset-0 z-[120] flex items-start justify-center bg-black/58 px-4 py-8 backdrop-blur-[2px] md:py-12">
+    <div className="fixed inset-0 z-[120] flex items-center justify-center bg-black/58 px-4 py-4 backdrop-blur-[2px] sm:py-8 md:py-12">
       <button
         type="button"
         aria-label="Cerrar búsqueda por imagen"
@@ -64,8 +64,8 @@ export default function VisualSearchModal() {
         onClick={closeModal}
       />
 
-      <section className="relative z-10 w-full max-w-[520px] rounded-[6px] border border-black/10 bg-white shadow-[0_24px_70px_rgba(0,0,0,0.34)]">
-        <div className="flex items-start justify-between gap-4 border-b border-black/8 px-6 py-5">
+      <section className="relative z-10 flex w-full max-w-[520px] max-h-[calc(100svh-2rem)] flex-col rounded-[6px] border border-black/10 bg-white shadow-[0_24px_70px_rgba(0,0,0,0.34)]">
+        <div className="flex shrink-0 items-start justify-between gap-4 border-b border-black/8 px-6 py-5">
           <div>
             <h2 className="text-2xl font-semibold tracking-[-0.03em] text-[#1f2328]">
               Buscar por imagen
@@ -84,10 +84,12 @@ export default function VisualSearchModal() {
           </button>
         </div>
 
-        <ImageSearchClient
-          fallbackProduct={fallbackProduct}
-          onNavigate={closeModal}
-        />
+        <div className="overflow-y-auto">
+          <ImageSearchClient
+            fallbackProduct={fallbackProduct}
+            onNavigate={closeModal}
+          />
+        </div>
       </section>
     </div>
   );

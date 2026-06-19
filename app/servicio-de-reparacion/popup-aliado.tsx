@@ -8,10 +8,15 @@ import Link from "next/link";
 export default function PopupAliado() {
   const [visible, setVisible] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [imageSrc, setImageSrc] = useState("/servicio-reparacion/popup-uniparceros.png");
 
   useEffect(() => {
     setMounted(true);
     const t = setTimeout(() => setVisible(true), 800);
+    fetch("/api/site-images")
+      .then((r) => r.json())
+      .then((d: Record<string, string>) => { if (d["popup-uniparceros"]) setImageSrc(d["popup-uniparceros"]); })
+      .catch(() => {});
     return () => clearTimeout(t);
   }, []);
 
@@ -51,7 +56,7 @@ export default function PopupAliado() {
       >
         <Link href="/registro-aliado" onClick={cerrar}>
           <Image
-            src="/servicio-reparacion/popup-uniparceros.png"
+            src={imageSrc}
             alt="Únete a Uniparceros"
             width={600}
             height={600}
