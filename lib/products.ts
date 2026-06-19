@@ -236,7 +236,7 @@ function toStoreProduct(product: ProductRecord): StoreProduct {
     estadoInventario,
     puedeComprar: true,
     descuento: formatearDescuento(product.price, product.previousPrice),
-    imagen: product.image,
+    imagen: normalizeProductImage(product.image) || "/hero-unipars.jpg",
     imagenesExtra: normalizeGalleryImages(product.galleryImages || []),
     disponibilidad,
     descripcion:

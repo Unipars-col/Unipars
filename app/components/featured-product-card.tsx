@@ -20,6 +20,7 @@ type Props = {
 
 export default function FeaturedProductCard(props: Props) {
   const [hovered, setHovered] = useState(false);
+  const [imgSrc, setImgSrc] = useState(props.imagen || "/hero-unipars.jpg");
 
   return (
     <article
@@ -60,10 +61,11 @@ export default function FeaturedProductCard(props: Props) {
           </span>
           <div style={{ display: "flex", height: 208, alignItems: "center", justifyContent: "center", padding: "28px" }}>
             <Image
-              src={props.imagen}
+              src={imgSrc}
               alt={props.nombre}
               width={800}
               height={600}
+              onError={() => setImgSrc("/hero-unipars.jpg")}
               style={{
                 maxHeight: 140, width: "auto", maxWidth: "100%", objectFit: "contain",
                 transform: hovered ? "scale(1.18)" : "scale(1)",
