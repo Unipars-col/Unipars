@@ -56,11 +56,13 @@ export default function CategoriasPage() {
   const displayProducts = useMemo(() => {
     if (!isExclusive) return products;
     const fmt = (v: number) => new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", maximumFractionDigits: 0 }).format(v);
-    return products.map((p) => {
-      const nuevoPrecio = Math.ceil(p.precioValor * 1.1);
-      const nuevoPrecioAnterior = Math.ceil(p.precioAnteriorValor * 1.1);
-      return { ...p, precioValor: nuevoPrecio, precio: fmt(nuevoPrecio), precioAnteriorValor: nuevoPrecioAnterior, precioAnterior: fmt(nuevoPrecioAnterior) };
-    });
+    return products
+      .filter((p) => p.marca.toLowerCase() === "unipars")
+      .map((p) => {
+        const nuevoPrecio = Math.ceil(p.precioValor * 1.1);
+        const nuevoPrecioAnterior = Math.ceil(p.precioAnteriorValor * 1.1);
+        return { ...p, precioValor: nuevoPrecio, precio: fmt(nuevoPrecio), precioAnteriorValor: nuevoPrecioAnterior, precioAnterior: fmt(nuevoPrecioAnterior) };
+      });
   }, [products, isExclusive]);
 
   const priceBounds = useMemo(() => {
