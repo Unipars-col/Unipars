@@ -35,9 +35,7 @@ export async function GET(request: Request) {
 
     const amountInCents = order.subtotal * 100;
     const currency = "COP";
-    const secret = process.env.WOMPI_INTEGRITY_SECRET;
-    console.log("[wompi-hash] secret set:", !!secret, "length:", secret?.length ?? 0);
-    const integrityHash = generateWompiIntegrityHash(order.id, amountInCents, currency, secret);
+    const integrityHash = generateWompiIntegrityHash(order.id, amountInCents, currency);
     const appUrl = (process.env as Record<string, string | undefined>)["NEXT_PUBLIC_APP_URL"] || "https://unipars-tech.vercel.app";
 
     return Response.json({
