@@ -73,6 +73,14 @@ export const categoriasData: readonly CategoriaMeta[] = [
     bannerCopy: "Soluciones en cauchos y sellos para reposición, mantenimiento y trabajo industrial.",
   },
   {
+    nombre: "Ferretería",
+    color: "#53606d",
+    icono: "⚙",
+    bannerImagen: "/category-banner-ferreteria.png",
+    bannerCopy:
+      "Herramientas, fijaciones y consumibles para mantenimiento, montaje y reparación profesional.",
+  },
+  {
     nombre: "Adhesivos, lubricantes y sellantes",
     color: "#ed8435",
     icono: "⬢",

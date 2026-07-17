@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  useEffect,
   useRef,
   useMemo,
   useState,
@@ -13,14 +14,20 @@ import Link from "next/link";
 import { slugCategoria } from "../data/catalog";
 import type { StoreProduct } from "@/lib/products";
 
-type ImageSearchResponse = {
+type ImageSearchMatch = {
   product: StoreProduct;
   categoria: string;
   categoriaUrl: string;
   confianza: number;
   razon: string;
+};
+
+type ImageSearchResponse = {
+  matches: ImageSearchMatch[];
+  analysis: { tipo: string; descripcion: string };
   comparedCount: number;
-  mode?: "openai" | "local";
+  catalogCount: number;
+  mode: "openai" | "perceptual";
 };
 
 type Props = {
@@ -32,29 +39,36 @@ export default function ImageSearchClient({ fallbackProduct, onNavigate }: Props
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [result, setResult] = useState<ImageSearchResponse | null>(null);
   const [error, setError] = useState("");
   const [isDragging, setIsDragging] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-
-  const displayedProduct = result?.product ?? fallbackProduct;
-  const categoryUrl =
-    result?.categoriaUrl ||
-    `/categorias?categoria=${slugCategoria(fallbackProduct.categoria)}`;
 
   const fileLabel = useMemo(() => {
     if (!selectedFile) return "Tamaño máximo de 3 MB.";
     return `${selectedFile.name} · ${(selectedFile.size / 1024 / 1024).toFixed(2)} MB`;
   }, [selectedFile]);
 
+  useEffect(() => {
+    return () => {
+      if (previewUrl) URL.revokeObjectURL(previewUrl);
+    };
+  }, [previewUrl]);
+
   const setFile = (file: File | null) => {
+    if (file && !["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+      setError("La imagen debe estar en formato JPG, PNG o WEBP.");
+      return;
+    }
+    if (file && file.size > 3 * 1024 * 1024) {
+      setError("La imagen supera el límite de 3 MB.");
+      return;
+    }
+
     setSelectedFile(file);
     setResult(null);
     setError("");
-
-    if (previewUrl) {
-      URL.revokeObjectURL(previewUrl);
-    }
 
     setPreviewUrl(file ? URL.createObjectURL(file) : null);
   };
@@ -76,6 +90,12 @@ export default function ImageSearchClient({ fallbackProduct, onNavigate }: Props
     event.preventDefault();
     setIsDragging(false);
     setFile(event.dataTransfer.files?.[0] ?? null);
+  };
+
+  const clearFile = () => {
+    setFile(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+    if (cameraInputRef.current) cameraInputRef.current.value = "";
   };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -140,6 +160,7 @@ export default function ImageSearchClient({ fallbackProduct, onNavigate }: Props
         }`}
       >
         <input
+          ref={fileInputRef}
           type="file"
           accept="image/jpeg,image/png,image/webp"
           onChange={handleFileChange}
@@ -147,14 +168,27 @@ export default function ImageSearchClient({ fallbackProduct, onNavigate }: Props
         />
 
         {previewUrl ? (
-          <Image
-            src={previewUrl}
-            alt="Imagen seleccionada"
-            width={320}
-            height={220}
-            unoptimized
-            className="max-h-[140px] w-auto max-w-full rounded-[4px] object-contain sm:max-h-[180px]"
-          />
+          <div className="relative">
+            <Image
+              src={previewUrl}
+              alt="Imagen seleccionada"
+              width={320}
+              height={220}
+              unoptimized
+              className="max-h-[140px] w-auto max-w-full rounded-[4px] object-contain sm:max-h-[180px]"
+            />
+            <button
+              type="button"
+              aria-label="Quitar imagen"
+              onClick={(event) => {
+                event.preventDefault();
+                clearFile();
+              }}
+              className="absolute -right-3 -top-3 flex h-8 w-8 items-center justify-center rounded-full bg-[#16384f] text-lg text-white shadow-md"
+            >
+              ×
+            </button>
+          </div>
         ) : (
           <div className="flex h-28 w-36 items-center justify-center rounded-[6px] border border-[#c8d8ef] bg-white text-[#2877cf]">
             <svg
@@ -215,52 +249,75 @@ export default function ImageSearchClient({ fallbackProduct, onNavigate }: Props
       ) : null}
 
       {result ? (
-        <div className="mt-5 rounded-[6px] border border-black/10 bg-white p-4 shadow-[0_12px_26px_rgba(15,23,42,0.08)]">
-          <div className="flex gap-4">
-            <Image
-              src={displayedProduct.imagen}
-              alt={displayedProduct.nombre}
-              width={96}
-              height={96}
-              className="h-24 w-24 shrink-0 rounded-[4px] object-contain"
-            />
-            <div className="min-w-0 flex-1">
-              <p className="truncate text-xl font-semibold tracking-[-0.03em] text-[#1f2328]">
-                {displayedProduct.nombre}
-              </p>
-              <p className="mt-1 text-xs uppercase tracking-[0.16em] text-[#8b8d91]">
-                {result.categoria}
-              </p>
-              <div className="mt-3 flex flex-wrap gap-2">
-                <span className="rounded-full bg-[#eef6ff] px-3 py-1 text-[11px] font-semibold text-[#16384f]">
-                  Coincidencia {result.confianza}%
-                </span>
-                <span className="rounded-full bg-[#eff8f0] px-3 py-1 text-[11px] font-semibold text-[#2d7b48]">
-                  {displayedProduct.disponibilidad}
-                </span>
-              </div>
-              <p className="mt-3 line-clamp-2 text-sm leading-6 text-[#6d737a]">
-                {result.razon}
-              </p>
-            </div>
+        <div className="mt-5 space-y-3">
+          <div className="rounded-[6px] bg-[#eef6ff] px-4 py-3">
+            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#2877cf]">
+              Identificamos: {result.analysis.tipo}
+            </p>
+            <p className="mt-1 text-sm text-[#52616d]">{result.analysis.descripcion}</p>
           </div>
+          {result.matches.map((match, index) => {
+            const product = match.product ?? fallbackProduct;
+            const categoryUrl =
+              match.categoriaUrl ||
+              `/categorias?categoria=${slugCategoria(product.categoria)}`;
 
-          <div className="mt-4 flex flex-wrap gap-3">
-            <Link
-              href={`/producto/${displayedProduct.slug}`}
-              onClick={onNavigate}
-              className="rounded-full bg-[#16384f] px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#0f2a3b]"
-            >
-              Ver producto
-            </Link>
-            <Link
-              href={categoryUrl}
-              onClick={onNavigate}
-              className="rounded-full border border-black/10 px-5 py-3 text-sm font-semibold text-[#16384f] transition-colors hover:bg-[#16384f] hover:text-white"
-            >
-              Ver categoría
-            </Link>
-          </div>
+            return (
+              <div
+                key={product.slug}
+                className="rounded-[6px] border border-black/10 bg-white p-4 shadow-[0_12px_26px_rgba(15,23,42,0.08)]"
+              >
+                <div className="flex gap-4">
+                  <Image
+                    src={product.imagen}
+                    alt={product.nombre}
+                    width={96}
+                    height={96}
+                    className="h-24 w-24 shrink-0 rounded-[4px] object-contain"
+                  />
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#ed8435]">
+                      {index === 0 ? "Mejor coincidencia" : `Opción ${index + 1}`}
+                    </p>
+                    <p className="mt-1 text-lg font-semibold tracking-[-0.03em] text-[#1f2328]">
+                      {product.nombre}
+                    </p>
+                    <p className="mt-1 text-xs uppercase tracking-[0.12em] text-[#8b8d91]">
+                      {match.categoria}
+                    </p>
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      <span className="rounded-full bg-[#eef6ff] px-3 py-1 text-[11px] font-semibold text-[#16384f]">
+                        Coincidencia {match.confianza}%
+                      </span>
+                      <span className="rounded-full bg-[#eff8f0] px-3 py-1 text-[11px] font-semibold text-[#2d7b48]">
+                        {product.disponibilidad}
+                      </span>
+                    </div>
+                    <p className="mt-2 text-sm leading-5 text-[#6d737a]">{match.razon}</p>
+                  </div>
+                </div>
+                <div className="mt-4 flex flex-wrap gap-3">
+                  <Link
+                    href={`/producto/${product.slug}`}
+                    onClick={onNavigate}
+                    className="rounded-full bg-[#16384f] px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#0f2a3b]"
+                  >
+                    Ver producto
+                  </Link>
+                  <Link
+                    href={categoryUrl}
+                    onClick={onNavigate}
+                    className="rounded-full border border-black/10 px-5 py-2.5 text-sm font-semibold text-[#16384f] transition-colors hover:bg-[#16384f] hover:text-white"
+                  >
+                    Ver categoría
+                  </Link>
+                </div>
+              </div>
+            );
+          })}
+          <p className="text-center text-xs text-[#7b828a]">
+            Se revisaron {result.catalogCount} productos del catálogo.
+          </p>
         </div>
       ) : null}
     </form>
